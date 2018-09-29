@@ -1,28 +1,28 @@
 <template>
 <div id="less" :class=warnLevel>
     <h2>Bei welchen Fragen wurden oft wenige Punkte erreicht?</h2>
-    <div v-if="questionSuccess.length == 0">
-        <p>Es wurden bei allen Aufgaben im Mittel mindestens {{ tp }} erreicht.
-        </p>
-    </div>
-    <div v-if="questionSuccess.length == 1">
-        <p>Bei der Aufgabe
-            <ul>
-                <li>{{questionSuccess[0]}}</li>
-            </ul>
-            wurden im Mittel weniger als {{ tp }} erreicht.
-        </p>
-    </div>
-    <div v-if="questionSuccess.length > 1">
-        <p>Bei jeder der Aufgaben
-            <ul>
-                <li>{{questionSuccess[0]}}</li>
-            </ul>
-            wurden im Mittel weniger als {{ tp }} erreicht.
-        </p>
-    </div>
     <div v-if = 'Score.length != 0'>
-        <b>Hinweis:</b> {{ hint }}
+        <div v-if="questionSuccess.length == 0">
+            <p>Es wurden bei allen Aufgaben im Mittel mindestens {{ tp }} erreicht.
+            </p>
+        </div>
+        <div v-if="questionSuccess.length == 1">
+            <p>Bei der Aufgabe
+                <ul>
+                    <li>{{questionSuccess[0]}}</li>
+                </ul>
+                wurden im Mittel weniger als {{ tp }} erreicht.
+            </p>
+        </div>
+        <div v-if="questionSuccess.length > 1">
+            <p>Bei jeder der Aufgaben
+                <ul>
+                    <li>{{questionSuccess[0]}}</li>
+                </ul>
+                wurden im Mittel weniger als {{ tp }} erreicht.
+            </p>
+        </div>
+            <b>Hinweis:</b> {{ hint }}
     </div>
 </div>
 </template>

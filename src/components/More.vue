@@ -1,27 +1,27 @@
 <template>
 <div id="more" :class=warnLevel>
-    <h2>Bei welchen Fragen wurden oft viele Punkte erreicht?</h2>
-    <div v-if="questionSuccess.length == 0">
-        <p>Bei allen Aufgaben wurden im Mittel höchstens {{tp}} erreicht.
-        </p>
-    </div>
-    <div v-if="questionSuccess.length == 1">
-        <p>Bei der Aufgabe
-            <ul>
-                <li>{{questionSuccess[0]}}</li>
-            </ul>
-            wurden im Mittel mehr als {{ tp }} erreicht.
-        </p>
-    </div>
-    <div v-if="questionSuccess.length > 1">
-        <p>Bei den Aufgaben
-            <ul>
-                <li>{{questionSuccess[0]}}</li>
-            </ul>
-            wurden im Mittel mehr als {{ tp }} erreicht.
-        </p>
-    </div>
+    <h2>Bei welchen Fragen wurden oft viele Punkte erreicht?</h2>   
     <div v-if = 'Score.length != 0'>
+        <div v-if="questionSuccess.length == 0">
+            <p>Bei allen Aufgaben wurden im Mittel höchstens {{tp}} erreicht.
+            </p>
+        </div>
+        <div v-if="questionSuccess.length == 1">
+            <p>Bei der Aufgabe
+                <ul>
+                    <li>{{questionSuccess[0]}}</li>
+                </ul>
+                wurden im Mittel mehr als {{ tp }} erreicht.
+            </p>
+        </div>
+        <div v-if="questionSuccess.length > 1">
+            <p>Bei den Aufgaben
+                <ul>
+                    <li>{{questionSuccess[0]}}</li>
+                </ul>
+                wurden im Mittel mehr als {{ tp }} erreicht.
+            </p>
+        </div>
         <b>Hinweis:</b> {{ hint }}
     </div>
 </div>
