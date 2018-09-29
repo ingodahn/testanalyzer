@@ -1,7 +1,7 @@
 <template>
 <div>
   <p>Exportieren Sie Ihre Testdaten aus ILIAS als .csv-Datei und laden Sie sie dann in diese Webseite.</p>
-  <p>Falls Ihre Daten als Excel-Tabelle vorliegen, so speichern Sie sie in Ihrer Tabellenkalkulation als .csv-Datei als "CSV UTF-8 (Durch Trennzeichen getrennt)". 
+  <p>Falls Ihre Daten als Excel-Tabelle vorliegen, so speichern Sie sie in Ihrer Tabellenkalkulation als .csv-Datei als "CSV UTF-8 (Durch Trennzeichen ';' getrennt)". 
     <p>
     <input type='file' accept='.csv' autocomplete="on" @change='openFile'>
     </p>
