@@ -2,28 +2,25 @@
   <div id="Test" >
     <div id="container">
     <div id="head">
-      <h1>Analyse eines 
-        <select v-model="system">
-          <option>IMathAS</option>
-          <option>Ilias</option>
-        </select>
-        -Tests
-      </h1>
+      <h1>Test-Analyse</h1>
+       <p>Diese Webseite kann die Ergebnisse Ihrer Tests analysieren. Sie kann Ihnen dabei helfen, die Qualität Ihrer Testfragen einzuschätzen. </p>
+       <p>Die Qualität einer Testfrage ist auch abhängig von der Zielstellung des jeweiligen Tests. So wird man bei einem Test zur Motivierung der Studierenden oder bei einem Test zum Üben eine höhere Erfolgsquote erwarten, als bei einem Diagnose-Test, der die Grenzen von Wissen, Können und Kompetenzen der Studierenden ausloten soll.</p>
+       <p> <b>Datenschutzhinweis:</b> Diese Webseite überträgt nach ihrem Aufruf keine Daten an andere Systeme. Alle Berechnungen erfolgen ausschließlich in Ihrem Browser.</p>
+       <p> <b>Bitte bachten Sie:</b> Diese Software hat experimentellen Charakter. Es wird keinerlei Garantie übernommen. Hinweise auf Probleme und Wünsche zur Verbesserung der Seite sind jedoch <a href="mailto:dahn@dahn-research.eu">ausdrücklich erwünscht</a>.</p>
+      
+      <h2>Bitte wählen Sie Ihr System</h2>
+        <input type="radio" id="imathas" v-model="system" value="IMathAS">
+        <label for="IMathAS">IMathAS</label>
+        <input type="radio" id="ilias" v-model="system" value="Ilias">
+        <label for="Ilias">Ilias</label>
+        
     </div>
     <div id="intro">
-      <p>Diese Webseite kann die Ergebnisse Ihrer IMathAS-Tests analysieren. Sie kann Ihnen dabei helfen, die Qualität Ihrer Testfragen einzuschätzen. </p>
-
-      <p>Die Qualität einer Testfrage ist auch abhängig von der Zielstellung des jeweiligen Tests. So wird man bei einem Test zur Motivierung der Studierenden oder bei einem Test zum Üben eine höhere Erfolgsquote erwarten, als bei einem Diagnose-Test, der die Grenzen von Wissen, Können und Kompetenzen der Studierenden ausloten soll.</p>
-
-      <p>IMathAS bietet Ihnen in seinem Gradebook umfangreiche Informationen zur Analyse der Ergebnisse jedes/jeder Studierenden an. Neben den Antworten und den erreichten Punktzahlen (ggf. noch gruppiert nach Lernzielen) finden Sie dort auch die von den Studierenden für die Antwort benötigte Zeit. Sie erreichen das Gradebook in IMathAS wenn Sie auf das Zahnrad neben dem Test klicken und dann <i>Noten</i> auswählen. Auf der dann erscheinenden Seite gibt es unten den Link <i>Export Student Answer Details</i>. Klicken Sie darauf und nehmen Sie die Einstellungen genau so vor, wie auf diesem Bild gezeigt.</p>
-      <img class="center" src="../assets/csvEinstellung.png"/>
-      <p>Die so erstellte csv-Datei laden Sie dann in diese Webseite.</p>
-
-      <p> <b>Datenschutzhinweis:</b> Diese Webseite überträgt nach ihrem Aufruf keine Daten an andere Systeme. Alle Berechnungen erfolgen ausschließlich in Ihrem Browser.</p>
-
-      <p> <b>Bitte bachten Sie:</b> Diese Software hat experimentellen Charakter. Es wird keinerlei Garantie übernommen. Hinweise auf Probleme und Wünsche zur Verbesserung der Seite sind jedoch <a href="mailto:dahn@dahn-research.eu">ausdrücklich erwünscht</a>.</p>
+      <TestReaderIMathAS v-if="system == 'IMathAS'" v-on:testRead="testread"></TestReaderIMathAS>
+      <TestReaderIlias v-if="system == 'Ilias'" v-on:testRead="testread"></TestReaderIlias>
+      
     </div>
-    <TestReader v-on:testRead="testread"></TestReader>
+    
     <div v-if='questionsNr != 0'>
       <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor.</p>
       <p v-if='2*questionsNr >= studentsNr'><b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b></p>
@@ -49,7 +46,8 @@
 
 <script>
 import SetType from "./SetType.vue";
-import TestReader from "./TestReader.vue";
+import TestReaderIMathAS from "./IMathAS/TestReader.vue";
+import TestReaderIlias from "./Ilias/TestReader.vue";
 import Less from "./Less.vue";
 import More from "./More.vue";
 import Attempts from "./Attempts.vue";
@@ -69,7 +67,8 @@ export default {
   },
   components: {
     SetType,
-    TestReader,
+    TestReaderIMathAS,
+    TestReaderIlias,
     Less,
     More,
     Attempts,
@@ -139,11 +138,6 @@ export default {
 </script>
 
 <style scoped>
-.center {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
 .footer {
    position: fixed;
    left: 0;

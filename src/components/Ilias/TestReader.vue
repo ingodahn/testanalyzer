@@ -1,5 +1,7 @@
 <template>
 <div>
+  <p>Exportieren Sie Ihre Testdaten aus ILIAS als .csv-Datei und laden Sie sie dann in diese Webseite.</p>
+  <p>Falls Ihre Daten als Excel-Tabelle vorliegen, so speichern Sie sie in Ihrer Tabellenkalkulation als .csv-Datei als "CSV UTF-8 (Durch Trennzeichen getrennt)". 
     <p>
     <input type='file' accept='.csv' autocomplete="on" @change='openFile'>
     </p>
@@ -49,32 +51,36 @@ function table2Test(table) {
   node.innerText = table;
   */
   var lines = table.split("\n");
-  var headings = lines[0].split(",");
-  var questionsNr = (headings.length - 2) / 2;
+  var headings = lines[0].split(";");
+  var questionsNr = (headings.length - 19);
   Test.questionsNr = questionsNr;
-  var points = lines[1].split(",");
-  var regex = /Points \((\d+) possible\)/;
   for (var q = 0; q < questionsNr; q++) {
-    var qn = q + 1;
-    var qq = new Question("Frage " + qn);
-    var ms = regex.exec(points[2 + 2 * q])[1];
-    qq.maxScore = parseInt(ms);
+    var qq = new Question(headings[19+q]);
+    qq.maxScore = 0;
     Test.questions[q] = qq;
   }
-  Test.studentsNr = lines.length-3;
-  for (var i = 2; i < lines.length - 1; i++) {
+  Test.studentsNr = lines.length-1;
+
+  for (var i = 1; i < lines.length - 1; i++) {
     var line = lines[i];
-    var lineArray = line.split(",");
-    var family=lineArray[0];
-    var given=lineArray[1];
-    family=family.substr(1,family.length);
-    given=given.substr(0,given.length-1);
-    Test.studentNames.push(family+','+given);
+    var lineArray = line.split(";");
+    Test.studentNames.push(lineArray[0]);
     for (var q1 = 0; q1 < questionsNr; q1++) {
-      Test.questions[q1].scores.push(Number(lineArray[3 + 2 * q1])),
-      Test.questions[q1].answers.push(lineArray[4 + 2 * q1]);
+      var score=lineArray[19+q1];
+      if ( score != '') {
+        var scoreVal=Number(score);
+        Test.questions[q1].scores.push(scoreVal);
+        if (Test.questions[q1].maxScore < scoreVal) {
+          Test.questions[q1].maxScore=scoreVal;
+        }
+      } else {
+	    Test.questions[q1].scores.push(0);
+      }
+	  Test.questions[q1].answers.push[score];
     }
   }
+  //eslint-disable-next-line
+  console.log(Test.questions[0].maxScore);
   return Test;
 }
 var upload = function(event) {
@@ -106,3 +112,12 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+</style>
+
