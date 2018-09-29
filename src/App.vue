@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-   <h1>IMathAS Test Analyzer</h1>
   <Test></Test>
   </div>
 </template>
