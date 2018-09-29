@@ -1,0 +1,42 @@
+<template>
+    <div id="maxScores">
+        <h2>Maximal erreichbare Punkte</h2>
+        <p>
+            Prüfen Sie, ob die maximal erreichbaren Punkte für alle Aufgaben richtig ermittelt wurden und korrigieren Sie ggf. die Werte.
+        </p>
+        <table id="maxScoreList">
+            <tr><th>Frage</th><th class="scoreCol">Maximale Punktzahl</th></tr>
+            <tr v-for="(question, index) in Questions" :key=index>
+                <td>{{question.name}}</td>
+                <td class="scoreCol"> <input type="number" min="0" v-model="question.maxScore"></td>
+            </tr>
+        </table>
+    </div>
+</template>
+
+<script>
+export default {
+    name: "EditMaxScores",
+    data () {
+        return {};
+    },
+    props: ["Questions"]
+}
+</script>
+
+<style scoped>
+table {
+    margin-left: auto;
+    margin-right: auto;
+}
+.scoreCol {
+    text-align: center;
+}
+th, td {
+    border-bottom: 1px solid #ddd;
+}
+input[type="number"] {
+   width:50px;
+}
+</style>
+

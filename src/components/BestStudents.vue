@@ -25,19 +25,13 @@ function studentScore(s) {
 export default {
   name: "BestStudents",
   data() {
-    return {};
+    return {
+    };
   },
   props: ["Students", "Questions"],
   computed: {
     msgArr: function() {
-      var threshold = 0.2;
-      var ss = this.Students;
-      var scored = ss.map(studentScore);
-      var scoredSorted = scored.sort(function(a, b) {
-        return b.totalScore - a.totalScore;
-      });
-      var bestLength = Math.floor(scoredSorted.length * threshold) + 1;
-      var best = scoredSorted.slice(0, bestLength);
+      var best = this.scoredSorted.slice(0, this.bestLength);
       var msgArr = [];
       for (var q = 0; q < this.Questions.length; q++) {
         var qq = this.Questions[q];
@@ -58,8 +52,8 @@ export default {
       return msgArr;
     },
     msg: function() {
-      var threshold = 0.2;
-      var tp = threshold * 100 + "% der Studierenden";
+      // var threshold = 0.2;
+      var tp = this.bestLength + " Studierenden";
 
       if (this.Students.length == 0) {
         return "";
@@ -72,8 +66,6 @@ export default {
         tp +
         " nicht die volle Punktzahl."
       );
-      // eslint-disable-next-line
-      console.log(msgArr);
     },
     warnLevel: function() {
       switch (this.msgArr.length) {
@@ -87,10 +79,24 @@ export default {
     },
     hint: function() {
       if (this.warnLevel == "warn_1") {
-        return "Wenn selbst die besten Studierenden eine Frage nicht richtig beantworten können, so deutet dies darauf hin, dass die Frage unklar formuliert ist oder dass benötigtes Vorwissen nicht bekannt ist.";
+        return "Wenn selbst die besten Studierenden eine Frage nicht richtig beantworten können, so deutet dies darauf hin, dass die Frage unklar formuliert ist oder dass benötigtes Vorwissen nicht bekannt ist. Eine genauere Prüfung der Antworten der genannten Studierenden könnte genauere Hinweise liefern.";
       } else {
         return "Wie erwartet haben die besten Studierenden alle Fragen richtig beantwortet.";
       }
+    },
+    scoredSorted: function() {
+      var ss = this.Students;
+      var scored = ss.map(studentScore);
+      var scoredSorted = scored.sort(function(a, b) {
+        return b.totalScore - a.totalScore;
+      });
+      return scoredSorted;
+    },
+    bestLength: function() {
+      var threshold = 0.2;
+      var bestLength= Math.floor(this.scoredSorted.length * threshold) + 1;
+      if (bestLength > 10) {bestLength = 10;}
+      return bestLength;
     }
   }
 };

@@ -1,7 +1,26 @@
 <template>
 <div id="more" :class=warnLevel>
     <h2>Bei welchen Fragen wurden oft viele Punkte erreicht?</h2>
-    <p>{{ moremsg }}</p>
+    <div v-if="questionSuccess.length == 0">
+        <p>Bei allen Aufgaben wurden im Mittel höchstens {{tp}} erreicht.
+        </p>
+    </div>
+    <div v-if="questionSuccess.length == 1">
+        <p>Bei der Aufgabe
+            <ul>
+                <li>{{questionSuccess[0]}}</li>
+            </ul>
+            wurden im Mittel mehr als {{ tp }} erreicht.
+        </p>
+    </div>
+    <div v-if="questionSuccess.length > 1">
+        <p>Bei den Aufgaben
+            <ul>
+                <li>{{questionSuccess[0]}}</li>
+            </ul>
+            wurden im Mittel mehr als {{ tp }} erreicht.
+        </p>
+    </div>
     <div v-if = 'Score.length != 0'>
         <b>Hinweis:</b> {{ hint }}
     </div>
@@ -22,6 +41,11 @@ function avg(q) {
 }
 export default {
     name: "more",
+    data() {
+        return {
+            threshold: 0.8
+        }
+    },
     props: ["Score"],
     computed:  {
         questionSuccess: function () {
@@ -35,29 +59,6 @@ export default {
                 }
             }
             return qs;            
-        },
-        moremsg: function () {
-            var threshold=0.8;
-            var msg='';
-            var questions=this.Score;
-            var questionsNr=questions.length;
-            if (questionsNr == 0) {
-                return msg;
-            }
-            var qs=this.questionSuccess;
-            var tp=threshold*100+"% der Punkte";
-            switch(qs.length) {
-                case 0: {
-                    return "Bei allen Aufgaben wurden im Mittel höchstens "+tp+" erreicht.";
-                }
-                case 1: {
-                    return "Bei Aufgabe "+qs[0]+" wurden im Mittel mehr als "+tp+" erreicht.";
-                }
-                default: {
-                    return "Bei jeder der Aufgaben "+qs.join()+" wurden im Mittel mehr als "+tp+" erreicht.";
-                }
-            }
-            
         },
         warnLevel: function () {
             switch(this.questionSuccess.length) {
@@ -80,6 +81,9 @@ export default {
                 return 'So sollte es sein. Ihre Aufgaben sind nicht zu leicht.';
             }
             
+        },
+        tp: function () {
+            return this.threshold*100+"% der Punkte";
         }
     }
 }

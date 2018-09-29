@@ -59,7 +59,7 @@ function table2Test(table) {
     qq.maxScore = 0;
     Test.questions[q] = qq;
   }
-  Test.studentsNr = lines.length-1;
+  Test.studentsNr = lines.length-2;
 
   for (var i = 1; i < lines.length - 1; i++) {
     var line = lines[i];
@@ -74,9 +74,9 @@ function table2Test(table) {
           Test.questions[q1].maxScore=scoreVal;
         }
       } else {
-	    Test.questions[q1].scores.push(0);
+        Test.questions[q1].scores.push(0);
       }
-	  Test.questions[q1].answers.push[score];
+      Test.questions[q1].answers.push[score];
     }
   }
   //eslint-disable-next-line

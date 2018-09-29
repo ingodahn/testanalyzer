@@ -24,6 +24,7 @@
     <div v-if='questionsNr != 0'>
       <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor.</p>
       <p v-if='2*questionsNr >= studentsNr'><b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b></p>
+      <EditMaxScores v-if="system == 'Ilias'" :Questions=questions></EditMaxScores>
     </div>
     
     <SetType :testtype=type v-on:typeselected ="settype"></SetType>
@@ -52,6 +53,7 @@ import Less from "./Less.vue";
 import More from "./More.vue";
 import Attempts from "./Attempts.vue";
 import BestStudents from "./BestStudents.vue";
+import EditMaxScores from "./EditMaxScores.vue";
 
 export default {
   name: "Test",
@@ -72,7 +74,8 @@ export default {
     Less,
     More,
     Attempts,
-    BestStudents
+    BestStudents,
+    EditMaxScores
   },
   methods: {
     settype: function(typeval) {
