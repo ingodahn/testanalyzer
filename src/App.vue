@@ -6,6 +6,8 @@
 
 <script>
 import Test from './components/Test.vue'
+// import Chart from "chart.js";
+// Object.defineProperty(Vue.prototype, '$Chart', { value: Chart });
 
 export default {
   name: 'app',

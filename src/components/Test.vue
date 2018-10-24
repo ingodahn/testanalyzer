@@ -21,7 +21,8 @@
       <TestReaderIlias v-if="system == 'Ilias'" v-on:testRead="testread"></TestReaderIlias>
       
     </div>
-    
+    <Diagram></Diagram>
+
     <div v-if='questionsNr != 0'>
       <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor.</p>
       <p v-if='2*questionsNr >= studentsNr'><b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b></p>
@@ -55,6 +56,7 @@ import More from "./More.vue";
 import Attempts from "./Attempts.vue";
 import BestStudents from "./BestStudents.vue";
 import EditMaxScores from "./EditMaxScores.vue";
+import Diagram from "./Graphics/Diagram.vue";
 
 export default {
   name: "Test",
@@ -76,7 +78,8 @@ export default {
     More,
     Attempts,
     BestStudents,
-    EditMaxScores
+    EditMaxScores,
+    Diagram
   },
   methods: {
     settype: function(typeval) {
