@@ -16,10 +16,7 @@
         
     </div>
     <h2>Laden Sie Ihre Testdaten hoch</h2>
-    <!--
-    <vue-csv-import :map-fields="['Name','Section','Question 1','Result 1','Question 2','Result 2','Question 3','Result 3','Question 4','Result 4','Question 5','Result 5','Question 6','Result 6','Question 7','Result 7','Question 8','Result 8','Question 9','Question 9','Question 10','Question 10']"></vue-csv-import>
-    -->
-    <vue-csv-import url="/hello" :map-fields="['date', 'name']"></vue-csv-import>
+
     <div id="intro">
       <TestReaderIMathAS v-if="system == 'IMathAS'" v-on:testRead="testread"></TestReaderIMathAS>
       <TestReaderIlias v-if="system == 'Ilias'" v-on:testRead="testread"></TestReaderIlias>
@@ -40,9 +37,7 @@
     <Attempts :Questions=questions></Attempts>
     
     <BestStudents :Students=students :ScoredSorted=scoredSorted :Questions=questions></BestStudents>
-    <!--
-    <div id="output"/>
-    -->
+
     <div class="push"></div>
     </div>
     <div class="footer">
@@ -61,7 +56,7 @@ import Attempts from "./Attempts.vue";
 import BestStudents from "./BestStudents.vue";
 import EditMaxScores from "./EditMaxScores.vue";
 import Diagram from "./Graphics/Diagram.vue";
-import { VueCsvImport } from 'vue-csv-import';
+
 
 
 export default {
@@ -85,8 +80,7 @@ export default {
     Attempts,
     BestStudents,
     EditMaxScores,
-    Diagram,
-    VueCsvImport 
+    Diagram
   },
   methods: {
     settype: function(typeval) {
@@ -158,10 +152,6 @@ export default {
   }
 };
 function studentScore(s) {
-  if (s.name == "Name4, Vorname4") {
-//eslint-disable-next-line
-console.log(s.scores);
-  }
   // Calculates score for student s
   var sc = 0;
   for (var qn in s.scores) {
