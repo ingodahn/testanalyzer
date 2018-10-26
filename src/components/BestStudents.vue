@@ -14,6 +14,7 @@
 </template>
 
 <script>
+/*
 function studentScore(s) {
   var sc = 0;
   for (var qn in s.scores) {
@@ -22,16 +23,17 @@ function studentScore(s) {
   s.totalScore = sc;
   return s;
 }
+*/
 export default {
   name: "BestStudents",
   data() {
     return {
     };
   },
-  props: ["Students", "Questions"],
+  props: ["Students", "ScoredSorted","Questions"],
   computed: {
     msgArr: function() {
-      var best = this.scoredSorted.slice(0, this.bestLength);
+      var best = this.ScoredSorted.slice(0, this.bestLength);
       var msgArr = [];
       for (var q = 0; q < this.Questions.length; q++) {
         var qq = this.Questions[q];
@@ -84,6 +86,7 @@ export default {
         return "Wie erwartet haben die besten Studierenden alle Fragen richtig beantwortet.";
       }
     },
+    /*
     scoredSorted: function() {
       var ss = this.Students;
       var scored = ss.map(studentScore);
@@ -92,9 +95,10 @@ export default {
       });
       return scoredSorted;
     },
+    */
     bestLength: function() {
       var threshold = 0.2;
-      var bestLength= Math.floor(this.scoredSorted.length * threshold) + 1;
+      var bestLength= Math.floor(this.ScoredSorted.length * threshold) + 1;
       if (bestLength > 10) {bestLength = 10;}
       return bestLength;
     }

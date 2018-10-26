@@ -16,12 +16,16 @@
         
     </div>
     <h2>Laden Sie Ihre Testdaten hoch</h2>
+    <!--
+    <vue-csv-import :map-fields="['Name','Section','Question 1','Result 1','Question 2','Result 2','Question 3','Result 3','Question 4','Result 4','Question 5','Result 5','Question 6','Result 6','Question 7','Result 7','Question 8','Result 8','Question 9','Question 9','Question 10','Question 10']"></vue-csv-import>
+    -->
+    <vue-csv-import url="/hello" :map-fields="['date', 'name']"></vue-csv-import>
     <div id="intro">
       <TestReaderIMathAS v-if="system == 'IMathAS'" v-on:testRead="testread"></TestReaderIMathAS>
       <TestReaderIlias v-if="system == 'Ilias'" v-on:testRead="testread"></TestReaderIlias>
       
     </div>
-    <Diagram></Diagram>
+    <Diagram :ScoredSorted=scoredSorted></Diagram>
 
     <div v-if='questionsNr != 0'>
       <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor.</p>
@@ -35,7 +39,7 @@
     <More :Score=score></More>
     <Attempts :Questions=questions></Attempts>
     
-    <BestStudents :Students=students :Questions=questions></BestStudents>
+    <BestStudents :Students=students :ScoredSorted=scoredSorted :Questions=questions></BestStudents>
     <!--
     <div id="output"/>
     -->
@@ -57,6 +61,8 @@ import Attempts from "./Attempts.vue";
 import BestStudents from "./BestStudents.vue";
 import EditMaxScores from "./EditMaxScores.vue";
 import Diagram from "./Graphics/Diagram.vue";
+import { VueCsvImport } from 'vue-csv-import';
+
 
 export default {
   name: "Test",
@@ -79,7 +85,8 @@ export default {
     Attempts,
     BestStudents,
     EditMaxScores,
-    Diagram
+    Diagram,
+    VueCsvImport 
   },
   methods: {
     settype: function(typeval) {
@@ -133,6 +140,14 @@ export default {
 
       return students;
     },
+    scoredSorted: function() {
+      var ss = this.students;
+      var scored = ss.map(studentScore);
+      var scoredSorted = scored.sort(function(a, b) {
+        return b.totalScore - a.totalScore;
+      });
+      return scoredSorted;
+    },
     questionNames: function() {
       var questionNames = [];
       for (var i = 0; i < this.questionsNr; i++) {
@@ -142,6 +157,19 @@ export default {
     }
   }
 };
+function studentScore(s) {
+  if (s.name == "Name4, Vorname4") {
+//eslint-disable-next-line
+console.log(s.scores);
+  }
+  // Calculates score for student s
+  var sc = 0;
+  for (var qn in s.scores) {
+    sc += s.scores[qn];
+  }
+  s.totalScore = sc;
+  return s;
+}
 </script>
 
 <style scoped>
