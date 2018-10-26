@@ -35,9 +35,6 @@
     <Attempts :Questions=questions></Attempts>
     
     <BestStudents :Students=students :Questions=questions></BestStudents>
-    <!--
-    <div id="output"/>
-    -->
     <div class="push"></div>
     </div>
     <div class="footer">
