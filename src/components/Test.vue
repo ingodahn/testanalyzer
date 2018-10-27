@@ -23,7 +23,7 @@
     </div>
     
     <div v-if='questionsNr != 0'>
-      <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor.</p>
+      <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor. Maximal können {{ totalScore }} Pukte erreicht werden.</p>
       <p v-if='2*questionsNr >= studentsNr'><b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b></p>
       <EditMaxScores v-if="system == 'Ilias'" :Questions=questions></EditMaxScores>
     </div>
@@ -108,6 +108,17 @@ export default {
         });
       }
       return scores;
+    },
+    totalScore: function() {
+      var tScore=0;
+      for (var i=0;i < this.questionsNr; i++) {
+        tScore += Number(this.questions[i].maxScore);
+        //eslint-disable-next-line
+        console.log(tScore);
+      }
+      //eslint-disable-next-line
+      console.log(tScore);
+      return tScore;
     },
     students: function() {
       var students = [];
