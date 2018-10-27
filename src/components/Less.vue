@@ -17,7 +17,7 @@
         <div v-if="questionSuccess.length > 1">
             <p>Bei jeder der Aufgaben
                 <ul>
-                    <li>{{questionSuccess[0]}}</li>
+                    <li v-for='item in questionSuccess' :key = item>{{ item }}</li>
                 </ul>
                 wurden im Mittel weniger als {{ tp }} erreicht.
             </p>
@@ -29,7 +29,7 @@
 
 <script>
 function avg(q) {
-    var maxScore=q.maxScore;
+    var maxScore=Number(q.maxScore);
     var avgScore=0;
     var scores=q.scores;
     var len=scores.length;

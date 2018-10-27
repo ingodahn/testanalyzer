@@ -9,13 +9,14 @@
        <p> <b>Bitte bachten Sie:</b> Diese Software hat experimentellen Charakter. Es wird keinerlei Garantie übernommen. Hinweise auf Probleme und Wünsche zur Verbesserung der Seite sind jedoch <a href="mailto:dahn@dahn-research.eu">ausdrücklich erwünscht</a>.</p>
       
       <h2>Bitte wählen Sie Ihr System</h2>
-        <input type="radio" id="imathas" v-model="system" value="IMathAS">
+        <input type="radio" id="imathas" v-model="system" value="IMathAS" v-on:click="reset">
         <label for="IMathAS">IMathAS</label>
-        <input type="radio" id="ilias" v-model="system" value="Ilias">
+        <input type="radio" id="ilias" v-model="system" value="Ilias" v-on:click="reset"> 
         <label for="Ilias">Ilias</label>
         
     </div>
     <h2>Laden Sie Ihre Testdaten hoch</h2>
+
     <div id="intro">
       <TestReaderIMathAS v-if="system == 'IMathAS'" v-on:testRead="testread"></TestReaderIMathAS>
       <TestReaderIlias v-if="system == 'Ilias'" v-on:testRead="testread"></TestReaderIlias>
@@ -29,12 +30,14 @@
     </div>
     
     <SetType :testtype=type v-on:typeselected ="settype"></SetType>
-    
+
+    <Diagram :ScoredSorted=scoredSorted :TotalScore=totalScore :Charts="['scoreDistribution']"></Diagram>
     <Less :Score=score></Less>
     <More :Score=score></More>
     <Attempts :Questions=questions></Attempts>
     
-    <BestStudents :Students=students :Questions=questions></BestStudents>
+    <BestStudents :Students=students :ScoredSorted=scoredSorted :Questions=questions></BestStudents>
+
     <div class="push"></div>
     </div>
     <div class="footer">
@@ -52,6 +55,9 @@ import More from "./More.vue";
 import Attempts from "./Attempts.vue";
 import BestStudents from "./BestStudents.vue";
 import EditMaxScores from "./EditMaxScores.vue";
+import Diagram from "./Graphics/Diagram.vue";
+
+
 
 export default {
   name: "Test",
@@ -73,11 +79,18 @@ export default {
     More,
     Attempts,
     BestStudents,
-    EditMaxScores
+    EditMaxScores,
+    Diagram
   },
   methods: {
     settype: function(typeval) {
       this.type = typeval;
+    },
+    reset: function() {
+      this.questionsNr=0;
+      this.studentsNr=0;
+      this.questions=[];
+      this.studentNames=[];
     },
     testread: function(test) {
       this.questionsNr = test.questionsNr;
@@ -112,12 +125,9 @@ export default {
     totalScore: function() {
       var tScore=0;
       for (var i=0;i < this.questionsNr; i++) {
+        // maxScore can be string if modified by input
         tScore += Number(this.questions[i].maxScore);
-        //eslint-disable-next-line
-        console.log(tScore);
       }
-      //eslint-disable-next-line
-      console.log(tScore);
       return tScore;
     },
     students: function() {
@@ -138,6 +148,14 @@ export default {
 
       return students;
     },
+    scoredSorted: function() {
+      var ss = this.students;
+      var scored = ss.map(studentScore);
+      var scoredSorted = scored.sort(function(a, b) {
+        return a.totalScore - b.totalScore;
+      });
+      return scoredSorted;
+    },
     questionNames: function() {
       var questionNames = [];
       for (var i = 0; i < this.questionsNr; i++) {
@@ -147,6 +165,15 @@ export default {
     }
   }
 };
+function studentScore(s) {
+  // Calculates score for student s
+  var sc = 0;
+  for (var qn in s.scores) {
+    sc += s.scores[qn];
+  }
+  s.totalScore = sc;
+  return s;
+}
 </script>
 
 <style scoped>
