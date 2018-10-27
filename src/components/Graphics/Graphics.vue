@@ -14,10 +14,6 @@
      props: ['Chart'],
      methods: {
          showGraph () {
-// eslint-disable-next-line
-    console.log('Loaded');
-// eslint-disable-next-line
-    console.log(this.Chart);
 
     var ctx = document.getElementById("myChart").getContext('2d');
     new Chart(ctx,this.Chart);

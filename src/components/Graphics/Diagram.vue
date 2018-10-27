@@ -1,9 +1,11 @@
 <template>
     <div id="diagram">
-        <h2>Diagramm</h2>
+        <h2>Punkteverteilung</h2>
+        <!--
         <div id="diagramSettings">
             {{ settings }}
         </div>
+        -->
         <div class="chart-container" style="width:20%">
             <Graphics v-if='ScoredSorted.length > 0' :Chart=studentScores></Graphics>
         </div>
@@ -46,8 +48,6 @@ export default {
             if (this.ScoredSorted.length == 0) {
                 return {};
             }
-// eslint-disable-next-line
-//console.log(this.ScoredSorted);
             var chart={
                 type: 'bar',
                 labels: [],
@@ -58,6 +58,7 @@ export default {
             // Return list of numbers of students in n groups by score
             const n=this.bucketsNr;
             var scoreClasses=Array(n).fill(0);
+            var backgroundColor=Array(n).fill('hsl(198, 65%, 40%)');
             var studentsNr=this.ScoredSorted.length;
             const maxScore=this.TotalScore;
             var i=0;
@@ -76,14 +77,13 @@ export default {
             }
             var chartLabels=[];
             for (var j=0;j<n;j++) {
-// eslint-disable-next-line
-console.log(maxScore);
                 chartLabels[j]=(maxScore*j/n).toString()+" - "+(maxScore*(j+1)/n).toString()
             }
             chart.data.labels=chartLabels;
             var chartData={
                 label: "Punkteverteilung:",
-                data: scoreClasses
+                data: scoreClasses,
+                backgroundColor: backgroundColor
             };
             chart.data.datasets[0]=chartData;
             return chart;

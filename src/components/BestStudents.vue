@@ -14,16 +14,7 @@
 </template>
 
 <script>
-/*
-function studentScore(s) {
-  var sc = 0;
-  for (var qn in s.scores) {
-    sc += s.scores[qn];
-  }
-  s.totalScore = sc;
-  return s;
-}
-*/
+
 export default {
   name: "BestStudents",
   data() {
