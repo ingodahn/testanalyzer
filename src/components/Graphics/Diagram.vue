@@ -1,5 +1,6 @@
 <template>
     <div id="diagram">
+        <h2>Diagramm</h2>
         <div id="diagramSettings">
             {{ settings }}
         </div>
@@ -23,7 +24,7 @@ export default {
             bucketsNr: 5
         }
     },
-    props: ["ScoredSorted", "Charts"],
+    props: ["ScoredSorted", "TotalScore", "Charts"],
     components: {
         Graphics
     },
@@ -58,17 +59,17 @@ export default {
             const n=this.bucketsNr;
             var scoreClasses=Array(n).fill(0);
             var studentsNr=this.ScoredSorted.length;
-            const maxScore=this.ScoredSorted[0].totalScore;
+            const maxScore=this.TotalScore;
             var i=0;
-            var lim=maxScore*(n-1)/n;
+            var lim=maxScore/n;
             for(var s=0; s<studentsNr;s++){
                 var score=this.ScoredSorted[s].totalScore;
-                if (score >= lim) {
+                if (score <= lim) {
                     scoreClasses[i]++
                 } else {
-                    while (score < lim) {
+                    while (score > lim) {
                         i++;
-                        lim=lim-maxScore/n;
+                        lim=lim+maxScore/n;
                     }
                     scoreClasses[i]++;
                 }
@@ -76,8 +77,8 @@ export default {
             var chartLabels=[];
             for (var j=0;j<n;j++) {
 // eslint-disable-next-line
-// console.log(maxScore);
-                chartLabels[j]=(maxScore*(n-j)/n).toString()+" - "+(maxScore*(n-j-1)/n).toString()
+console.log(maxScore);
+                chartLabels[j]=(maxScore*j/n).toString()+" - "+(maxScore*(j+1)/n).toString()
             }
             chart.data.labels=chartLabels;
             var chartData={

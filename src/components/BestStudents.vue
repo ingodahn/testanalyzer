@@ -33,12 +33,14 @@ export default {
   props: ["Students", "ScoredSorted","Questions"],
   computed: {
     msgArr: function() {
-      var best = this.ScoredSorted.slice(0, this.bestLength);
+      var best = this.ScoredSorted;
+      
+      best=best.reverse().slice(0, this.bestLength);
       var msgArr = [];
       for (var q = 0; q < this.Questions.length; q++) {
         var qq = this.Questions[q];
         var qName = qq.name;
-        var qMax = qq.maxScore;
+        var qMax = Number(qq.maxScore);
         var qMsgArr = [];
         for (var s = 0; s < best.length; s++) {
           if (best[s].scores[qName] < qMax) {

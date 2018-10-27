@@ -9,9 +9,9 @@
        <p> <b>Bitte bachten Sie:</b> Diese Software hat experimentellen Charakter. Es wird keinerlei Garantie übernommen. Hinweise auf Probleme und Wünsche zur Verbesserung der Seite sind jedoch <a href="mailto:dahn@dahn-research.eu">ausdrücklich erwünscht</a>.</p>
       
       <h2>Bitte wählen Sie Ihr System</h2>
-        <input type="radio" id="imathas" v-model="system" value="IMathAS">
+        <input type="radio" id="imathas" v-model="system" value="IMathAS" v-on:click="reset">
         <label for="IMathAS">IMathAS</label>
-        <input type="radio" id="ilias" v-model="system" value="Ilias">
+        <input type="radio" id="ilias" v-model="system" value="Ilias" v-on:click="reset"> 
         <label for="Ilias">Ilias</label>
         
     </div>
@@ -22,16 +22,16 @@
       <TestReaderIlias v-if="system == 'Ilias'" v-on:testRead="testread"></TestReaderIlias>
       
     </div>
-    <Diagram :ScoredSorted=scoredSorted :Charts="['scoreDistribution']"></Diagram>
-
+    
     <div v-if='questionsNr != 0'>
-      <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor.</p>
+      <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor. Maximal können {{ totalScore }} Pukte erreicht werden.</p>
       <p v-if='2*questionsNr >= studentsNr'><b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b></p>
       <EditMaxScores v-if="system == 'Ilias'" :Questions=questions></EditMaxScores>
     </div>
     
     <SetType :testtype=type v-on:typeselected ="settype"></SetType>
-    
+
+    <Diagram :ScoredSorted=scoredSorted :TotalScore=totalScore :Charts="['scoreDistribution']"></Diagram>
     <Less :Score=score></Less>
     <More :Score=score></More>
     <Attempts :Questions=questions></Attempts>
@@ -86,6 +86,12 @@ export default {
     settype: function(typeval) {
       this.type = typeval;
     },
+    reset: function() {
+      this.questionsNr=0;
+      this.studentsNr=0;
+      this.questions=[];
+      this.studentNames=[];
+    },
     testread: function(test) {
       this.questionsNr = test.questionsNr;
       this.questions = test.questions;
@@ -116,6 +122,14 @@ export default {
       }
       return scores;
     },
+    totalScore: function() {
+      var tScore=0;
+      for (var i=0;i < this.questionsNr; i++) {
+        // maxScore can be string if modified by input
+        tScore += Number(this.questions[i].maxScore);
+      }
+      return tScore;
+    },
     students: function() {
       var students = [];
       for (var s = 0; s < this.studentsNr; s++) {
@@ -135,12 +149,10 @@ export default {
       return students;
     },
     scoredSorted: function() {
-        //eslint-disable-next-line
-        console.log(this.students);
       var ss = this.students;
       var scored = ss.map(studentScore);
       var scoredSorted = scored.sort(function(a, b) {
-        return b.totalScore - a.totalScore;
+        return a.totalScore - b.totalScore;
       });
       return scoredSorted;
     },

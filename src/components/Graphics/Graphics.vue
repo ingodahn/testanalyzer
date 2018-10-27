@@ -1,7 +1,10 @@
 <template>
 <div>
     <h3>Graphics component</h3>
+    <!--
     <canvas id="myChart" width="400" height="400" v-on:load="showGraph"></canvas>
+    -->
+    <canvas id="myChart" width="400" height="400"></canvas>
 </div>
  </template>
  
