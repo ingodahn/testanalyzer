@@ -46,10 +46,6 @@ function table2Test(table) {
     questions: [],
     studentNames: []
   };
-  /*
-  var node = document.getElementById("output");
-  node.innerText = table;
-  */
   var lines = table.split("\n");
   var headings = lines[0].split(";");
   var questionsNr = (headings.length - 19);
@@ -68,6 +64,7 @@ function table2Test(table) {
     for (var q1 = 0; q1 < questionsNr; q1++) {
       var score=lineArray[19+q1];
       if ( score != '') {
+        score=score.replace(',','.');
         var scoreVal=Number(score);
         Test.questions[q1].scores.push(scoreVal);
         if (Test.questions[q1].maxScore < scoreVal) {
@@ -79,8 +76,6 @@ function table2Test(table) {
       Test.questions[q1].answers.push[score];
     }
   }
-  //eslint-disable-next-line
-  console.log(Test.questions[0].maxScore);
   return Test;
 }
 var upload = function(event) {
