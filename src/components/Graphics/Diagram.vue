@@ -1,9 +1,9 @@
 <template>
     <div id="diagram">
         <div id="diagramSettings">
-            Diagram Settings
+            {{ settings }}
         </div>
-        <div class="chart-container">
+        <div class="chart-container" style="width:20%">
             <Graphics v-if='ScoredSorted.length > 0' :Chart=studentScores></Graphics>
         </div>
     </div>
@@ -15,20 +15,38 @@ export default {
     name: "Diagram",
     data() {
         return {
+            diagrams: {
+                scoreDistribution: {
+                    title: "Punkteverteilung"
+                }
+            },
             bucketsNr: 5
         }
     },
-    props: ["ScoredSorted"],
+    props: ["ScoredSorted", "Charts"],
     components: {
         Graphics
     },
     computed:{
+        settings: function (){
+          switch (this.Charts.length)  {
+              case 0: {
+                  return "Kein Diagramm zum auswählen.";
+              }
+              case 1: {
+                  return this.diagrams[this.Charts[0]].title;
+              }
+              default: {
+                  return "Auswahl nicht definiert"
+              }
+          }
+        },
         studentScores: function() {
             if (this.ScoredSorted.length == 0) {
                 return {};
             }
 // eslint-disable-next-line
-// console.log(this.ScoredSorted);
+//console.log(this.ScoredSorted);
             var chart={
                 type: 'bar',
                 labels: [],

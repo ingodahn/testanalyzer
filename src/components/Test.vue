@@ -22,7 +22,7 @@
       <TestReaderIlias v-if="system == 'Ilias'" v-on:testRead="testread"></TestReaderIlias>
       
     </div>
-    <Diagram :ScoredSorted=scoredSorted></Diagram>
+    <Diagram :ScoredSorted=scoredSorted :Charts="['scoreDistribution']"></Diagram>
 
     <div v-if='questionsNr != 0'>
       <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor.</p>
@@ -135,6 +135,8 @@ export default {
       return students;
     },
     scoredSorted: function() {
+        //eslint-disable-next-line
+        console.log(this.students);
       var ss = this.students;
       var scored = ss.map(studentScore);
       var scoredSorted = scored.sort(function(a, b) {
