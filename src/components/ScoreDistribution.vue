@@ -2,13 +2,8 @@
     <div id="diagram" :class=warnLevel>
         <h2>Punkteverteilung</h2>
         <div v-if='ScoredSorted.length > 0'>
-            <!--
-            <div id="diagramSettings">
-                {{ settings }}
-            </div>
-            -->
             <div class="chart-container" style="width:20%">
-                <Graphics :Chart=studentScores></Graphics>
+                <BarChart :chartData=studentScores></BarChart>
             </div>
             <p><b>Hinweis:</b> {{ hint }}</p>
             <div v-if="hintDetails != ''">
@@ -28,7 +23,8 @@
 </template>
 
 <script>
-import Graphics from "./Graphics/Graphics.vue";
+import BarChart from "./Graphics/BarChart.vue";
+
 export default {
     name: "Diagram",
     data() {
@@ -43,7 +39,7 @@ export default {
     },
     props: ["ScoredSorted", "TotalScore", "Charts","Questions"],
     components: {
-        Graphics
+        BarChart
     },
     computed:{
         settings: function (){
@@ -63,8 +59,6 @@ export default {
             // Return list of numbers of students in n groups by score
             const n=this.bucketsNr;
             var scoreClasses=Array(n).fill(0);
-            //eslint-disable-next-line
-            console.log(this.ScoredSorted);
             var studentsNr=this.ScoredSorted.length;
             const maxScore=this.TotalScore;
             var i=0;
@@ -97,22 +91,19 @@ export default {
                 return {};
             }
             var chart={
-                type: 'bar',
                 labels: [],
-                data: {
-                    datasets:[]
-                }
+                datasets:[]
             };
             const n=this.bucketsNr;
             var backgroundColor=Array(n).fill('hsl(198, 65%, 40%)');
             
-            chart.data.labels=this.chartLabels;
+            chart.labels=this.chartLabels;
             var chartData={
                 label: "Punkteverteilung:",
                 data: this.scoreClasses,
                 backgroundColor: backgroundColor
             };
-            chart.data.datasets[0]=chartData;
+            chart.datasets[0]=chartData;
             return chart;
         },
         warnLevel: function () {
@@ -144,9 +135,6 @@ export default {
                 return '';
             }
             var gap=this.gaps[0];
-            // const n=this.bucketsNr;
-            //eslint-disable-next-line
-            console.log(this.scoreClasses);
             var snr=sum(this.scoreClasses,0,gap);
             const weakStudents=this.ScoredSorted.slice(Math.max(0,snr-10),snr);
             const goodStudents=this.ScoredSorted.slice(snr,Math.min(snr+10,this.ScoredSorted.length));

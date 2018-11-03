@@ -28,7 +28,6 @@
       <p v-if='2*questionsNr >= studentsNr'><b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b></p>
       <EditMaxScores v-if="system == 'Ilias'" :Questions=questions></EditMaxScores>
     </div>
-    
     <SetType :testtype=type v-on:typeselected ="settype"></SetType>
 
     <ScoreDistribution :ScoredSorted=scoredSorted :TotalScore=totalScore :Charts="['scoreDistribution']" :Questions = questions></ScoreDistribution>
@@ -155,8 +154,6 @@ export default {
       var scoredSorted = scored.sort(function(a, b) {
         return a.totalScore - b.totalScore;
       });
-      //eslint-disable-next-line
-      console.log(scoredSorted);
       return scoredSorted;
     },
     questionNames: function() {
