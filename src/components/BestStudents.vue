@@ -24,7 +24,7 @@ export default {
   props: ["Students", "ScoredSorted","Questions"],
   computed: {
     msgArr: function() {
-      var best = this.ScoredSorted;
+      var best = this.ScoredSorted.slice(0);
       
       best=best.reverse().slice(0, this.bestLength);
       var msgArr = [];

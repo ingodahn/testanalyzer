@@ -31,7 +31,7 @@
     
     <SetType :testtype=type v-on:typeselected ="settype"></SetType>
 
-    <Diagram :ScoredSorted=scoredSorted :TotalScore=totalScore :Charts="['scoreDistribution']"></Diagram>
+    <ScoreDistribution :ScoredSorted=scoredSorted :TotalScore=totalScore :Charts="['scoreDistribution']" :Questions = questions></ScoreDistribution>
     <Less :Score=score></Less>
     <More :Score=score></More>
     <Attempts :Questions=questions></Attempts>
@@ -55,7 +55,7 @@ import More from "./More.vue";
 import Attempts from "./Attempts.vue";
 import BestStudents from "./BestStudents.vue";
 import EditMaxScores from "./EditMaxScores.vue";
-import Diagram from "./Graphics/Diagram.vue";
+import ScoreDistribution from "./ScoreDistribution.vue";
 
 
 
@@ -80,7 +80,7 @@ export default {
     Attempts,
     BestStudents,
     EditMaxScores,
-    Diagram
+    ScoreDistribution
   },
   methods: {
     settype: function(typeval) {
@@ -99,6 +99,7 @@ export default {
       this.studentNames = test.studentNames;
     }
   },
+
   computed: {
     score: function() {
       var scores = [];
@@ -154,6 +155,8 @@ export default {
       var scoredSorted = scored.sort(function(a, b) {
         return a.totalScore - b.totalScore;
       });
+      //eslint-disable-next-line
+      console.log(scoredSorted);
       return scoredSorted;
     },
     questionNames: function() {

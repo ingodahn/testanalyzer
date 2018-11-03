@@ -55,7 +55,7 @@ function table2Test(table) {
   var regex = /Points \((\d+) possible\)/;
   for (var q = 0; q < questionsNr; q++) {
     var qn = q + 1;
-    var qq = new Question("Frage " + qn);
+    var qq = new Question("Question " + qn);
     var ms = regex.exec(points[2 + 2 * q])[1];
     qq.maxScore = parseInt(ms);
     Test.questions[q] = qq;
