@@ -39,16 +39,12 @@
     
     <SetType id="testType" :testtype=type v-on:typeselected ="settype"></SetType>
 
-    <ScoreDistribution id="scoreDistribution" :ScoredSorted=scoredSorted :TotalScore=totalScore :Charts="['scoreDistribution']" :Questions = questions></ScoreDistribution>
+    <ScoreDistribution id="scoreDistribution" :ScoredSorted=scoredSorted :TotalScore=totalScore :Questions = questions></ScoreDistribution>
     <Less id="less" :Score=score></Less>
     <More id="more" :Score=score></More>
     <Attempts id="attempts" :Questions=questions></Attempts>
-    
     <BestStudents id="best" :Students=students :ScoredSorted=scoredSorted :Questions=questions></BestStudents>
     </div>
-    <!--
-    <div class="push"></div>
-    -->
     <div class="footer">
       <p>&copy;Ingo Dahn (Dahn-Research), Lizenz: <a href="https://creativecommons.org/licenses/by-sa/3.0/de/">CC-BY-SA 3.0</a></p>
     </div>
@@ -143,29 +139,34 @@ export default {
       return tScore;
     },
     students: function() {
-      var students = [];
+      var studentScores=[];
+      
       for (var s = 0; s < this.studentsNr; s++) {
-        var sq = {
+        var student32={
           name: this.studentNames[s],
-          scores: {}
+          scores: {},
+          totalScore: 0
         };
-        for (var qn = 0; qn < this.questionsNr; qn++) {
-          var q = this.questions[qn];
-          if (this.type == "compulsory" || q.answers[s] != "") {
-            sq.scores[q.name] = q.scores[s];
+        
+        for (var qq = 0; qq < this.questionsNr; qq++) {
+          if ((this.type == "compulsory" || this.questions[qq].answers[s] != "")) {
+            student32['scores'][this.questions[qq]['name']]=this.questions[qq].scores[s];
+            student32['totalScore'] += this.questions[qq].scores[s];
           }
+          
         }
-        students.push(sq);
+        
+        studentScores.push(student32);
       }
-
-      return students;
+      
+      return studentScores;
     },
     scoredSorted: function() {
-      var ss = this.students;
-      var scored = ss.map(studentScore);
-      var scoredSorted = scored.sort(function(a, b) {
+      var ss = this.students.slice(0);
+      var scoredSorted = ss.sort(function(a, b) {
         return a.totalScore - b.totalScore;
       });
+      
       return scoredSorted;
     },
     questionNames: function() {
@@ -177,15 +178,7 @@ export default {
     }
   }
 };
-function studentScore(s) {
-  // Calculates score for student s
-  var sc = 0;
-  for (var qn in s.scores) {
-    sc += s.scores[qn];
-  }
-  s.totalScore = sc;
-  return s;
-}
+
 </script>
 
 <style scoped>

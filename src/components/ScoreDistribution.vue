@@ -37,24 +37,11 @@ export default {
             bucketsNr: 5
         }
     },
-    props: ["ScoredSorted", "TotalScore", "Charts","Questions"],
+    props: ["ScoredSorted", "TotalScore","Questions"],
     components: {
         BarChart
     },
     computed:{
-        settings: function (){
-          switch (this.Charts.length)  {
-              case 0: {
-                  return "Kein Diagramm zum auswählen.";
-              }
-              case 1: {
-                  return this.diagrams[this.Charts[0]].title;
-              }
-              default: {
-                  return "Auswahl nicht definiert"
-              }
-          }
-        },
         scoreClasses: function() {
             // Return list of numbers of students in n groups by score
             const n=this.bucketsNr;
@@ -131,6 +118,7 @@ export default {
             return gaps;
         },
         hintDetails: function () {
+            
             if (this.gaps.length == 0) {
                 return '';
             }
@@ -142,17 +130,23 @@ export default {
             const goodStudentsScores=goodStudents.map(x => x.scores)
             var lgood=goodStudents.length;
             const lweak=weakStudents.length;
-            var weakStudentsQ=weakStudentsScores[0];
-            for (var i=1; i<lweak; i++) {
+            
+            var weakStudentsQ={};
+            for (var q=0; q < this.Questions.length; q++) {
+                weakStudentsQ[this.Questions[q]['name']] = 0;
+            }
+           
+            for (var i=0; i<lweak; i++) {
                 for (var name in weakStudentsScores[i] ) {
                     weakStudentsQ[name] += weakStudentsScores[i][name];
                 }
             }
+            
             var goodStudentsQ = {};
             if (lgood == 0) {
                 for (var qi=0; qi < this.Questions.length; qi++) {
-                    var q=this.Questions[qi];
-                    goodStudentsQ[q['name']] = q['maxScore'];
+                    var q1=this.Questions[qi];
+                    goodStudentsQ[q1['name']] = q1['maxScore'];
                 }
                 lgood=1;
             } else {
@@ -176,7 +170,22 @@ export default {
                     maxDiffName=name3;
                 }
             }
-            return "Sehen Sie sich insbesondere die Antworten der Studierenden mit "+this.chartLabels[gap]+" Punkten auf die Frage "+maxDiffName + " an.";
+            var maxDiffMaxScore=0;
+            for (var q2= 0; q2 < this.Questions.length; q2++) {
+                if (this.Questions[q2]['name'] == maxDiffName) {
+                    maxDiffMaxScore=this.Questions[q2]['maxScore'];
+                    break;
+                }
+            }
+            var wsi=0;
+            for (var wi=lweak-1; wi >= 0; wi--) {
+                if (weakStudents[wi].scores[maxDiffName] < maxDiffMaxScore) {
+                    wsi=wi;
+                    break;
+                }
+            }
+            var ws = weakStudents[wsi].name+" ("+ weakStudents[wsi].scores[maxDiffName]+" von "+maxDiffMaxScore+" Punkten).";
+            return "Sehen Sie sich insbesondere die Antworten der Studierenden mit "+this.chartLabels[gap]+" Punkten auf die Frage "+maxDiffName + " an, z.B. von "+ws;
         },
         hint: function() {
             if (this.gaps.length == 0) {

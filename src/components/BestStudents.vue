@@ -9,7 +9,7 @@
         </ul>
         <div v-if = 'Students.length != 0'>
         <b>Hinweis:</b> {{ hint }}
-    </div>
+      </div>
     </div>
 </template>
 
@@ -39,7 +39,7 @@ export default {
             qMsgArr.push(best[s].name + ": " + relScore + " %");
           }
         }
-        var qMsg = qMsgArr.join("; ");
+        var qMsg = qMsgArr.slice(0,2).join("; ");
         if (qMsg != "") {
           msgArr.push(qName + ": " + qMsg);
         }
@@ -59,7 +59,7 @@ export default {
       return (
         "Bei den folgenden Fragen erreichten die besten " +
         tp +
-        " nicht die volle Punktzahl."
+        " nicht die volle Punktzahl. Z.B. "
       );
     },
     warnLevel: function() {
