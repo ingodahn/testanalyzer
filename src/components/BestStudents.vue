@@ -21,7 +21,7 @@ export default {
     return {
     };
   },
-  props: ["Students", "ScoredSorted","Questions"],
+  props: ["Students", "ScoredSorted","Questions", "ComponentStatus"],
   computed: {
     msgArr: function() {
       var best = this.ScoredSorted.slice(0);
@@ -63,11 +63,14 @@ export default {
       );
     },
     warnLevel: function() {
+      var s=this.ComponentStatus;
       switch (this.msgArr.length) {
         case 0: {
+          s['best']='warn_0';
           return "warn_0";
         }
         default: {
+          s['best']='warn_1';
           return "warn_1";
         }
       }

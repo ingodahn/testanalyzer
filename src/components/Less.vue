@@ -41,7 +41,7 @@ function avg(q) {
 }
 export default {
     name: "Less",
-    props: ["Score"],
+    props: ["Score", "ComponentStatus"],
     data () {
         return {
             threshold: 0.2,
@@ -61,11 +61,16 @@ export default {
             return qs;            
         },
         warnLevel: function () {
+            var s=this.ComponentStatus;
             switch(this.questionSuccess.length) {
                 case 0: {
-                    return "warn_0";
-                }
-                default: {return "warn_1";}
+                        s['less']='warn_0';
+                        return "warn_0";
+                    }
+                default: {
+                        s['less']='warn_1';
+                        return "warn_1";
+                    }
             }
         },
         hint: function () {

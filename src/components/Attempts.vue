@@ -11,14 +11,12 @@
 <script>
 export default {
   name: "Attempts",
-  props: ["Questions"],
-  data () {
-        return {
-
-        }
-    },
+  props: ["Questions", "ComponentStatus"],
+  data() {
+    return {};
+  },
   computed: {
-    attempts: function () {
+    attempts: function() {
       var attempts = [];
       var threshold = 0.2;
 
@@ -39,7 +37,7 @@ export default {
       if (this.Questions.length == 0) {
         return msg;
       }
-      
+
       switch (this.attempts.length) {
         case 0: {
           return "Alle Fragen wurden von mindestens " + tp;
@@ -49,30 +47,43 @@ export default {
         }
         default: {
           return (
-            "Die Aufgaben " + this.attempts.join() + " wurden von weniger als " + tp
+            "Die Aufgaben " +
+            this.attempts.join() +
+            " wurden von weniger als " +
+            tp
           );
         }
       }
     },
-    warnLevel: function () {
-      switch(this.attempts.length) {
-          case 0: {
-              return "warn_0";
-          }
-          default: {return "warn_1";}
+    warnLevel: function() {
+      var s = this.ComponentStatus;
+      switch (this.attempts.length) {
+        case 0: {
+          s["attempts"] = "warn_0";
+          return "warn_0";
+        }
+        default: {
+          s["attempts"] = "warn_0";
+          return "warn_1";
+        }
       }
     },
-    hint: function () {
-        if (this.warnLevel == 'warn_1') {
-            var frage= 'Frage';
-            if (this.attempts.length > 1) {
-                frage='Fragen';
-            }
-            return "Versuchen Sie, durch Gespräche mit den Studierenden, herauszubekommen, warum sie diese "+frage+"Frage nicht versucht haben. Vielleicht war die Formulierung der Frage nicht verständlich? Falls dies die letzte Frage des Tests war könnte es auch daran liegen, dass die Zeit für den Test zu knapp bemessen war. Sie sollten diese "+frage+" modifizieren, sie durch andere Fragen ersetzen oder weglassen.";
-        } else {
-            return 'So sollte es sein. Ihre Aufgaben sind verständlich';
+    hint: function() {
+      if (this.warnLevel == "warn_1") {
+        var frage = "Frage";
+        if (this.attempts.length > 1) {
+          frage = "Fragen";
         }
-        
+        return (
+          "Versuchen Sie, durch Gespräche mit den Studierenden, herauszubekommen, warum sie diese " +
+          frage +
+          "Frage nicht versucht haben. Vielleicht war die Formulierung der Frage nicht verständlich? Falls dies die letzte Frage des Tests war könnte es auch daran liegen, dass die Zeit für den Test zu knapp bemessen war. Sie sollten diese " +
+          frage +
+          " modifizieren, sie durch andere Fragen ersetzen oder weglassen."
+        );
+      } else {
+        return "So sollte es sein. Ihre Aufgaben sind verständlich";
+      }
     }
   }
 };

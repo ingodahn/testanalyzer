@@ -6,16 +6,16 @@
             <li><a href="#upload">Daten hochladen</a></li>
             <li><a href="#testType">Art des Tests</a></li>
             <div v-if="QuestionsNr > 0">
-                <li><a href="#scoreDistribution">Punkteverteilung</a></li>
-                <li><a href="#less">Wenig Punkte</a></li>
-                <li><a href="#more">Viele Punkte</a></li>
-                <li><a href="#attempts">Versuche</a></li>
-                <li><a href="#best">Die Besten</a></li>
+                <li><a href="#scoreDistribution" :class="warnLevel('scoreDistribution')">Punkteverteilung</a></li>
+                <li><a href="#less" :class="warnLevel('less')">Wenig Punkte</a></li>
+                <li><a href="#more" :class="warnLevel('more')">Viele Punkte</a></li>
+                <li><a href="#attempts" :class="warnLevel('attempts')">Ungenutzt</a></li>
+                <li><a href="#best" :class="warnLevel('best')">Die Besten</a></li>
             </div>
             <div v-else>
                 <li class="inactive">Punkteverteilung</li>
                 <li class="inactive">Wenig Punkte</li>
-                <li class="inactive">Versuche</li>
+                <li class="inactive">Ungenutzt</li>
                 <li class="inactive">Die Besten</li>
             </div>
         </ul>
@@ -25,10 +25,17 @@
 <script>
 export default {
     name: "Navigation",
-    props: ["QuestionsNr"]
+    props: ["QuestionsNr","ComponentStatus"],
+    methods: {
+        warnLevel: function (c) {
+            //eslint-disable-next-line
+            //console.log(this.ComponentStatus);
+            return this.ComponentStatus[c];
+            //return 'warn_1';
+        }
+    }
 }
-//eslint-disable-next-line
-//console.log(this.QuestionsNr);
+
 </script>
 
 <style scoped>

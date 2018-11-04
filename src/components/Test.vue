@@ -5,7 +5,7 @@
         <h1>Test-Analyse</h1>
       </div>
       <div class="navigation">
-        <Navigation :QuestionsNr="questionsNr"></Navigation>
+        <Navigation :QuestionsNr="questionsNr" :ComponentStatus="componentStatus"></Navigation>
       </div>
       <div class="main">
         <div id="context">
@@ -39,11 +39,11 @@
     
     <SetType id="testType" :testtype=type v-on:typeselected ="settype"></SetType>
 
-    <ScoreDistribution id="scoreDistribution" :ScoredSorted=scoredSorted :TotalScore=totalScore :Questions = questions></ScoreDistribution>
-    <Less id="less" :Score=score></Less>
-    <More id="more" :Score=score></More>
-    <Attempts id="attempts" :Questions=questions></Attempts>
-    <BestStudents id="best" :Students=students :ScoredSorted=scoredSorted :Questions=questions></BestStudents>
+    <ScoreDistribution id="scoreDistribution" :ScoredSorted=scoredSorted :TotalScore=totalScore :Questions = questions :ComponentStatus=componentStatus></ScoreDistribution>
+    <Less id="less" :Score=score :ComponentStatus=componentStatus></Less>
+    <More id="more" :Score=score :ComponentStatus=componentStatus></More>
+    <Attempts id="attempts" :Questions=questions :ComponentStatus=componentStatus></Attempts>
+    <BestStudents id="best" :Students=students :ScoredSorted=scoredSorted :Questions=questions :ComponentStatus=componentStatus></BestStudents>
     </div>
     <div class="footer">
       <p>&copy;Ingo Dahn (Dahn-Research), Lizenz: <a href="https://creativecommons.org/licenses/by-sa/3.0/de/">CC-BY-SA 3.0</a></p>
@@ -74,7 +74,14 @@ export default {
       questionsNr: 0,
       studentsNr: 0,
       questions: [],
-      studentNames: []
+      studentNames: [],
+      componentStatus: {
+        scoreDistribution: 'warn_0',
+        less: 'warn_0',
+        more: 'warn_0',
+        attempts: 'warn_0',
+        best: 'warn_0'
+      }
     };
   },
   components: {

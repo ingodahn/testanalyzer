@@ -37,7 +37,7 @@ export default {
             bucketsNr: 5
         }
     },
-    props: ["ScoredSorted", "TotalScore","Questions"],
+    props: ["ScoredSorted", "TotalScore","Questions", "ComponentStatus"],
     components: {
         BarChart
     },
@@ -94,11 +94,15 @@ export default {
             return chart;
         },
         warnLevel: function () {
+            var s=this.ComponentStatus;
             switch(this.gaps.length) {
                 case 0: {
+                    s['scoreDistribution']= 'warn_0';
                     return "warn_0";
                 }
-                default: {return "warn_1";}
+                default: {
+                    s['scoreDistribution']= 'warn_1';
+                    return "warn_1";}
             }
         },
         gaps: function() {

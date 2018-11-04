@@ -46,7 +46,7 @@ export default {
             threshold: 0.8
         }
     },
-    props: ["Score"],
+    props: ["Score", "ComponentStatus"],
     computed:  {
         questionSuccess: function () {
             var threshold=0.8;
@@ -61,11 +61,16 @@ export default {
             return qs;            
         },
         warnLevel: function () {
+            var s=this.ComponentStatus;
             switch(this.questionSuccess.length) {
                 case 0: {
+                    s['more'] = 'warn_0';
                     return "warn_0";
                 }
-                default: {return "warn_1";}
+                default: {
+                    s['more'] = 'warn_1';
+                    return "warn_1";
+                    }
             }
         },
         hint: function () {
