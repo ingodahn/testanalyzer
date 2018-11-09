@@ -9,12 +9,20 @@ export default {
   mounted () {
     // Overwriting base render method with actual data.
     this.renderChart(this.chartData,{
+        responsive: true,
         scales: {
             xAxes: [{
                 ticks: {
                     autoSkip: false,
                     maxRotation: 90,
                     //minRotation: 90
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    display: true,
+                    beginAtZero: true,
+                    min: 0
                 }
             }]
         }
