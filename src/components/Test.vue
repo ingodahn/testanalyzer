@@ -40,6 +40,8 @@
     <SetType id="testType" :testtype=type v-on:typeselected ="settype"></SetType>
 
     <ScoreDistribution id="scoreDistribution" :ScoredSorted=scoredSorted :TotalScore=totalScore :Questions = questions :ComponentStatus=componentStatus></ScoreDistribution>
+    
+    <QuestionStatistics id="questionStatistics" :Questions=questions></QuestionStatistics>
     <Less id="less" :Score=score :ComponentStatus=componentStatus></Less>
     <More id="more" :Score=score :ComponentStatus=componentStatus></More>
     <Attempts id="attempts" :Questions=questions :ComponentStatus=componentStatus></Attempts>
@@ -64,6 +66,7 @@ import Attempts from "./Attempts.vue";
 import BestStudents from "./BestStudents.vue";
 import EditMaxScores from "./EditMaxScores.vue";
 import ScoreDistribution from "./ScoreDistribution.vue";
+import QuestionStatistics from "./QuestionStatistics.vue";
 
 export default {
   name: "Test",
@@ -94,7 +97,8 @@ export default {
     Attempts,
     BestStudents,
     EditMaxScores,
-    ScoreDistribution
+    ScoreDistribution,
+    QuestionStatistics
   },
   methods: {
     settype: function(typeval) {

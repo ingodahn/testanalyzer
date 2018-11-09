@@ -86,7 +86,7 @@ export default {
             
             chart.labels=this.chartLabels;
             var chartData={
-                label: "Punkteverteilung:",
+                label: "Punkteverteilung",
                 data: this.scoreClasses,
                 backgroundColor: backgroundColor
             };
