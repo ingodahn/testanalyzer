@@ -1,11 +1,15 @@
 <template>
 <div>
-  <p>IMathAS bietet Ihnen in seinem Gradebook umfangreiche Informationen zur Analyse der Ergebnisse jedes/jeder Studierenden an. Neben den Antworten und den erreichten Punktzahlen (ggf. noch gruppiert nach Lernzielen) finden Sie dort auch die von den Studierenden für die Antwort benötigte Zeit. Sie erreichen das Gradebook in IMathAS wenn Sie auf das Zahnrad neben dem Test klicken und dann <i>Noten</i> auswählen. Auf der dann erscheinenden Seite gibt es unten den Link <i>Export Student Answer Details</i>. Klicken Sie darauf und nehmen Sie die Einstellungen genau so vor, wie auf diesem Bild gezeigt.</p>
+  <p>Testergebnisse finden Sie im Gradebook von IMathAS. Sie erreichen das Gradebook, wenn Sie auf das Zahnrad neben dem Test klicken und dann <i>Noten</i> auswählen. Auf der dann erscheinenden Seite gibt es unten den Link <i>Export Student Answer Details</i>. Klicken Sie darauf und nehmen Sie die Einstellungen genau so vor, wie auf diesem Bild gezeigt.</p>
       <img class="center" src="./assets/csvEinstellung.png"/>
-      <p>Die so erstellte csv-Datei laden Sie dann in diese Webseite.</p>
-    <p>
-    <input type='file' accept='.csv' autocomplete="on" @change='openFile'>
+      <p>Die so erstellte csv-Datei laden Sie dann in diese Webseite. <input class="demoData" type="button" onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenIMathAS.csv'" value="Demo-Daten" />
     </p>
+    <p>
+      <label class="custom-file-upload">
+          <input type="file" class="realData" accept='.csv' autocomplete="on" @change='openFile'>
+          IMathAS-Datei hochladen
+      </label>
+     </p> 
 </div>
 </template>
 
@@ -105,6 +109,19 @@ export default {
 </script>
 
 <style scoped>
+
+.custom-file-upload, .demoData{
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    background-color: hsl(198, 65%, 40%);
+    color: white;
+    border-radius: 10px;
+}
+.realData {
+  display: none;
+}
 .center {
     display: block;
     margin-left: auto;

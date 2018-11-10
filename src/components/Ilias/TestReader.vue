@@ -1,10 +1,15 @@
 <template>
 <div>
-  <p>Exportieren Sie Ihre Testdaten aus ILIAS als .csv-Datei und laden Sie sie dann in diese Webseite.</p>
+  <p>Exportieren Sie Ihre Testdaten aus ILIAS als .csv-Datei.</p>
   <p>Falls Ihre Daten als Excel-Tabelle vorliegen, so speichern Sie sie in Ihrer Tabellenkalkulation als .csv-Datei als "CSV UTF-8 (Durch Trennzeichen ';' getrennt)". 
-    <p>
-    <input type='file' accept='.csv' autocomplete="on" @change='openFile'>
+    <p>Die so erstellte csv-Datei laden Sie dann in diese Webseite. <input class="demoData" type="button" onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenIlias.csv'" value="Demo-Daten" />
     </p>
+    <p>
+      <label class="custom-file-upload">
+          <input type="file" class="realData" accept='.csv' autocomplete="on" @change='openFile'>
+          ILIAS-Datei hochladen
+      </label>
+     </p> 
 </div>
 </template>
 
@@ -109,6 +114,18 @@ export default {
 </script>
 
 <style scoped>
+.custom-file-upload, .demoData{
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    background-color: hsl(198, 65%, 40%);
+    color: white;
+    border-radius: 10px;
+}
+.realData {
+  display: none;
+}
 .center {
     display: block;
     margin-left: auto;

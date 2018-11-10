@@ -7,6 +7,14 @@
             <p>
                 Dargestellt ist näherungsweise der Logarithmus des Quotienten aus der Wahrscheinlichkeit dass die Frage richtig beantwortet wird zu der Wahrscheinlichkeit dass die Frage nicht richtig beantwortet wird. Ein Wert größer als 0 bedeutet also, dass die Wahrscheinlichkeit größer ist dass die Frage richtig beantwortet wird.    
             </p>
+            <div>
+            <VueSlideBar  v-model="threshold" :data="slider.data" :range="slider.range" :processStyle="{ backgroundColor: '#d8d8d8' }"          @callbackRange="callbackRange">
+            <template slot="tooltip" slot-scope="tooltip">
+                <img src="../third_party/rectangle-slider.svg">
+            </template>
+            </VueSlideBar>
+    <p><b>Richtige Antwort ab {{rangeValue.label}} der möglichen Punkte</b></p>
+  </div>
             <div class="chart-container" style="width:800px">
                 <LineChart :chartData=raschData></LineChart>
             </div>
@@ -29,15 +37,80 @@ function avg(scores,threshold) {
 }
 
 import LineChart from "./Graphics/LineChart.vue";
+import VueSlideBar from 'vue-slide-bar';
+
 export default {
     name: 'rasch',
     data () {
         return {
-            threshold: 1
+            threshold: 1,
+            rangeValue: {},
+      slider: {
+        value: 1,
+        data: [
+          0.5,
+          0.55,
+          0.6,
+          0.65,
+          0.7,
+          0.75,
+          0.8,
+          0.85,
+          0.9,
+          0.95,
+          1
+        ],
+        range: [
+          {
+            label: '50%'
+          },
+          {
+            label: '55%',
+            isHide: true
+          },
+          {
+            label: '60%'
+          },
+          {
+            label: '65%',
+            isHide: true
+          },
+          {
+            label: '70%'
+          },
+          {
+            label: '75%',
+            isHide: true
+          },
+          {
+            label: '80%'
+          },
+          {
+            label: '85%',
+            isHide: true
+          },
+          {
+            label: '90%'
+          },
+          {
+            label: '95%',
+            isHide: true
+          },
+          {
+            label: '100%'
+          }
+        ]
+      }
         }
     },
+    methods: {
+    callbackRange (val) {
+      this.rangeValue = val
+    }
+  },
     components: {
-        LineChart
+        LineChart,
+        VueSlideBar
     },
     props: ['Score'],
     computed: {

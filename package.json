@@ -12,7 +12,8 @@
     "vue": "^2.5.17",
     "vue-chart.js": "^0.2.0",
     "vue-chartjs": "^3.4.0",
-    "vue-csv-import": "^2.0.0"
+    "vue-csv-import": "^2.0.0",
+    "vue-slide-bar": "^1.1.7"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.1",
