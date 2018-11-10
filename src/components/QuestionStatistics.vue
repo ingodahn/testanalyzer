@@ -1,7 +1,7 @@
 <template>
     <div id='questionStatistics'>
         <h2>Fragen-Statistik</h2>
-        <div class="chart-container" style="width:800px" v-if="Score.length > 0">
+        <div class="chart-container" style="width:50%" v-if="Score.length > 0">
             <LineChart :chartData=ScoreChart></LineChart>
         </div>
         <div v-if="Score.length > 0">

@@ -15,7 +15,7 @@
             </VueSlideBar>
     <p><b>Richtige Antwort ab {{rangeValue.label}} der möglichen Punkte</b></p>
   </div>
-            <div class="chart-container" style="width:800px">
+            <div class="chart-container" style="width:50%">
                 <LineChart :chartData=raschData></LineChart>
             </div>
         </div>
