@@ -81,7 +81,7 @@ export default {
                     frage='Fragen';
                     ist='Sind';
                 }
-                return "Viele Studierende haben damit Probleme. Woran kann das liegen? "+ist+" diese "+frage+" für alle eindeutig und verständlich formuliert? Haben die Studierenden das benötigte Wissen? Sprechen Sie mit den Studierenden darüber! Überlegen Sie, warum Sie diese "+frage+" in den Test aufgenommen haben. Wollten Sie den Studierenden ihr Wissensdefizit aufzeigen? Dies kann leicht demotivieren. Vielleicht können Sie diese "+frage+" in Teilaufgaben zerlegen, so dass die Studierenden schrittweise zur Lösung geführt werden?";
+                return "Viele Studierende haben damit Probleme. Woran kann das liegen? "+ist+" diese "+frage+" für alle eindeutig und verständlich formuliert? Haben die Studierenden das benötigte Wissen? Sprechen Sie mit den Studierenden darüber! Überlegen Sie, warum Sie diese "+frage+" in den Test aufgenommen haben. Wollten Sie den Studierenden ihr Wissensdefizit aufzeigen? Dies kann leicht demotivieren. Vielleicht können Sie diese "+frage+" in Teilaufgaben zerlegen, so dass die Studierenden schrittweise zur Lösung geführt werden? Sie könnten auch mehr Punkte für diese "+frage+" vergeben, um die besondere Schwierigkeit zu berücksichtigen (s. Abschnitt Fragen-Statistik).";
             } else {
                 return 'So sollte es sein. Ihre Aufgaben sind nicht zu schwer.';
             }

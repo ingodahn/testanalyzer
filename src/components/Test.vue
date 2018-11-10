@@ -40,12 +40,12 @@
     <SetType id="testType" :testtype=type v-on:typeselected ="settype"></SetType>
 
     <ScoreDistribution id="scoreDistribution" :ScoredSorted=scoredSorted :TotalScore=totalScore :Questions = questions :ComponentStatus=componentStatus></ScoreDistribution>
-    
-    <QuestionStatistics id="questionStatistics" :Questions=questions></QuestionStatistics>
     <Less id="less" :Score=score :ComponentStatus=componentStatus></Less>
     <More id="more" :Score=score :ComponentStatus=componentStatus></More>
     <Attempts id="attempts" :Questions=questions :ComponentStatus=componentStatus></Attempts>
     <BestStudents id="best" :Students=students :ScoredSorted=scoredSorted :Questions=questions :ComponentStatus=componentStatus></BestStudents>
+    <QuestionStatistics id="questionStatistics" :Score=score></QuestionStatistics>
+    <Rasch id="rasch" :Score=score></Rasch>
     </div>
     <div class="footer">
       <p>&copy;Ingo Dahn (Dahn-Research), Lizenz: <a href="https://creativecommons.org/licenses/by-sa/3.0/de/">CC-BY-SA 3.0</a></p>
@@ -67,6 +67,7 @@ import BestStudents from "./BestStudents.vue";
 import EditMaxScores from "./EditMaxScores.vue";
 import ScoreDistribution from "./ScoreDistribution.vue";
 import QuestionStatistics from "./QuestionStatistics.vue";
+import Rasch from "./Rasch.vue";
 
 export default {
   name: "Test",
@@ -98,7 +99,8 @@ export default {
     BestStudents,
     EditMaxScores,
     ScoreDistribution,
-    QuestionStatistics
+    QuestionStatistics,
+    Rasch
   },
   methods: {
     settype: function(typeval) {
@@ -135,7 +137,7 @@ export default {
         }
         scores.push({
           name: q.name,
-          maxScore: q.maxScore,
+          maxScore: Number(q.maxScore),
           scores: qscores
         });
       }

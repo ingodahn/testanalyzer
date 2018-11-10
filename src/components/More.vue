@@ -81,7 +81,7 @@ export default {
                     frage='Fragen';
                     ist='Sind';
                 }
-                return "Viele Studierende haben sehr viele Punkte erreicht. Woran kann das liegen? "+ist+" die "+frage+" zu leicht? Überlegen Sie, warum Sie diese "+frage+" in den Test aufgenommen haben. Wollten Sie die Studierenden mit einem guten Ergebnis motivieren? Dann ist das in Ordnung. Wollten Sie überprüfen, ob die Studierenden die für das Kommende benötigten Vorkenntnisse haben?  Dann ist dieses Ergebnis eine schöne Bestätigung, aber vielleicht können die Studierenden ja sogar noch mehr? Vielleicht können Sie diese "+frage+" doch noch etwas schwerer machen?";
+                return "Viele Studierende haben sehr viele Punkte erreicht. Woran kann das liegen? "+ist+" die "+frage+" zu leicht? Überlegen Sie, warum Sie diese "+frage+" in den Test aufgenommen haben. Wollten Sie die Studierenden mit einem guten Ergebnis motivieren? Dann ist das in Ordnung. Wollten Sie überprüfen, ob die Studierenden die für das Kommende benötigten Vorkenntnisse haben?  Dann ist dieses Ergebnis eine schöne Bestätigung, aber vielleicht können die Studierenden ja sogar noch mehr? Vielleicht können Sie diese "+frage+" doch noch etwas schwerer machen? Eventuell könnten Sie auch die Anzahl der für diese "+frage+" vergebenen Punkte reduzieren.";
             } else {
                 return 'So sollte es sein. Ihre Aufgaben sind nicht zu leicht.';
             }
