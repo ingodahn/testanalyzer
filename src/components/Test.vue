@@ -2,7 +2,7 @@
   <div id="Test" >
     <div class="container">
       <div class="page-title">
-        <h1>Test-Analyse</h1>
+        <h1>{{ pSystem }} Test-Analyse</h1>
       </div>
       <div class="navigation">
         <Navigation :QuestionsNr="questionsNr" :ComponentStatus="componentStatus"></Navigation>
@@ -15,20 +15,7 @@
           <p> <b>Bitte bachten Sie:</b> Diese Software hat experimentellen Charakter. Es wird keinerlei Garantie übernommen. Hinweise auf Probleme und Wünsche zur Verbesserung der Seite sind jedoch <a href="mailto:dahn@dahn-research.eu">ausdrücklich erwünscht</a>.</p>
         </div>
     <div id="system">
-      <h2>Bitte wählen Sie Ihr System</h2>
-        <input type="radio" id="imathas" v-model="system" value="IMathAS" v-on:click="reset">
-        <label for="IMathAS">IMathAS</label>
-        <input type="radio" id="ilias" v-model="system" value="Ilias" v-on:click="reset"> 
-        <label for="Ilias">Ilias</label>
-    </div>
-    <div id="upload">
-      <h2>Laden Sie Ihre Testdaten hoch</h2>
-
-      <div id="intro">
-        <TestReaderIMathAS v-if="system == 'IMathAS'" v-on:testRead="testread"></TestReaderIMathAS>
-        <TestReaderIlias v-if="system == 'Ilias'" v-on:testRead="testread"></TestReaderIlias>
-        
-      </div>
+      <router-view v-on:load="reset" v-on:testRead="testread"/>
     </div>
     
     <div id="basics" v-if='questionsNr != 0'>
@@ -58,8 +45,6 @@
 <script>
 import Navigation from "./Navigation.vue";
 import SetType from "./SetType.vue";
-import TestReaderIMathAS from "./IMathAS/TestReader.vue";
-import TestReaderIlias from "./Ilias/TestReader.vue";
 import Less from "./Less.vue";
 import More from "./More.vue";
 import Attempts from "./Attempts.vue";
@@ -73,7 +58,7 @@ export default {
   name: "Test",
   data() {
     return {
-      system: "IMathAS",
+      system: "",
       type: "compulsory",
       questionsNr: 0,
       studentsNr: 0,
@@ -91,8 +76,6 @@ export default {
   components: {
     Navigation,
     SetType,
-    TestReaderIMathAS,
-    TestReaderIlias,
     Less,
     More,
     Attempts,
@@ -113,6 +96,7 @@ export default {
       this.studentNames = [];
     },
     testread: function(test) {
+      this.system = test.system;
       this.questionsNr = test.questionsNr;
       this.questions = test.questions;
       this.studentsNr = test.studentsNr;
@@ -188,6 +172,15 @@ export default {
         questionNames.push(this.questions[i].name);
       }
       return questionNames;
+    },
+    pSystem: function () {
+      var pS=this.$route.path;
+      if (pS.match(/imathas/g))
+        return 'IMathAS';
+      if (pS.match('ilias'))
+        return 'Ilias'
+      return '';
+
     }
   }
 };
@@ -238,6 +231,29 @@ export default {
 }
 .main {
   padding: 20px;
+}
+
+body {
+  background-color: #EEEEEE;
+  font-family: 'Montserrat', sans-serif;
+  display: grid;
+  grid-template-rows: auto;
+  justify-items: center;
+  padding-top: 50px;
+}
+
+nav {
+  padding: 20px 20px 20px 0;
+}
+
+nav a {
+  padding: 10px;
+  text-decoration: none;
+  background: #fff;
+  border-radius: 3px;
+  color: rgb(0, 110, 255);
+  font-weight: bold;
+  margin-right: 15px;
 }
 </style>
 

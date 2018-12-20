@@ -46,6 +46,7 @@ class Question {
 
 function table2Test(table) {
   var Test = {
+    system: "IMathAS",
     questionsNr: 0,
     studentsNr: 0,
     questions: [],

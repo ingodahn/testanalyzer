@@ -26,4 +26,5 @@ export default {
 .warn_1 {
   color: red
 }
+
 </style>

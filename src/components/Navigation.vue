@@ -2,7 +2,7 @@
     <div>
         <ul>
             <li><a href="#context">Kontext</a></li>
-            <li><a href="#system">Systemauswahl</a></li>
+            <li v-if="$route.path == '/'"><a href="#system">Systemauswahl</a></li>
             <li><a href="#upload">Daten hochladen</a></li>
             <li><a href="#testType">Art des Tests</a></li>
             <div v-if="QuestionsNr > 0">
