@@ -7,6 +7,7 @@ import Ilias from './components/Ilias/TestReader.vue'
 Vue.use(Router)
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
       path: '/imathas',
