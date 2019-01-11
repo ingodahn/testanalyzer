@@ -2,7 +2,7 @@
     <div id="diagram" :class=warnLevel>
         <h2>Punkteverteilung</h2>
         <div v-if='ScoredSorted.length > 0'>
-            <div class="chart-container" style="width:20%">
+            <div class="chart-container" style="width:25%">
                 <BarChart :chartData=studentScores></BarChart>
             </div>
             <p><b>Hinweis:</b> {{ hint }}</p>
@@ -16,6 +16,7 @@
                     </ul>
                 </p>
             </div>
+            <Race id="trackComponent" :ScoredSorted=ScoredSorted :TotalScore=TotalScore></Race>
         </div>
     </div>
     
@@ -24,6 +25,7 @@
 
 <script>
 import BarChart from "./Graphics/BarChart.vue";
+import Race from "./Race.vue";
 
 export default {
     name: "Diagram",
@@ -39,7 +41,8 @@ export default {
     },
     props: ["ScoredSorted", "TotalScore","Questions", "ComponentStatus"],
     components: {
-        BarChart
+        BarChart,
+        Race
     },
     computed:{
         scoreClasses: function() {

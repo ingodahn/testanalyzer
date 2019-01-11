@@ -22,9 +22,6 @@
                 <li class="inactive">Ungenutzt</li>
                 <li class="inactive">Die Besten</li>
                 <li class="inactive">Fragen-Statistik</li>
-                <!--
-                <li class="inactive">Rasch-Modell</li>
-                -->
             </div>
         </ul>
     </div>
