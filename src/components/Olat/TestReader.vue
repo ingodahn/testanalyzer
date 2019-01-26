@@ -1,13 +1,12 @@
 <template>
 <div>
-  <p>Testergebnisse finden Sie im Gradebook von IMathAS. Sie erreichen das Gradebook, wenn Sie auf das Zahnrad neben dem Test klicken und dann <i>Noten</i> auswählen. Auf der dann erscheinenden Seite gibt es unten den Link <i>Export Student Answer Details</i>. Klicken Sie darauf und nehmen Sie die Einstellungen genau so vor, wie auf diesem Bild gezeigt.</p>
-      <img class="center" src="./assets/csvEinstellung.png"/>
-      <p>Die so erstellte csv-Datei laden Sie dann in diese Webseite. <input class="demoData" type="button" onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenIMathAS.csv'" value="Demo-Daten" />
+  <p>Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OLAT.</p>
+      <p>Die so erstellte csv-Datei laden Sie dann in diese Webseite. <input class="demoData" type="button" onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOlat.csv'" value="Demo-Daten" />
     </p>
     <p>
       <label class="custom-file-upload">
           <input type="file" class="realData" accept='.csv' autocomplete="on" @change='openFile'>
-          IMathAS-Datei hochladen
+          OLAT-Datei hochladen
       </label>
      </p> 
 </div>
@@ -43,6 +42,7 @@ class Question {
     return s / this.answers.length;
   }
 }
+
 function table2Test(table) {
   var Test = {
     system: "Olat",

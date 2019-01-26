@@ -43,8 +43,6 @@ export default {
     },
     computed: {
         studentScores: function () {
-            //eslint-disable-next-line
-            console.log(this.ScoredSorted);
             var studentScores = [];
             var diff=this.right-this.left;
             for (var i=0; i<this.ScoredSorted.length; i++) {

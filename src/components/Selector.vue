@@ -4,6 +4,7 @@
     <nav>
         <router-link to="/imathas">IMathAS</router-link>
         <router-link to="/ilias">ILIAS</router-link>
+        <router-link to="/olat">OLAT</router-link>
       </nav>
   </div>
 </template>
