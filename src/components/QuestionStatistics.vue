@@ -1,8 +1,12 @@
 <template>
     <div id='questionStatistics'>
         <h2>Fragen-Statistik</h2>
+        
         <div class="chart-container" style="width:50%" v-if="Score.length > 0">
-            <LineChart :chartData=ScoreChart></LineChart>
+            <div v-for='item in ChartGroups' :key=item[0]>
+                <h3>Fragen {{item[0]+1}} - {{item[1]}}</h3>
+                <LineChart :chartData=ScoreChart(item[0],item[1])></LineChart>
+            </div>
         </div>
         <div v-if="Score.length > 0">
             <p>
@@ -34,24 +38,7 @@ function avg(scores) {
     return avgScore;
 }
 
-function group(ar,n=20) {
-    var ar1=[];
-    var start=0;
-    do {
-        if (start+2*n <= ar.length) {
-            ar1.push(ar.slice(start,start+n));
-            start=start+n;
-        } else if (start + 3*n/2 >= ar.length) {
-            ar1.push(ar.slice(start,start+n));
-            start=start+n;
-        } else {
-            ar1.push(ar.slice(start,start+n/2));
-            ar1.push(ar.slice(start+n/2,ar.length));
-            start=ar.length;
-        }
-    } while (start < ar.length)  
-    return ar1;  
-}
+
 
 import LineChart from "./Graphics/LineChart.vue";
 export default {
@@ -60,14 +47,8 @@ export default {
         LineChart
     },
     props: ['Score'],
-    computed: {
-        QNames: function () {
-            return this.Score.map(x => x['name']);
-        },
-        QAvgs: function () {
-            return this.Score.map(x => avg(x.scores).toFixed(2));
-        },
-        ScoreChart: function () {
+    methods: {
+        ScoreChart: function (start,end) {
             
             var chart={
                 labels: [],
@@ -78,23 +59,29 @@ export default {
                     data: [chart]
                 };
             }
-            //eslint-disable-next-line
-            console.log(group(this.Score));
 
-            chart.labels=this.QNames;
+            chart.labels=this.QNames.slice(start,end);
             var maxData={
                 label: "Maximale Punktzahl",
-                data: this.Score.map(x => x.maxScore),
+                data: this.Score.slice(start,end).map(x => x.maxScore),
                 borderColor: 'green'
             };
             chart.datasets[0]=maxData;
             var avgData={
                 label: "Mittlere Punktzahl",
-                data: this.QAvgs,
+                data: this.QAvgs.slice(start,end),
                 borderColor: 'blue'
             }
             chart.datasets[1]=avgData;
             return chart;
+        },
+    },
+    computed: {
+        QNames: function () {
+            return this.Score.map(x => x['name']);
+        },
+        QAvgs: function () {
+            return this.Score.map(x => avg(x.scores).toFixed(2));
         },
         ScoreAdjust: function () {
             var sMaxAdj=[];
@@ -103,6 +90,31 @@ export default {
                 sMaxAdj[qi] = this.QNames[qi]+': '+si+' Punkte';
             }
             return sMaxAdj;
+        },
+        ChartGroups: function () {
+            var ar1=[];
+            var n=20;
+            var start=0;
+            var ln=this.Score.length;
+            do {
+                if (start+2*n <= ln) {
+                    ar1.push([start,start+n]);
+                    start=start+n;
+                } else if (start + 3*n/2 >= ln) {
+                    if (start+n <= ln) {
+                        ar1.push([start,start+n]);
+                        ar1.push([start+n,ln]);
+                    } else {
+                        ar1.push([start,ln]);
+                    }
+                    start=ln;
+                } else {
+                    ar1.push([start,start+n/2]);
+                    ar1.push([start+n/2,ln]);
+                    start=ln;
+                }
+            } while (start < ln)  
+            return ar1;  
         }
     }
 }

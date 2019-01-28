@@ -5,7 +5,7 @@
             <div class="chart-container" style="width:25%">
                 <BarChart :chartData=studentScores></BarChart>
             </div>
-            <p><b>Hinweis:</b> {{ hint }}</p>
+            <p v-if=hint><b>Hinweis:</b> {{ hint }}</p>
             <div v-if="hintDetails != ''">
                 <p>{{ hintDetails }}</p>
                 <p>
@@ -196,7 +196,7 @@ export default {
         },
         hint: function() {
             if (this.gaps.length == 0) {
-                return "Aus diesem Bild kann ich keine Hinweise ableiten."
+                return "";
             } else {
                 return "Nur wenige Studierende haben "+this.chartLabels[this.gaps[0]+1] + " Punkte.";
             }

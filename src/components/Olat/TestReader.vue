@@ -1,7 +1,7 @@
 <template>
 <div>
-  <p>Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OLAT.</p>
-      <p>Die so erstellte csv-Datei laden Sie dann in diese Webseite. <input class="demoData" type="button" onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOlat.csv'" value="Demo-Daten" />
+  <p><b>Daten laden:</b> Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OLAT. Eine Anleitung dafür finden Sie <a href="https://confluence.openolat.org/display/OO121DE/Archivierung+der+Test-+und+Fragebogenresultate" target="_blank">in der OLAT-Hilfe</a>.</p>
+      <p>Sie erhalten ein zip-Archiv, in dem Sie nach dem Entpacken u.a. eine Datei mit der Endung .xls vorfinden. Diese Datei laden Sie dann in diese Webseite. <input class="demoData" type="button" onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOlat.xls'" value="Demo-Daten" />
     </p>
     <p>
       <label class="custom-file-upload">
