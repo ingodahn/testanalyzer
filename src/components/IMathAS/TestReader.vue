@@ -14,6 +14,24 @@
 </template>
 
 <script>
+export default {
+  data() {
+    return {};
+  },
+  methods: {
+    openFile: function(event) {
+      upload(event).then(x => {
+       var y=table2Test(parse(x,{
+         delimiter: `,`,
+         trim: true,
+         relax_column_count: true
+       }));
+        this.$emit("testRead", y);
+      });
+    }
+  }
+};
+
 class Question {
   constructor(name) {
     this.name = name;
@@ -45,7 +63,8 @@ class Question {
 }
 function table2Test(table) {
   var Test = {
-    system: "Olat",
+    system: "IMathAS",
+    info: '',
     questionsNr: 0,
     studentsNr: 0,
     questions: [],
@@ -63,12 +82,11 @@ function table2Test(table) {
     Test.questions[q] = qq;
   }
   Test.studentsNr = table.length-2;
-
+  
   for (var i = 2; i < table.length; i++) {
     var line = table[i];
-    Test.studentNames.push(line[0].substring(1,line[0].length));
+    Test.studentNames.push(line[0]);
     for (var q1 = 0; q1 < questionsNr; q1++) {
-      
       Test.questions[q1].scores.push(Number(line[2 + 2 * q1])),
       Test.questions[q1].answers.push(line[3 + 2 * q1]);
     }
@@ -84,7 +102,7 @@ var upload = function(event) {
     var reader = new FileReader();
     reader.onerror = () => {
       reader.abort();
-      reject(new DOMException("Problem parsing input file."));
+      reject(new DOMException("Problem uploading input file."));
     };
     reader.onload = () => {
       resolve(reader.result);
@@ -93,19 +111,6 @@ var upload = function(event) {
   });
 };
 
-export default {
-  data() {
-    return {};
-  },
-  methods: {
-    openFile: function(event) {
-      upload(event).then(x => {
-       var y=table2Test(parse(x));
-        this.$emit("testRead", y);
-      });
-    }
-  }
-};
 </script>
 
 <style scoped>

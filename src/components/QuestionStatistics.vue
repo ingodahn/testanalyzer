@@ -9,8 +9,6 @@
                 <b>Hinweis: </b>Wenn die maximal mögliche Punktzahl der Schwierigkeit der Aufgabe entsprechen soll, so vergleichen Sie die beiden Kurven. 
                 Bei schwierigen Fragen ist der mittlere Punktwert niedrig, verglichen mit dem Maximalpunktwert. 
                 Derartige Fragen kann man mit einem entsprechend höheren Maximalpunktwert belohnen.
-                Dadurch steigt dann der absolute mittlere Punktwert entsprechend. 
-                Bei einer solchen Justierung der Maximalpunktwerte entsprechend der beobachteten Schwierigkeit können bei allen Fragen etwa gleiche absolute mittlere Punktwerte erreicht werden.
             </p>
             <p>Eine angepasste Punkteverteilung wäre z.B.:</p>
             <p>
@@ -36,6 +34,25 @@ function avg(scores) {
     return avgScore;
 }
 
+function group(ar,n=20) {
+    var ar1=[];
+    var start=0;
+    do {
+        if (start+2*n <= ar.length) {
+            ar1.push(ar.slice(start,start+n));
+            start=start+n;
+        } else if (start + 3*n/2 >= ar.length) {
+            ar1.push(ar.slice(start,start+n));
+            start=start+n;
+        } else {
+            ar1.push(ar.slice(start,start+n/2));
+            ar1.push(ar.slice(start+n/2,ar.length));
+            start=ar.length;
+        }
+    } while (start < ar.length)  
+    return ar1;  
+}
+
 import LineChart from "./Graphics/LineChart.vue";
 export default {
     name: 'questionStatistics',
@@ -51,6 +68,7 @@ export default {
             return this.Score.map(x => avg(x.scores).toFixed(2));
         },
         ScoreChart: function () {
+            
             var chart={
                 labels: [],
                 datasets:[]
@@ -60,7 +78,9 @@ export default {
                     data: [chart]
                 };
             }
-            
+            //eslint-disable-next-line
+            console.log(group(this.Score));
+
             chart.labels=this.QNames;
             var maxData={
                 label: "Maximale Punktzahl",

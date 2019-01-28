@@ -5,7 +5,7 @@
     </p>
     <p>
       <label class="custom-file-upload">
-          <input type="file" class="realData" accept='.csv' autocomplete="on" @change='openFile'>
+          <input type="file" class="realData" accept='.xls' autocomplete="on" @change='openFile'>
           OLAT-Datei hochladen
       </label>
      </p> 
@@ -13,6 +13,26 @@
 </template>
 
 <script>
+export default {
+  data() {
+    return {};
+  },
+  methods: {
+    openFile: function(event) {
+      upload(event).then(x => {
+        const toAnalyze=x.split('\nLegende');
+       var myTest= table2Test(parse(toAnalyze[0], {
+         delimiter: `\t`,
+         trim: true,
+         relax_column_count: true
+       }));
+       addMaxScores(myTest.questions,toAnalyze[1]);
+        this.$emit("testRead", myTest);
+      });
+    }
+  }
+};
+
 class Question {
   constructor(name) {
     this.name = name;
@@ -46,36 +66,54 @@ class Question {
 function table2Test(table) {
   var Test = {
     system: "Olat",
+    info: '',
     questionsNr: 0,
     studentsNr: 0,
     questions: [],
     studentNames: []
   };
-  var headings=table[0];
-  var questionsNr = (headings.length - 2) / 2;
-  Test.questionsNr = questionsNr;
- 
-  var regex = /Points \((\d+) possible\)/;
-  for (var q = 0; q < questionsNr; q++) {
-    var qq = new Question(table[0][2*q+2])
-    var ms = regex.exec(table[1][2*q+2])[1];
-    qq.maxScore = parseInt(ms);
-    Test.questions[q] = qq;
+  var qTitleRow=table[0];
+  //var qStartEnd=[];
+  var cols=qTitleRow.length;
+  var qPkt=[];
+  for (var c=0;c<cols;c++) {
+    var qs=qTitleRow[c];
+    
+    if (qs.length > 0) {
+      Test.questions[Test.questionsNr] = new Question(qs);
+    }
+    if (table[1][c].match(/Pkt/)) {
+      qPkt[Test.questionsNr]=c;
+      Test.questionsNr++;
+    } 
   }
-  Test.studentsNr = table.length-2;
-
-  for (var i = 2; i < table.length; i++) {
-    var line = table[i];
-    Test.studentNames.push(line[0].substring(1,line[0].length));
-    for (var q1 = 0; q1 < questionsNr; q1++) {
-      
-      Test.questions[q1].scores.push(Number(line[2 + 2 * q1])),
-      Test.questions[q1].answers.push(line[3 + 2 * q1]);
+  var rowNr=2;
+  while (table[rowNr][0].length > 0) {
+    var line=table[rowNr];
+    Test.studentNames.push(line[1]+' '+line[2]);
+    for (var q1=0; q1<Test.questionsNr; q1++) {
+      Test.questions[q1].scores.push(Number(line[qPkt[q1]]));
+      if (line[qPkt[q1]+1].length < 4) {
+        Test.questions[q1].answers.push('');
+      } else {
+        Test.questions[q1].answers.push('X');
+      }
+    }
+    rowNr++;
+  }
+  Test.studentsNr=rowNr-2;
+  var qi=0;
+  for (var i=rowNr; i<table.length;i++) {
+    if (table[i][2] == 'maxValue') {
+      Test.questions[qi].maxScore=Number(table[i][3]);
+      qi++;
     }
   }
-  
+ 
   return Test;
 }
+
+
 var parse = require('csv-parse/lib/sync');
 
 var upload = function(event) {
@@ -84,7 +122,7 @@ var upload = function(event) {
     var reader = new FileReader();
     reader.onerror = () => {
       reader.abort();
-      reject(new DOMException("Problem parsing input file."));
+      reject(new DOMException("Problem uploading input file."));
     };
     reader.onload = () => {
       resolve(reader.result);
@@ -93,19 +131,18 @@ var upload = function(event) {
   });
 };
 
-export default {
-  data() {
-    return {};
-  },
-  methods: {
-    openFile: function(event) {
-      upload(event).then(x => {
-       var y=table2Test(parse(x));
-        this.$emit("testRead", y);
-      });
+function  addMaxScores(myQuestions,legend) {
+  const regex=/maxValue\s*([\d.]+)/g;
+  var i=0;
+  var match = true;
+  do {
+    match=regex.exec(legend);
+    if (match) {
+      myQuestions[i].maxScore=Number(match[1]);
+      i++;
     }
-  }
-};
+  } while (match);
+}
 </script>
 
 <style scoped>

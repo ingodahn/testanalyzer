@@ -19,7 +19,7 @@
     </div>
     
     <div id="basics" v-if='questionsNr != 0'>
-      <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor. Maximal können {{ totalScore }} Pukte erreicht werden.</p>
+      <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsDataNr}} Studierenden vor, von denen {{studentsNr}} am Test teilgenommen haben. Maximal können {{ totalScore }} Pukte erreicht werden.</p>
       <p v-if='2*questionsNr >= studentsNr'><b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b></p>
       <EditMaxScores v-if="system == 'Ilias'" :Questions=questions></EditMaxScores>
     </div>
@@ -60,6 +60,7 @@ export default {
       type: "compulsory",
       questionsNr: 0,
       studentsNr: 0,
+      studentsDataNr: 0,
       questions: [],
       studentNames: [],
       componentStatus: {
@@ -97,7 +98,31 @@ export default {
       this.questionsNr = test.questionsNr;
       this.questions = test.questions;
       this.studentsNr = test.studentsNr;
-      this.studentNames = test.studentNames;
+      this.studentsDataNr = test.studentsNr;
+      this.studentNames = test.studentNames.map(function(item,index) {
+        return item+" ("+index+")";
+      });
+      
+      // Removing non-participants
+      for (var s=test.studentsNr-1; s >= 0; s--) {
+        var participated=false;
+        for (var q=0; q<this.questionsNr; q++) {
+          if (this.questions[q].answers[s] != '') {
+            participated=true;
+            break;
+          }
+        }
+        if (! participated) {
+          this.studentNames.splice(s,1);
+          for (var q2=0; q2< this.questionsNr; q2++) {
+            let qq=this.questions[q2];
+            qq.answers.splice(s,1);
+            qq.scores.splice(s,1);
+          }
+          this.studentsNr--;
+        }
+      }
+      
     }
   },
 
@@ -147,20 +172,18 @@ export default {
             student32['scores'][this.questions[qq]['name']]=this.questions[qq].scores[s];
             student32['totalScore'] += this.questions[qq].scores[s];
           }
-          
         }
         
         studentScores.push(student32);
       }
-      
-      return studentScores;
+      return studentScores;    
     },
+    
     scoredSorted: function() {
       var ss = this.students.slice(0);
       var scoredSorted = ss.sort(function(a, b) {
         return a.totalScore - b.totalScore;
       });
-      
       return scoredSorted;
     },
     questionNames: function() {
@@ -181,7 +204,6 @@ export default {
     }
   }
 };
-
 </script>
 
 <style scoped>
