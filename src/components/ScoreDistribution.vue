@@ -192,7 +192,7 @@ export default {
                 }
             }
             var ws = weakStudents[wsi].name;
-            return "Sehen Sie sich insbesondere die Antworten der Studierenden mit "+this.chartLabels[gap]+" Punkten auf die Frage "+maxDiffName + " an, z.B. von "+ws+", bzw. sprechen Sie mit ihnen über die Gründe, warum sie diese Frage nicht bearbeitet haben.";
+            return "Sehen Sie sich insbesondere die Antworten der Studierenden mit "+this.chartLabels[gap]+" Punkten auf die Frage "+maxDiffName + " an, z.B. von "+ws+", bzw. fragen Sie sie, warum sie diese Frage nicht bearbeitet haben.";
         },
         hint: function() {
             if (this.gaps.length == 0) {
