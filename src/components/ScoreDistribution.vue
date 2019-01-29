@@ -191,8 +191,8 @@ export default {
                     break;
                 }
             }
-            var ws = weakStudents[wsi].name+" ("+ weakStudents[wsi].scores[maxDiffName]+" von "+maxDiffMaxScore+" Punkten).";
-            return "Sehen Sie sich insbesondere die Antworten der Studierenden mit "+this.chartLabels[gap]+" Punkten auf die Frage "+maxDiffName + " an, z.B. von "+ws;
+            var ws = weakStudents[wsi].name;
+            return "Sehen Sie sich insbesondere die Antworten der Studierenden mit "+this.chartLabels[gap]+" Punkten auf die Frage "+maxDiffName + " an, z.B. von "+ws+", bzw. sprechen Sie mit ihnen über die Gründe, warum sie diese Frage nicht bearbeitet haben.";
         },
         hint: function() {
             if (this.gaps.length == 0) {
