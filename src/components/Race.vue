@@ -15,7 +15,7 @@
             <text :x=width-right+(right-left)*0.6-20 :y=bottom+15 fill="black">60 %</text>
             <text :x=width-right+(right-left)*0.8-20 :y=bottom+15 fill="black">80 %</text>
             <text :x=width-left-30 :y=bottom+15 fill="black">100 %</text>
-            <text id="trackMsg" :x=width-right+(right-left)*0.5-curStudent.length*5 :y=bottom+40 fill="red">{{ trackMsg }}</text>
+            <text id="trackMsg" :x=width-right+(right-left)*0.5-curStudent.length*5 :y=bottom+40 fill="hsl(198, 65%, 40%)">{{ trackMsg }}</text>
             <text :x=width-right-10 :y=bottom+15 fill="black">0 %</text>
                 <circle v-for="item in studentScores" :key=item.name
                 @mouseover="curStudent = item.name"
@@ -70,7 +70,7 @@ export default {
     border-style: solid;
 }
 circle:hover {
-    fill: red;
+    fill: hsl(198, 65%, 40%);
 }
 </style>
 

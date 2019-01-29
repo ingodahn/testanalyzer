@@ -24,7 +24,13 @@ export default {
 }
 
 .warn_1 {
-  color: red
+  color: hsl(198, 65%, 40%);
+  background-color: hsla(60, 82%, 63%, 0.3);
+  padding: 5px;
+}
+
+#testType {
+  margin: 10px;
 }
 
 </style>
