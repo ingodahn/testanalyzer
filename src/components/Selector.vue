@@ -2,17 +2,17 @@
   <div class="select">
     <h2>Bitte wählen Sie Ihr System</h2>
     <nav>
-        <router-link to="/imathas">IMathAS</router-link>
-        <router-link to="/ilias">ILIAS</router-link>
-        <router-link to="/olat">OLAT</router-link>
-      </nav>
+      <router-link to="/imathas">IMathAS</router-link>
+      <router-link to="/ilias">ILIAS</router-link>
+      <router-link to="/olat">Open OLAT</router-link>
+    </nav>
   </div>
 </template>
 
 <style scoped>
 body {
-  background-color: #EEEEEE;
-  font-family: 'Montserrat', sans-serif;
+  background-color: #eeeeee;
+  font-family: "Montserrat", sans-serif;
   display: grid;
   grid-template-rows: auto;
   justify-items: center;

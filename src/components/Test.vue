@@ -1,5 +1,5 @@
 <template>
-  <div id="Test" >
+  <div id="Test">
     <div class="container">
       <div class="page-title">
         <h1>{{ pSystem }} Test-Analyse</h1>
@@ -9,35 +9,56 @@
       </div>
       <div class="main">
         <div id="context">
-          <p>Diese Webseite kann die Ergebnisse Ihrer Tests analysieren. Sie kann Ihnen dabei helfen, die Qualität Ihrer Testfragen einzuschätzen. </p>
+          <p>Diese Webseite kann die Ergebnisse Ihrer Tests analysieren. Sie kann Ihnen dabei helfen, die Qualität Ihrer Testfragen einzuschätzen.</p>
           <p>Die Qualität einer Testfrage ist auch abhängig von der Zielstellung des jeweiligen Tests. So wird man bei einem Test zur Motivierung der Studierenden oder bei einem Test zum Üben eine höhere Erfolgsquote erwarten, als bei einem Diagnose-Test, der die Grenzen von Wissen, Können und Kompetenzen der Studierenden ausloten soll.</p>
-          <p> <b>Datenschutzhinweis:</b> Diese Webseite überträgt nach ihrem Aufruf keine Daten an andere Systeme. Alle Berechnungen erfolgen ausschließlich in Ihrem Browser. (<a href="https://de.wikipedia.org/wiki/Edge_Computing" target="_blank">Edge Computing</a>)</p>
-          <p> <b>Bitte bachten Sie:</b> Diese Software hat experimentellen Charakter. Es wird keinerlei Garantie übernommen. Hinweise auf Probleme und Wünsche zur Verbesserung der Seite sind jedoch <a href="mailto:dahn@dahn-research.eu">ausdrücklich erwünscht</a>.</p>
+          <p>
+            <b>Datenschutzhinweis:</b> Diese Webseite überträgt nach ihrem Aufruf keine Daten an andere Systeme. Alle Berechnungen erfolgen ausschließlich in Ihrem Browser. (
+            <a href="https://de.wikipedia.org/wiki/Edge_Computing" target="_blank">Edge Computing</a>)
+          </p>
+          <p>
+            <b>Bitte bachten Sie:</b> Diese Software hat experimentellen Charakter. Es wird keinerlei Garantie übernommen. Hinweise auf Probleme und Wünsche zur Verbesserung der Seite sind jedoch
+            <a href="mailto:dahn@dahn-research.eu">ausdrücklich erwünscht</a>.
+          </p>
         </div>
-    <div id="system">
-      <router-view v-on:load="reset" v-on:testRead="testread"/>
-    </div>
-    
-    <div id="basics" v-if='questionsNr != 0'>
-      <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsDataNr}} Studierenden vor, von denen {{studentsNr}} am Test teilgenommen haben. Maximal können {{ totalScore }} Pukte erreicht werden.</p>
-      <p v-if='2*questionsNr >= studentsNr'><b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b></p>
-      <EditMaxScores v-if="system == 'Ilias'" :Questions=questions></EditMaxScores>
-    </div>
-    
-    <SetType id="testType" :testtype=type v-on:typeselected ="settype"></SetType>
+        <div id="system">
+          <router-view v-on:load="reset" v-on:testRead="testread"/>
+        </div>
 
-    <ScoreDistribution id="scoreDistribution" :ScoredSorted=scoredSorted :TotalScore=totalScore :Questions = questions :ComponentStatus=componentStatus></ScoreDistribution>
-    <Less id="less" :Score=score :ComponentStatus=componentStatus></Less>
-    <More id="more" :Score=score :ComponentStatus=componentStatus></More>
-    <Attempts id="attempts" :Questions=questions :ComponentStatus=componentStatus></Attempts>
-    <BestStudents id="best" :Students=students :ScoredSorted=scoredSorted :Questions=questions :ComponentStatus=componentStatus></BestStudents>
-    <QuestionStatistics id="questionStatistics" :Score=score></QuestionStatistics>
+        <div id="basics" v-if="questionsNr != 0">
+          <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsDataNr}} Studierenden vor, von denen {{studentsNr}} am Test teilgenommen haben. Maximal können {{ totalScore }} Pukte erreicht werden.</p>
+          <p v-if="2*questionsNr >= studentsNr">
+            <b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b>
+          </p>
+          <EditMaxScores v-if="system == 'Ilias' || system == 'OLAT_xlsx'" :Questions="questions"></EditMaxScores>
+        </div>
+
+        <SetType id="testType" :testtype="type" v-on:typeselected="settype"></SetType>
+
+        <ScoreDistribution
+          id="scoreDistribution"
+          :ScoredSorted="scoredSorted"
+          :TotalScore="totalScore"
+          :Questions="questions"
+          :ComponentStatus="componentStatus"
+        ></ScoreDistribution>
+        <Less id="less" :Score="score" :ComponentStatus="componentStatus"></Less>
+        <More id="more" :Score="score" :ComponentStatus="componentStatus"></More>
+        <Attempts id="attempts" :Questions="questions" :ComponentStatus="componentStatus"></Attempts>
+        <BestStudents
+          id="best"
+          :Students="students"
+          :ScoredSorted="scoredSorted"
+          :Questions="questions"
+          :ComponentStatus="componentStatus"
+        ></BestStudents>
+        <QuestionStatistics id="questionStatistics" :Score="score"></QuestionStatistics>
+      </div>
+      <div class="footer">
+        <p>&copy;Ingo Dahn (Dahn-Research), Lizenz:
+          <a href="https://creativecommons.org/licenses/by-sa/3.0/de/">CC-BY-SA 3.0</a>
+        </p>
+      </div>
     </div>
-    <div class="footer">
-      <p>&copy;Ingo Dahn (Dahn-Research), Lizenz: <a href="https://creativecommons.org/licenses/by-sa/3.0/de/">CC-BY-SA 3.0</a></p>
-    </div>
-    </div>
-    
   </div>
 </template>
 
@@ -64,11 +85,11 @@ export default {
       questions: [],
       studentNames: [],
       componentStatus: {
-        scoreDistribution: 'warn_0',
-        less: 'warn_0',
-        more: 'warn_0',
-        attempts: 'warn_0',
-        best: 'warn_0'
+        scoreDistribution: "warn_0",
+        less: "warn_0",
+        more: "warn_0",
+        attempts: "warn_0",
+        best: "warn_0"
       }
     };
   },
@@ -81,7 +102,7 @@ export default {
     BestStudents,
     EditMaxScores,
     ScoreDistribution,
-    QuestionStatistics,
+    QuestionStatistics
   },
   methods: {
     settype: function(typeval) {
@@ -99,30 +120,29 @@ export default {
       this.questions = test.questions;
       this.studentsNr = test.studentsNr;
       this.studentsDataNr = test.studentsNr;
-      this.studentNames = test.studentNames.map(function(item,index) {
-        return item+" ("+index+")";
+      this.studentNames = test.studentNames.map(function(item, index) {
+        return item + " (" + index + ")";
       });
-      
+
       // Removing non-participants
-      for (var s=test.studentsNr-1; s >= 0; s--) {
-        var participated=false;
-        for (var q=0; q<this.questionsNr; q++) {
-          if (this.questions[q].answers[s] != '') {
-            participated=true;
+      for (var s = test.studentsNr - 1; s >= 0; s--) {
+        var participated = false;
+        for (var q = 0; q < this.questionsNr; q++) {
+          if (this.questions[q].answers[s] != "") {
+            participated = true;
             break;
           }
         }
-        if (! participated) {
-          this.studentNames.splice(s,1);
-          for (var q2=0; q2< this.questionsNr; q2++) {
-            let qq=this.questions[q2];
-            qq.answers.splice(s,1);
-            qq.scores.splice(s,1);
+        if (!participated) {
+          this.studentNames.splice(s, 1);
+          for (var q2 = 0; q2 < this.questionsNr; q2++) {
+            let qq = this.questions[q2];
+            qq.answers.splice(s, 1);
+            qq.scores.splice(s, 1);
           }
           this.studentsNr--;
         }
       }
-      
     }
   },
 
@@ -158,27 +178,32 @@ export default {
       return tScore;
     },
     students: function() {
-      var studentScores=[];
-      
+      var studentScores = [];
+
       for (var s = 0; s < this.studentsNr; s++) {
-        var student32={
+        var student32 = {
           name: this.studentNames[s],
           scores: {},
           totalScore: 0
         };
-        
+
         for (var qq = 0; qq < this.questionsNr; qq++) {
-          if ((this.type == "compulsory" || this.questions[qq].answers[s] != "")) {
-            student32['scores'][this.questions[qq]['name']]=this.questions[qq].scores[s];
-            student32['totalScore'] += this.questions[qq].scores[s];
+          if (
+            this.type == "compulsory" ||
+            this.questions[qq].answers[s] != ""
+          ) {
+            student32["scores"][this.questions[qq]["name"]] = this.questions[
+              qq
+            ].scores[s];
+            student32["totalScore"] += this.questions[qq].scores[s];
           }
         }
-        
+
         studentScores.push(student32);
       }
-      return studentScores;    
+      return studentScores;
     },
-    
+
     scoredSorted: function() {
       var ss = this.students.slice(0);
       var scoredSorted = ss.sort(function(a, b) {
@@ -193,14 +218,11 @@ export default {
       }
       return questionNames;
     },
-    pSystem: function () {
-      var pS=this.$route.path;
-      if (pS.match(/imathas/g))
-        return 'IMathAS';
-      if (pS.match('ilias'))
-        return 'Ilias'
-      return '';
-
+    pSystem: function() {
+      var pS = this.$route.path;
+      if (pS.match(/imathas/g)) return "IMathAS";
+      if (pS.match("ilias")) return "Ilias";
+      return "";
     }
   }
 };
@@ -232,7 +254,7 @@ export default {
   height: 50px;
   grid-column: 1/3;
   grid-row: 3;
-  
+
   background-color: hsl(198, 65%, 40%);
   color: white;
   text-align: center;
@@ -253,8 +275,8 @@ export default {
 }
 
 body {
-  background-color: #EEEEEE;
-  font-family: 'Montserrat', sans-serif;
+  background-color: #eeeeee;
+  font-family: "Montserrat", sans-serif;
   display: grid;
   grid-template-rows: auto;
   justify-items: center;
@@ -275,4 +297,3 @@ nav a {
   margin-right: 15px;
 }
 </style>
-
