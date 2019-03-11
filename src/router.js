@@ -1,9 +1,9 @@
 import Vue from "vue";
 import Router from "vue-router";
-import IMathAS from "./components/IMathAS/TestReader.vue";
 import Selector from "./components/Selector.vue";
-import Ilias from "./components/Ilias/TestReader.vue";
-import Olat from "./components/Olat/TestReader.vue";
+const IMathAS = () => import("./components/IMathAS/TestReader.vue");
+const Ilias = () => import("./components/Ilias/TestReader.vue");
+const Olat = () => import("./components/Olat/TestReader.vue");
 
 Vue.use(Router);
 
