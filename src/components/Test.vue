@@ -8,24 +8,38 @@
         <Navigation :QuestionsNr="questionsNr" :ComponentStatus="componentStatus"></Navigation>
       </div>
       <div class="main">
-        <div id="context">
+        <div id="context" v-if="showContext">
           <p>Diese Webseite kann die Ergebnisse Ihrer Tests analysieren. Sie kann Ihnen dabei helfen, die Qualität Ihrer Testfragen einzuschätzen.</p>
           <p>Die Qualität einer Testfrage ist auch abhängig von der Zielstellung des jeweiligen Tests. So wird man bei einem Test zur Motivierung der Studierenden oder bei einem Test zum Üben eine höhere Erfolgsquote erwarten, als bei einem Diagnose-Test, der die Grenzen von Wissen, Können und Kompetenzen der Studierenden ausloten soll.</p>
           <p>
             <b>Datenschutzhinweis:</b> Diese Webseite überträgt nach ihrem Aufruf keine Daten an andere Systeme. Alle Berechnungen erfolgen ausschließlich in Ihrem Browser. (
-            <a href="https://de.wikipedia.org/wiki/Edge_Computing" target="_blank">Edge Computing</a>)
+            <a
+              href="https://de.wikipedia.org/wiki/Edge_Computing"
+              target="_blank"
+            >Edge Computing</a>)
           </p>
           <p>
             <b>Bitte bachten Sie:</b> Diese Software hat experimentellen Charakter. Es wird keinerlei Garantie übernommen. Hinweise auf Probleme und Wünsche zur Verbesserung der Seite sind jedoch
-            <a href="mailto:dahn@dahn-research.eu">ausdrücklich erwünscht</a>.
+            <a
+              href="mailto:dahn@dahn-research.eu"
+            >ausdrücklich erwünscht</a>.
           </p>
         </div>
-        <div id="system">
+        <div id="system" v-if="showUpload">
           <router-view v-on:load="reset" v-on:testRead="testread"/>
         </div>
 
         <div id="basics" v-if="questionsNr != 0">
-          <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsDataNr}} Studierenden vor, von denen {{studentsNr}} am Test teilgenommen haben. Maximal können {{ totalScore }} Pukte erreicht werden.</p>
+          <p>
+            Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsDataNr}} Studierenden vor, von denen {{studentsNr}} am Test teilgenommen haben. Maximal können {{ totalScore }} Pukte erreicht werden.
+            <input
+              v-if="! showUpload"
+              class="newUpload"
+              type="button"
+              v-on:click="showUpload = true"
+              value="Neue Datei laden"
+            >
+          </p>
           <p v-if="2*questionsNr >= studentsNr">
             <b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b>
           </p>
@@ -54,8 +68,11 @@
         <QuestionStatistics id="questionStatistics" :Score="score"></QuestionStatistics>
       </div>
       <div class="footer">
-        <p>&copy;Ingo Dahn (Dahn-Research), Lizenz:
-          <a href="https://creativecommons.org/licenses/by-sa/3.0/de/">CC-BY-SA 3.0</a>
+        <p>
+          &copy;Ingo Dahn (Dahn-Research), Lizenz:
+          <a
+            href="https://creativecommons.org/licenses/by-sa/3.0/de/"
+          >CC-BY-SA 3.0</a>
         </p>
       </div>
     </div>
@@ -90,7 +107,9 @@ export default {
         more: "warn_0",
         attempts: "warn_0",
         best: "warn_0"
-      }
+      },
+      showContext: true,
+      showUpload: true
     };
   },
   components: {
@@ -143,6 +162,8 @@ export default {
           this.studentsNr--;
         }
       }
+      this.showUpload = false;
+      this.showContext = false;
     }
   },
 
@@ -272,6 +293,15 @@ export default {
 }
 .main {
   padding: 20px;
+}
+.newUpload {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  background-color: hsl(198, 65%, 40%);
+  color: white;
+  border-radius: 10px;
 }
 
 body {
