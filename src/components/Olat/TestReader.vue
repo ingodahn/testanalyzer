@@ -34,7 +34,6 @@
 </template>
 
 <script>
-// var myTest = { questionsNr: 0 };
 export default {
   data() {
     return {};
