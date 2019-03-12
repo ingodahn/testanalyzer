@@ -12,7 +12,7 @@
       <input
         class="demoData"
         type="button"
-        onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOlat.xls'"
+        onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOlat.xlsx'"
         value="Demo-Daten"
       >
     </p>
