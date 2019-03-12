@@ -1,17 +1,18 @@
 <template>
     <div id='questionStatistics'>
         <h2>Fragen-Statistik</h2>
-        
-        <div class="chart-container" style="width:50%" v-if="Score.length > 0">
-            <div v-for='item in ChartGroups' :key=item[0]>
-                <h3>Fragen {{item[0]+1}} - {{item[1]}}</h3>
-                <LineChart :chartData=ScoreChart(item[0],item[1])></LineChart>
+        <div style="text-align: center;">
+            <div class="chart-container" style="width:50%;display: inline-block;" v-if="Score.length > 0">
+                <div v-for='item in ChartGroups' :key=item[0]>
+                    <h3>Fragen {{item[0]+1}} - {{item[1]}}</h3>
+                    <LineChart :chartData=ScoreChart(item[0],item[1])></LineChart>
+                </div>
             </div>
         </div>
-        <div v-if="Score.length > 0">
+        <div v-if="Score.length > 0" style="margin-top: 25px;">
             <p>
-                <b>Hinweis: </b>Wenn die maximal mögliche Punktzahl der Schwierigkeit der Aufgabe entsprechen soll, so vergleichen Sie die beiden Kurven. 
-                Bei schwierigen Fragen ist der mittlere Punktwert niedrig, verglichen mit dem Maximalpunktwert. 
+                <b>Hinweis: </b>Wenn die maximal mögliche Punktzahl der Schwierigkeit der Aufgabe entsprechen soll, so vergleichen Sie die beiden Kurven.
+                Bei schwierigen Fragen ist der mittlere Punktwert niedrig, verglichen mit dem Maximalpunktwert.
                 Derartige Fragen kann man mit einem entsprechend höheren Maximalpunktwert belohnen.
             </p>
             <p>Eine angepasste Punkteverteilung wäre z.B.:</p>
@@ -49,7 +50,7 @@ export default {
     props: ['Score'],
     methods: {
         ScoreChart: function (start,end) {
-            
+
             var chart={
                 labels: [],
                 datasets:[]
@@ -113,9 +114,17 @@ export default {
                     ar1.push([start+n/2,ln]);
                     start=ln;
                 }
-            } while (start < ln)  
-            return ar1;  
+            } while (start < ln)
+            return ar1;
         }
     }
 }
 </script>
+
+<style>
+#line-chart {
+    border: 1px solid hsl(198,65%,40%);
+    border-radius: 10px;
+    box-shadow: -10px 19px 15px silver;
+}
+</style>

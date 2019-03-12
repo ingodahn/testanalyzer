@@ -242,7 +242,8 @@ export default {
     pSystem: function() {
       var pS = this.$route.path;
       if (pS.match(/imathas/g)) return "IMathAS";
-      if (pS.match("ilias")) return "Ilias";
+      if (pS.match(/ilias/)) return "Ilias";
+      if (pS.match(/olat/)) return "Open OLAT";
       return "";
     }
   }

@@ -1,6 +1,6 @@
 <template>
 <div id="more" :class=warnLevel>
-    <h2>Bei welchen Fragen wurden oft viele Punkte erreicht?</h2>   
+    <h2>Bei welchen Fragen wurden oft viele Punkte erreicht?</h2>
     <div v-if = 'Score.length != 0'>
         <div v-if="questionSuccess.length == 0">
             <p>Bei allen Aufgaben wurden im Mittel höchstens {{tp}} erreicht.
@@ -58,7 +58,7 @@ export default {
                     qs.push(questions[i].name);
                 }
             }
-            return qs;            
+            return qs;
         },
         warnLevel: function () {
             var s=this.ComponentStatus;
@@ -85,7 +85,7 @@ export default {
             } else {
                 return 'So sollte es sein. Ihre Aufgaben sind nicht zu leicht.';
             }
-            
+
         },
         tp: function () {
             return this.threshold*100+"% der Punkte";

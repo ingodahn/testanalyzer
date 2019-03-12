@@ -79,27 +79,12 @@ class Question {
     this.maxScore = 1;
     this.scores = [];
     this.answers = [];
-    this.attempts = 0;
   }
-  get averageScore() {
-    return this.calcAverageScore();
+  attempted(x) {
+    return x != "";
   }
-  attempted(i) {
-    return this.answers[i] != "";
-  }
-  calcAverageScore() {
-    var s = 0;
-    this.attempts = 0;
-    for (var i = 0; i < this.scores.length; i++) {
-      // We normalize scores
-      s += parseInt(this.scores[i]) / this.maxScore;
-      // As sideeffect we calculate the number of attempts
-      if (this.attempted(i)) {
-        this.attempts++;
-      }
-    }
-    // return average score
-    return s / this.answers.length;
+  get attempts() {
+    return this.answers.filter(this.attempted).length;
   }
 }
 
@@ -112,7 +97,6 @@ function table2Test(table) {
     questions: [],
     studentNames: []
   };
-  //var lines = table.split("\n");
   var headings = table[0];
   var questionsNr = headings.length - 19;
   Test.questionsNr = questionsNr;
@@ -138,9 +122,11 @@ function table2Test(table) {
       } else {
         Test.questions[q1].scores.push(0);
       }
-      Test.questions[q1].answers.push[score];
+      Test.questions[q1].answers.push(score);
     }
   }
+  //eslint-disable-next-line
+  console.log(Test);
   return Test;
 }
 

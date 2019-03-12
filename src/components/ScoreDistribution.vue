@@ -2,8 +2,10 @@
     <div id="diagram" :class=warnLevel>
         <h2>Punkteverteilung</h2>
         <div v-if='ScoredSorted.length > 0'>
-            <div class="chart-container" style="width:25%">
-                <BarChart :chartData=studentScores></BarChart>
+            <div style="text-align: center;">
+            <div class="chart-container" style="width:25%; display: inline-block;">
+                <BarChart :chartData=studentScores> </BarChart>
+            </div>
             </div>
             <p v-if=hint><b>Hinweis:</b> {{ hint }}</p>
             <div v-if="hintDetails != ''">
@@ -19,7 +21,7 @@
             <Race id="trackComponent" :ScoredSorted=ScoredSorted :TotalScore=TotalScore></Race>
         </div>
     </div>
-    
+
 
 </template>
 
@@ -86,7 +88,7 @@ export default {
             };
             const n=this.bucketsNr;
             var backgroundColor=Array(n).fill('hsl(198, 65%, 40%)');
-            
+
             chart.labels=this.chartLabels;
             var chartData={
                 label: "Punkteverteilung",
@@ -125,7 +127,7 @@ export default {
             return gaps;
         },
         hintDetails: function () {
-            
+
             if (this.gaps.length == 0) {
                 return '';
             }
@@ -137,18 +139,18 @@ export default {
             const goodStudentsScores=goodStudents.map(x => x.scores)
             var lgood=goodStudents.length;
             const lweak=weakStudents.length;
-            
+
             var weakStudentsQ={};
             for (var q=0; q < this.Questions.length; q++) {
                 weakStudentsQ[this.Questions[q]['name']] = 0;
             }
-           
+
             for (var i=0; i<lweak; i++) {
                 for (var name in weakStudentsScores[i] ) {
                     weakStudentsQ[name] += weakStudentsScores[i][name];
                 }
             }
-            
+
             var goodStudentsQ = {};
             if (lgood == 0) {
                 for (var qi=0; qi < this.Questions.length; qi++) {
@@ -159,7 +161,7 @@ export default {
             } else {
                 goodStudentsQ=goodStudentsScores[0];
             }
-            
+
             for (var i1=1; i1<lgood; i1++) {
                 for (var name1 in goodStudentsScores[i1] ) {
                     goodStudentsQ[name1] += goodStudentsScores[i1][name1];
@@ -216,3 +218,10 @@ function sum(array,start,end) {
 
 </script>
 
+<style>
+#bar-chart {
+    border: 1px solid hsl(198,65%,40%);
+    border-radius: 10px;
+    box-shadow: -10px 19px 15px silver;
+}
+</style>

@@ -75,7 +75,7 @@ export default {
         }
 
         // 5. table2test
-        var test = table2Test(csvArray);
+        var test = table2Test(csvArray, type);
         test.system = "OLAT_" + type;
         if (type == "xls") {
           addMaxScores(test.questions, toAnalyze[1]);
@@ -119,31 +119,16 @@ class Question {
     this.maxScore = 1;
     this.scores = [];
     this.answers = [];
-    this.attempts = 0;
   }
-  get averageScore() {
-    return this.calcAverageScore();
+  attempted(x) {
+    return x != "";
   }
-  attempted(i) {
-    return this.answers[i] != "";
-  }
-  calcAverageScore() {
-    var s = 0;
-    this.attempts = 0;
-    for (var i = 0; i < this.scores.length; i++) {
-      // We normalize scores
-      s += parseInt(this.scores[i]) / this.maxScore;
-      // As sideeffect we calculate the number of attempts
-      if (this.attempted(i)) {
-        this.attempts++;
-      }
-    }
-    // return average score
-    return s / this.answers.length;
+  get attempts() {
+    return this.answers.filter(this.attempted).length;
   }
 }
 
-function table2Test(table) {
+function table2Test(table, type) {
   var Test = {
     system: "Olat",
     info: "",
@@ -180,7 +165,8 @@ function table2Test(table) {
       Test.studentNames.push(line[1] + " " + line[2]);
     }
 
-    if (Test.isSelfTest) {
+    if (type == "xlsx") {
+      // In xlsx-Dateien erkennt man unversuchte Aufgaben an einem leeren Punkteeintrag
       for (var q1 = 0; q1 < Test.questionsNr; q1++) {
         if (line[qPkt[q1]].length == 0) {
           Test.questions[q1].scores.push(0);
@@ -191,6 +177,7 @@ function table2Test(table) {
         }
       }
     } else {
+      // in xls-Dateien erkennt man unversuchte Aufgaben an einem "n/a" in der auf die Punktspalte folgenden Spalte für die Startzeit
       for (q1 = 0; q1 < Test.questionsNr; q1++) {
         Test.questions[q1].scores.push(Number(line[qPkt[q1]]));
         if (line[qPkt[q1] + 1].length < 4) {
@@ -200,6 +187,7 @@ function table2Test(table) {
         }
       }
     }
+
     rowNr++;
   }
   Test.studentsNr = rowNr - 2;
@@ -210,7 +198,8 @@ function table2Test(table) {
       qi++;
     }
   }
-
+  //eslint-disable-next-line
+  console.log(Test);
   return Test;
 }
 
