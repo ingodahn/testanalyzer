@@ -1,12 +1,12 @@
 <template>
   <div>
     <p>
-      <b>Daten laden:</b> Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OLAT. Sie finden das Werkzeug zur Datenarchivierung in Irem OLAT-Kurs im Menü
+      <b>Daten laden:</b> Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OLAT. Sie finden das Werkzeug zur Datenarchivierung in Ihrem OLAT-Kurs im Menü
       <i>Administration</i>. Ändern Sie die voreingestellten Download-Optionen nicht.
     </p>
     <p>
       Sie erhalten ein zip-Archiv, in dem Sie nach dem Entpacken u.a. eine Datei mit der Endung .xls oder ,xlsx vorfinden. Überschreiben Sie diese Datei
-      <u>nicht</u> mit einem anderen Programm, wie etwa einer Tabellenkalkulation! Laden Sie diese xls- oder xlsx-Datei in diese Webseite.
+      <u>nicht</u> mit einem anderen Programm, wie etwa einer Tabellenkalkulation! Ziehen Sie diese xls- oder xlsx-Datei mit der Maus in diese Webseite auf die Fläche unten.
     </p>
     <p>
       <input
@@ -25,7 +25,7 @@
               @drop="handleDrop"
               @dragover="handleDragover"
               @dragenter="handleDragover"
-            >Datei hier ablegen</div>
+            >xls- oder xlsx-Datei mit der Maus hier ablegen</div>
           </div>
         </div>
       </div>
