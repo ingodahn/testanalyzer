@@ -18,7 +18,7 @@
                     </ul>
                 </p>
             </div>
-            <Race id="trackComponent" :ScoredSorted=ScoredSorted :TotalScore=TotalScore></Race>
+            <Race id="trackComponent" :ScoredSorted=ScoredSorted :TotalScore=TotalScore :Questions=Questions></Race>
         </div>
     </div>
 

@@ -1,6 +1,7 @@
 <template>
   <div id="race">
     <h2>Wo stehen die Studierenden?</h2>
+    <StudentStatistics id="studentStatistics" :ScoredSorted="ScoredSorted" :Questions="Questions"></StudentStatistics>
     <div style="text-align: center;">
       <svg
         v-if="ScoredSorted.length > 0"
@@ -63,9 +64,10 @@
 </template>
 
 <script>
+import StudentStatistics from "./StudentStatistics.vue";
 export default {
   name: "Race",
-  props: ["ScoredSorted", "TotalScore"],
+  props: ["ScoredSorted", "TotalScore", "Questions"],
   data() {
     return {
       width: 700,
@@ -77,6 +79,9 @@ export default {
       diameter: 5,
       curStudent: "none"
     };
+  },
+  components: {
+    StudentStatistics
   },
   computed: {
     studentScores: function() {
