@@ -39,6 +39,9 @@ export default {
     return {};
   },
   methods: {
+    sendResult: function(M, C) {
+      this.emit(M, C);
+    },
     handleDragover: handleDragover,
     handleDrop: function(e) {
       e.stopPropagation();
@@ -47,52 +50,126 @@ export default {
         f = files[0],
         type = f.name.split(".").pop(),
         csv;
-
-      var reader = new FileReader();
-      //name = f.name;
-
-      reader.onload = e => {
-        // 1. Getting file
-        var data = e.target.result;
-        var toAnalyze;
-
-        // 2. Stripping off and storing Legende if necessary
-        if (type == "xls") {
-          toAnalyze = data.split("\nLegende");
-          csv = toAnalyze[0];
-        } else {
-          // 3. Parsing File into csv if necessary
-          var fileData = getXLSX(data);
-          csv = XLSX.utils.sheet_to_csv(fileData);
-        }
-
-        // 4. Parsing csv into array of arrays of items
-        var csvArray;
-        if (type == "xls") {
-          csvArray = parseCSV(csv, "\t");
-        } else {
-          csvArray = parseCSV(csv, ",");
-        }
-
-        // 5. table2test
-        var test = table2Test(csvArray, type);
-        test.system = "OLAT_" + type;
-        if (type == "xls") {
-          addMaxScores(test.questions, toAnalyze[1]);
-        }
-
-        //  6. Emit signal (or modify Test object's parts?)
-        this.$emit("testRead", test);
-      };
-      if (type == "xlsx") {
-        reader.readAsArrayBuffer(f);
+      /* We distinguish type zip, xls and alsx which all require different handlings
+       * In each case a reader (zip or fileReader) is defined and
+       * zip.loadAsync is a promise and calls the function with then when the file is loaded.
+       * fileReader calls the function set as onLoad when the file is loaded.
+       * These functions performe the further analysis and emit testread to the parent component
+       */
+      if (type == "zip") {
+        var zip = new JSZip();
+        zip.loadAsync(f /* = file blob */).then(
+          function(zip) {
+            unzipXlsX(zip);
+          },
+          function() {
+            alert("Not a valid zip file");
+          }
+        );
       } else {
-        reader.readAsText(f);
+        var reader = new FileReader();
+        //name = f.name;
+
+        reader.onload = e => {
+          // 1. Getting file
+          var data = e.target.result;
+          var toAnalyze;
+
+          // 2. Stripping off and storing Legende if necessary
+          switch (type) {
+            case "xls":
+              toAnalyze = data.split("\nLegende");
+              csv = toAnalyze[0];
+              break;
+            case "xlsx":
+              var fileData = getXLSX(data);
+              csv = XLSX.utils.sheet_to_csv(fileData);
+              break;
+            default:
+          }
+
+          // 4. Parsing csv into array of arrays of items
+          var csvArray;
+          switch (type) {
+            case "xls":
+              csvArray = parseCSV(csv, "\t");
+              break;
+            case "xlsx":
+              csvArray = parseCSV(csv, ",");
+              break;
+            default:
+          }
+
+          // 5. table2test
+          var test = table2Test(csvArray, type);
+          test.system = "OLAT_" + type;
+          if (type == "xls") {
+            addMaxScores(test.questions, toAnalyze[1]);
+          }
+
+          //  6. Emit signal (or modify Test object's parts?)
+          if (type == "xls" || type == "xlsx") {
+            this.$emit("testRead", test);
+          }
+        };
+        // End reader.onload
+        switch (type) {
+          case "xlsx":
+            reader.readAsArrayBuffer(f);
+            break;
+          case "xls":
+            reader.readAsText(f);
+            break;
+          default:
+        }
       }
     }
   }
 };
 import XLSX from "xlsx";
+import JSZip from "jszip";
+
+function handleData(data, type) {
+  var csv, toAnalyze;
+
+  // 2. Stripping off and storing Legende if necessary
+  switch (type) {
+    case "xls":
+      toAnalyze = data.split("\nLegende");
+      csv = toAnalyze[0];
+      break;
+    case "xlsx":
+      var fileData = getXLSX(data);
+      csv = XLSX.utils.sheet_to_csv(fileData);
+      break;
+    default:
+  }
+
+  // 4. Parsing csv into array of arrays of items
+  var csvArray;
+  switch (type) {
+    case "xls":
+      csvArray = parseCSV(csv, "\t");
+      break;
+    case "xlsx":
+      csvArray = parseCSV(csv, ",");
+      break;
+    default:
+  }
+
+  // 5. table2test
+  var test = table2Test(csvArray, type);
+  test.system = "OLAT_" + type;
+  if (type == "xls") {
+    addMaxScores(test.questions, toAnalyze[1]);
+  }
+  return test;
+}
+
+function xtype(ff) {
+  const tf = ff.name.split(".").pop();
+  return tf == "xls" || tf == "xlsx";
+}
 
 function fixdata(data) {
   var o = "",
@@ -111,6 +188,27 @@ function handleDragover(e) {
   e.stopPropagation();
   e.preventDefault();
   e.dataTransfer.dropEffect = "copy";
+}
+
+function unzipXlsX(zip) {
+  var zipFiles = Object.values(zip.files);
+  var ff = zipFiles.find(xtype);
+
+  if (!ff) {
+    alert("Keine xls- oder xlsx-Datei gefunden");
+  } else {
+    var zipType = ff.name.split(".").pop();
+    var zipReadType = zipType == "xlsx" ? "nodebuffer" : "text";
+
+    // ggf. nodebuffer statt text
+    ff.async(zipReadType).then(function(content) {
+      var test = handleData(content, zipType);
+
+      //eslint-disable-next-line
+      console.log(test);
+      this.sendResult("xxx", test);
+    });
+  }
 }
 
 class Question {
