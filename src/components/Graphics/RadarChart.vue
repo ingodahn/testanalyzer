@@ -10,11 +10,20 @@ export default {
     // Overwriting base render method with actual data.
     this.renderChart(this.chartData, {
       responsive: true,
+      scale: {
+        ticks: {
+          beginAtZero: true,
+          min: 0
+        }
+      }
+
+      /*
       scales: {
         xAxes: [
           {
             ticks: {
               autoSkip: false,
+              beginAtZero: true,
               maxRotation: 90
               //minRotation: 90
             }
@@ -30,6 +39,7 @@ export default {
           }
         ]
       }
+      */
     });
   }
 };

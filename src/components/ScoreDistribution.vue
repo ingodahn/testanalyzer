@@ -26,6 +26,7 @@
         :ScoredSorted="ScoredSorted"
         :TotalScore="TotalScore"
         :Questions="Questions"
+        :Score="Score"
       ></Race>
     </div>
   </div>
@@ -47,7 +48,14 @@ export default {
       bucketsNr: 5
     };
   },
-  props: ["ScoredSorted", "TotalScore", "Questions", "ComponentStatus"],
+  // Questions and Score are only for StudentStatistics as part of Race
+  props: [
+    "ScoredSorted",
+    "TotalScore",
+    "Questions",
+    "Score",
+    "ComponentStatus"
+  ],
   components: {
     BarChart,
     Race

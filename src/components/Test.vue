@@ -53,6 +53,7 @@
           :ScoredSorted="scoredSorted"
           :TotalScore="totalScore"
           :Questions="questions"
+          :Score="score"
           :ComponentStatus="componentStatus"
         ></ScoreDistribution>
         <Less id="less" :Score="score" :ComponentStatus="componentStatus"></Less>

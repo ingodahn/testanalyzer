@@ -1,16 +1,17 @@
 <template>
   <div id="studentStatistics">
     <div>{{ Testing }}</div>
-    <!--
+    <div
+      class="questionGroupSelector"
+      v-if="Questions.length > 0 && ChartGroups.length > 1"
+    >Select from {{ ChartGroups.length }} Groups</div>
+
     <div style="text-align: center;">
       <div class="chart-container" v-if="Score.length > 0">
-        <div v-for="item in ChartGroups" :key="item[0]">
-          <h3>Fragen {{item[0]+1}} - {{item[1]}}</h3>
-          <RadarChart :chartData="ScoreChart(item[0],item[1])"></RadarChart>
-        </div>
+        <h3>Fragen {{ChartGroups[curChartGroup][0]+1}} - {{ChartGroups[curChartGroup][1]}}</h3>
+        <RadarChart :chartData="ScoreChart()"></RadarChart>
       </div>
     </div>
-    -->
   </div>
 </template>
 
@@ -31,21 +32,19 @@ export default {
   components: {
     RadarChart
   },
-  props: ["ScoredSorted", "Questions"],
+  props: ["ScoredSorted", "Questions", "Score"],
   data() {
     return {
-      studentData: {}
+      studentData: {},
+      curChartGroup: 0,
+      groupSize: 140
     };
   },
   methods: {
-    CacheStudentData: function(name) {
-      //eslint-disable-next-line
-      console.log("Caching data for " + name);
-    },
-    ScoreChart: function(start, end) {
+    ScoreChart: function() {
       var chart = {
-        labels: [],
-        datasets: []
+        labels: this.ChartLabels,
+        datasets: [this.MaxData, this.AvgData]
       };
       if (this.Score.length == 0) {
         return {
@@ -53,27 +52,34 @@ export default {
         };
       }
 
-      chart.labels = this.QNames.slice(start, end);
-      var maxData = {
-        label: "Maximale Punktzahl",
-        data: this.Score.slice(start, end).map(x => x.maxScore),
-        borderColor: "green"
-      };
-      chart.datasets[0] = maxData;
-      var avgData = {
-        label: "Mittlere Punktzahl",
-        data: this.QAvgs.slice(start, end),
-        borderColor: "blue"
-      };
-      chart.datasets[1] = avgData;
       return chart;
     }
   },
   computed: {
     Testing: function() {
       //eslint-disable-next-line
-      console.log(this.ScoredSorted[1]["scores"]["Question 1"]);
+      console.log(this.Score);
       return "Here comes StudentStatistics";
+    },
+    ChartLabels: function() {
+      const cg = this.ChartGroups[this.curChartGroup];
+      return this.QNames.slice(cg[0], cg[1]);
+    },
+    MaxData: function() {
+      const cg = this.ChartGroups[this.curChartGroup];
+      return {
+        label: "Maximale Punktzahl",
+        data: this.Score.slice(cg[0], cg[1]).map(x => x.maxScore),
+        borderColor: "green"
+      };
+    },
+    AvgData: function() {
+      const cg = this.ChartGroups[this.curChartGroup];
+      return {
+        label: "Mittlere Punktzahl",
+        data: this.QAvgs.slice(cg[0], cg[1]),
+        borderColor: "blue"
+      };
     },
     QNames: function() {
       return this.Score.map(x => x["name"]);
@@ -91,9 +97,9 @@ export default {
     },
     ChartGroups: function() {
       var ar1 = [];
-      var n = 20;
+      var n = this.groupSize;
       var start = 0;
-      var ln = this.Score.length;
+      var ln = this.Questions.length;
       do {
         if (start + 2 * n <= ln) {
           ar1.push([start, start + n]);
@@ -112,6 +118,8 @@ export default {
           start = ln;
         }
       } while (start < ln);
+      //eslint-disable-next-line
+      console.log(ar1);
       return ar1;
     }
   }
