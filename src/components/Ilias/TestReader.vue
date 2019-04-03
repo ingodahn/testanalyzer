@@ -125,8 +125,7 @@ function table2Test(table) {
       Test.questions[q1].answers.push(score);
     }
   }
-  //eslint-disable-next-line
-  console.log(Test);
+
   return Test;
 }
 
