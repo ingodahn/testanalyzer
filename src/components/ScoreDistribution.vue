@@ -180,7 +180,7 @@ export default {
         lgood = 1;
       } else {
         // Otherwise we initialize goodStudentsQ with 0 for all questions
-        for (var qi = 0; qi < this.Questions.length; qi++) {
+        for (qi = 0; qi < this.Questions.length; qi++) {
           goodStudentsQ[this.Questions[qi]["name"]] = 0;
         }
         //goodStudentsQ = goodStudentsScores[0];
