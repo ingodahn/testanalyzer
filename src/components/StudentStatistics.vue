@@ -72,7 +72,7 @@ export default {
   computed: {
     Testing: function() {
       //eslint-disable-next-line
-      console.log(this.ScoredSorted);
+      console.log(this.ScoredSorted[1]["scores"]["Question 1"]);
       return "Here comes StudentStatistics";
     },
     QNames: function() {

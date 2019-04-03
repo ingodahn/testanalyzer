@@ -222,8 +222,7 @@ export default {
 
         studentScores.push(student32);
       }
-      //eslint-disable-next-line
-      console.log(studentScores);
+
       return studentScores;
     },
 
