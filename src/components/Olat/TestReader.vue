@@ -198,8 +198,7 @@ function table2Test(table, type) {
       qi++;
     }
   }
-  //eslint-disable-next-line
-  console.log(Test);
+
   return Test;
 }
 
