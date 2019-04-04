@@ -6,6 +6,7 @@
       :ScoredSorted="ScoredSorted"
       :Questions="Questions"
       :Score="Score"
+      :CurStudentNr="ssStudent"
     ></StudentStatistics>
     <div style="text-align: center;">
       <svg
@@ -56,7 +57,7 @@
         <circle
           v-for="item in studentScores"
           :key="item.name"
-          @mouseover="curStudent = item.name"
+          @mouseover="curStudent = item.name; ssStudent=item.ssNr"
           :cx="item.x"
           :cy="item.y"
           :r="diameter"
@@ -83,7 +84,8 @@ export default {
       top: 10,
       bottom: 250,
       diameter: 5,
-      curStudent: "none"
+      curStudent: "none",
+      ssStudent: -1
     };
   },
   components: {
@@ -97,6 +99,7 @@ export default {
         var s = this.ScoredSorted[i];
         studentScores.push({
           name: s.name,
+          ssNr: i,
           x: this.width - this.right + (diff * s.totalScore) / this.TotalScore,
           y:
             this.top +

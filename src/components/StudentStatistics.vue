@@ -32,7 +32,7 @@ export default {
   components: {
     RadarChart
   },
-  props: ["ScoredSorted", "Questions", "Score"],
+  props: ["ScoredSorted", "Questions", "Score", "CurStudentNr"],
   data() {
     return {
       studentData: {},
@@ -46,10 +46,24 @@ export default {
         labels: this.ChartLabels,
         datasets: [this.MaxData, this.AvgData]
       };
-      if (this.Score.length == 0) {
-        return {
-          data: [chart]
+      if (this.CurStudentNr > -1) {
+        const cs = this.ScoredSorted[this.CurStudentNr];
+        //eslint-disable-next-line
+        console.log(cs);
+        const cScore = cs.scores;
+        var sData = {
+          label: cs.name,
+          data: [],
+          borderColor: "red"
         };
+        for (var i = 0; i < this.ChartLabels.length; i++) {
+          var qn = this.ChartLabels[i];
+
+          var qscore = cScore.hasOwnProperty(qn) ? cScore[qn] : 0;
+          sData.data.push(qscore);
+        }
+
+        chart.datasets.unshift(sData);
       }
 
       return chart;
@@ -58,7 +72,7 @@ export default {
   computed: {
     Testing: function() {
       //eslint-disable-next-line
-      console.log(this.Score);
+      console.log(this.ScoredSorted[this.CurStudentNr]);
       return "Here comes StudentStatistics";
     },
     ChartLabels: function() {
