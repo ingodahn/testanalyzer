@@ -4,7 +4,7 @@
       <b>Daten laden:</b> Exportieren Sie Ihre Testdaten aus ILIAS als .csv-Datei.
     </p>
     <p>Falls Ihre Daten als Excel-Tabelle vorliegen, so speichern Sie sie in Ihrer Tabellenkalkulation als .csv-Datei als "CSV UTF-8 (Durch Trennzeichen ';' getrennt)".</p>
-    <p>Die so erstellte csv-Datei laden Sie dann in diese Webseite.</p>
+    <p>Ziehen Sie die so erstellte csv-Datei mit der Maus in diese Webseite auf die Fläche unten.</p>
     <p>
       <input
         class="demoData"
@@ -22,7 +22,7 @@
               @drop="handleDrop"
               @dragover="handleDragover"
               @dragenter="handleDragover"
-            >Datei hier ablegen</div>
+            >csv-Datei hier ablegen</div>
           </div>
         </div>
       </div>

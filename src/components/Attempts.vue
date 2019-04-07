@@ -7,10 +7,22 @@
         style="width:50%;display: inline-block;"
         v-if="Questions.length > 0"
       >
-        <div v-for="item in ChartGroups" :key="item[0]">
-          <h3>Fragen {{item[0]+1}} - {{item[1]}}</h3>
-          <LineChart :chartData="AttemptChart(item[0],item[1])"></LineChart>
-        </div>
+        <h3>
+          <span v-if="curGroup > 1">
+            <input type="button" class="player" @click="curGroup=0" value="|<">
+          </span>
+          <span v-if="curGroup > 0">
+            <input type="button" class="player" @click="curGroup--" value="<">
+          </span>
+          <span>Fragen {{curGroupStart+1}} - {{curGroupEnd}}</span>
+          <span v-if="curGroup < ChartGroups.length-1">
+            <input type="button" class="player" @click="curGroup++" value=">">
+          </span>
+          <span v-if="curGroup < ChartGroups.length-2">
+            <input type="button" class="player" @click="curGroup=ChartGroups.length-1" value=">|">
+          </span>
+        </h3>
+        <LineChart :chartData="AttemptChart(curGroupStart,curGroupEnd)"></LineChart>
       </div>
     </div>
     <p>{{ msg }}</p>
@@ -27,7 +39,9 @@ export default {
   name: "Attempts",
   props: ["Questions", "ComponentStatus"],
   data() {
-    return {};
+    return {
+      curGroup: 0
+    };
   },
   components: {
     LineChart
@@ -150,6 +164,12 @@ export default {
         }
       } while (start < ln);
       return ar1;
+    },
+    curGroupStart: function() {
+      return this.ChartGroups.length ? this.ChartGroups[this.curGroup][0] : 0;
+    },
+    curGroupEnd: function() {
+      return this.ChartGroups.length ? this.ChartGroups[this.curGroup][1] : 0;
     },
     QNames: function() {
       return this.Questions.map(x => x["name"]);

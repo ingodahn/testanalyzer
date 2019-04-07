@@ -6,7 +6,7 @@
       <i>Export Student Answer Details</i>. Klicken Sie darauf und nehmen Sie die Einstellungen genau so vor, wie auf diesem Bild gezeigt.
     </p>
     <img class="center" src="./assets/csvEinstellung.png">
-    <p>Die so erstellte csv-Datei laden Sie dann in diese Webseite.</p>
+    <p>Ziehen Sie die so erstellte csv-Datei mit der Maus in diese Webseite auf die Fläche unten.</p>
     <p>
       <input
         class="demoData"
@@ -24,7 +24,7 @@
               @drop="handleDrop"
               @dragover="handleDragover"
               @dragenter="handleDragover"
-            >Datei hier ablegen</div>
+            >csv-Datei mit der Maus hier ablegen</div>
           </div>
         </div>
       </div>
