@@ -1,8 +1,8 @@
 <template>
-  <div id="less">
+  <div id="less" v-if="Layout == 'all' || warnLevel == 'warn_1'">
     <h2 :class="warnLevel">Bei welchen Fragen wurden oft wenige Punkte erreicht?</h2>
     <div v-if="Score.length != 0">
-      <div :class="warnLevel1">
+      <div :class="warnLevel1" v-if="Layout == 'all' || warnLevel1 == 'warn_1'">
         <div v-if="questionSuccess.length == 0">
           <p>Es wurden bei allen Aufgaben im Mittel mindestens {{ tp }} erreicht.</p>
         </div>
@@ -22,7 +22,7 @@
         </div>
         <div v-html="hint"></div>
       </div>
-      <div :class="warnLevel2">
+      <div :class="warnLevel2" v-if="Layout == 'all' || warnLevel2 == 'warn_1'">
         <p>{{ start50 }}</p>
         <ul>
           <li v-for="item in less50" :key="item">{{ item }}</li>
@@ -48,7 +48,7 @@ function avg(q) {
 }
 export default {
   name: "Less",
-  props: ["Score", "ComponentStatus"],
+  props: ["Score", "ComponentStatus", "Layout"],
   data() {
     return {
       threshold: 0.2

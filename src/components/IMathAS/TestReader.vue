@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h2>Daten</h2>
     <p>
       Testergebnisse finden Sie im Gradebook von IMathAS. Sie erreichen das Gradebook, wenn Sie auf das Zahnrad neben dem Test klicken und dann
       <i>Noten</i> auswählen. Auf der dann erscheinenden Seite gibt es unten den Link

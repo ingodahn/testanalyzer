@@ -1,7 +1,7 @@
 <template>
-  <div id="less" :class="warnLevel">
+  <div id="less" :class="warnLevel" v-if="Layout == 'all' || warnLevel == 'warn_1'">
     <h2>Ungenutzte Fragen?</h2>
-    <div style="text-align: center;">
+    <div style="text-align: center;" v-if="Layout == 'all'">
       <div
         class="chart-container"
         style="width:50%;display: inline-block;"
@@ -37,7 +37,7 @@
 import LineChart from "./Graphics/LineChart.vue";
 export default {
   name: "Attempts",
-  props: ["Questions", "ComponentStatus"],
+  props: ["Questions", "ComponentStatus", "Layout"],
   data() {
     return {
       curGroup: 0

@@ -1,8 +1,8 @@
 <template>
-  <div id="diagram" :class="warnLevel">
+  <div id="diagram" :class="warnLevel" v-if="Layout == 'all' || warnLevel == 'warn_1'">
     <h2>Punkteverteilung</h2>
     <div v-if="ScoredSorted.length > 0">
-      <div style="text-align: center;">
+      <div style="text-align: center;" v-if="Layout == 'all'">
         <div class="chart-container" style="width:25%; display: inline-block;">
           <BarChart :chartData="studentScores"></BarChart>
         </div>
@@ -26,6 +26,7 @@
         :ScoredSorted="ScoredSorted"
         :TotalScore="TotalScore"
         :Questions="Questions"
+        v-if="Layout == 'all'"
       ></Race>
     </div>
   </div>
@@ -47,7 +48,13 @@ export default {
       bucketsNr: 5
     };
   },
-  props: ["ScoredSorted", "TotalScore", "Questions", "ComponentStatus"],
+  props: [
+    "ScoredSorted",
+    "TotalScore",
+    "Questions",
+    "ComponentStatus",
+    "Layout"
+  ],
   components: {
     BarChart,
     Race

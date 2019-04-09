@@ -1,7 +1,8 @@
 <template>
   <div>
+    <h2>Daten</h2>
     <p>
-      <b>Daten laden:</b> Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OLAT. Sie finden das Werkzeug zur Datenarchivierung in Ihrem OLAT-Kurs im Menü
+      Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OLAT. Sie finden das Werkzeug zur Datenarchivierung in Ihrem OLAT-Kurs im Menü
       <i>Administration</i>. Ändern Sie die voreingestellten Download-Optionen nicht.
     </p>
     <p>

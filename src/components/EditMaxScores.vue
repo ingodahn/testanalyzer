@@ -1,6 +1,6 @@
 <template>
   <div id="maxScores">
-    <h2>Maximal erreichbare Punkte</h2>
+    <h3>Maximal erreichbare Punkte</h3>
     <p>Ihre Datei enthielt keine Information über die maximal erreichbaren Punktzahlen. Bitte prüfen Sie, ob die maximal erreichbaren Punkte für alle Aufgaben richtig ermittelt wurden und korrigieren Sie ggf. die Werte.</p>
     <table id="maxScoreList">
       <tr>

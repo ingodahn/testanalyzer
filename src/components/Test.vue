@@ -1,11 +1,11 @@
 <template>
   <div id="Test">
     <div class="container">
-      <div class="page-title">
+      <div id="home" class="page-title">
         <h1>{{ pSystem }} Test-Analyse</h1>
       </div>
       <div class="navigation">
-        <Navigation :QuestionsNr="questionsNr" :ComponentStatus="componentStatus"></Navigation>
+        <Navigation :QuestionsNr="questionsNr" :ComponentStatus="componentStatus" :Layout="layout"></Navigation>
       </div>
       <div class="main">
         <div id="context" v-if="showContext">
@@ -31,22 +31,48 @@
 
         <div id="basics" v-if="questionsNr != 0">
           <p>
-            Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsDataNr}} Studierenden vor, von denen {{studentsNr}} am Test teilgenommen haben. Maximal können {{ totalScore }} Pukte erreicht werden.
             <input
               v-if="! showUpload"
-              class="newUpload"
+              class="testButton"
               type="button"
-              v-on:click="showUpload = true"
+              v-on:click="showUpload = true; reset();"
               value="Neue Datei laden"
             >
+            <input
+              v-if="layout == 'all' && hasHint()"
+              class="testButton hintLayout"
+              type="button"
+              v-on:click="layout = 'hints'"
+              value="Nur Hinweise anzeigen"
+            >
+            <input
+              v-if="layout == 'hints'"
+              class="testButton"
+              type="button"
+              v-on:click="layout = 'all'"
+              value="Alles anzeigen"
+            >
           </p>
-          <p v-if="2*questionsNr >= studentsNr">
-            <b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b>
-          </p>
-          <EditMaxScores v-if="system == 'Ilias' || system == 'OLAT_xlsx'" :Questions="questions"></EditMaxScores>
-        </div>
+          <hr>
+          <div v-if="layout == 'all'">
+            <h2>Daten</h2>
+            <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsDataNr}} Studierenden vor, von denen {{studentsNr}} am Test teilgenommen haben. Maximal können {{ totalScore }} Pukte erreicht werden.</p>
 
-        <SetType id="testType" :testtype="type" v-on:typeselected="settype"></SetType>
+            <p v-if="2*questionsNr >= studentsNr">
+              <b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b>
+            </p>
+            <EditMaxScores
+              v-if="layout == 'all' && (system == 'Ilias' || system == 'OLAT_xlsx')"
+              :Questions="questions"
+            ></EditMaxScores>
+            <SetType
+              v-if="layout == 'all'"
+              id="testType"
+              :testtype="type"
+              v-on:typeselected="settype"
+            ></SetType>
+          </div>
+        </div>
 
         <ScoreDistribution
           id="scoreDistribution"
@@ -54,18 +80,25 @@
           :TotalScore="totalScore"
           :Questions="questions"
           :ComponentStatus="componentStatus"
+          :Layout="layout"
         ></ScoreDistribution>
-        <Less id="less" :Score="score" :ComponentStatus="componentStatus"></Less>
-        <More id="more" :Score="score" :ComponentStatus="componentStatus"></More>
-        <Attempts id="attempts" :Questions="questions" :ComponentStatus="componentStatus"></Attempts>
+        <Less id="less" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></Less>
+        <More id="more" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></More>
+        <Attempts
+          id="attempts"
+          :Questions="questions"
+          :ComponentStatus="componentStatus"
+          :Layout="layout"
+        ></Attempts>
         <BestStudents
           id="best"
           :Students="students"
           :ScoredSorted="scoredSorted"
           :Questions="questions"
           :ComponentStatus="componentStatus"
+          :Layout="layout"
         ></BestStudents>
-        <QuestionStatistics id="questionStatistics" :Score="score"></QuestionStatistics>
+        <QuestionStatistics id="questionStatistics" :Score="score" v-if="layout == 'all'"></QuestionStatistics>
       </div>
       <div class="footer">
         <p>
@@ -109,7 +142,8 @@ export default {
         best: "warn_0"
       },
       showContext: true,
-      showUpload: true
+      showUpload: true,
+      layout: "all"
     };
   },
   components: {
@@ -132,6 +166,7 @@ export default {
       this.studentsNr = 0;
       this.questions = [];
       this.studentNames = [];
+      this.layout = "all";
     },
     testread: function(test) {
       this.system = test.system;
@@ -164,6 +199,9 @@ export default {
       }
       this.showUpload = false;
       this.showContext = false;
+    },
+    hasHint: function() {
+      return Object.values(this.componentStatus).find(x => x == "warn_1");
     }
   },
 
@@ -295,7 +333,7 @@ export default {
 .main {
   padding: 20px;
 }
-.newUpload {
+.testButton {
   border: 1px solid #ccc;
   display: inline-block;
   padding: 6px 12px;
@@ -304,7 +342,10 @@ export default {
   color: white;
   border-radius: 10px;
 }
-
+.hintLayout {
+  color: hsl(198, 65%, 40%);
+  background-color: hsla(60, 82%, 63%, 0.3);
+}
 body {
   background-color: #eeeeee;
   font-family: "Montserrat", sans-serif;

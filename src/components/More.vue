@@ -1,5 +1,5 @@
 <template>
-<div id="more" :class=warnLevel>
+<div id="more" :class=warnLevel v-if="Layout == 'all' || warnLevel == 'warn_1'">
     <h2>Bei welchen Fragen wurden oft viele Punkte erreicht?</h2>
     <div v-if = 'Score.length != 0'>
         <div v-if="questionSuccess.length == 0">
@@ -45,7 +45,7 @@ export default {
             threshold: 0.8
         }
     },
-    props: ["Score", "ComponentStatus"],
+    props: ["Score", "ComponentStatus", "Layout"],
     computed:  {
         questionSuccess: function () {
             var threshold=0.8;

@@ -1,32 +1,29 @@
 <template>
-    <div id="best" :class=warnLevel>
-        <h2>Wo machen auch die Besten Fehler?</h2>
-        <div>{{ msg }}</div>
-        <ul>
-            <li v-for='item in msgArr' :key = item>
-                {{ item }}
-            </li>
-        </ul>
-        <div v-if = 'Students.length != 0'>
-        <b>Hinweis:</b> {{ hint }}
-      </div>
+  <div id="best" :class="warnLevel" v-if="Layout == 'all' || warnLevel == 'warn_1'">
+    <h2>Wo machen auch die Besten Fehler?</h2>
+    <div>{{ msg }}</div>
+    <ul>
+      <li v-for="item in msgArr" :key="item">{{ item }}</li>
+    </ul>
+    <div v-if="Students.length != 0">
+      <b>Hinweis:</b>
+      {{ hint }}
     </div>
+  </div>
 </template>
 
 <script>
-
 export default {
   name: "BestStudents",
   data() {
-    return {
-    };
+    return {};
   },
-  props: ["Students", "ScoredSorted","Questions", "ComponentStatus"],
+  props: ["Students", "ScoredSorted", "Questions", "ComponentStatus", "Layout"],
   computed: {
     msgArr: function() {
       var best = this.ScoredSorted.slice(0);
-      
-      best=best.reverse().slice(0, this.bestLength);
+
+      best = best.reverse().slice(0, this.bestLength);
       var msgArr = [];
       for (var q = 0; q < this.Questions.length; q++) {
         var qq = this.Questions[q];
@@ -35,11 +32,11 @@ export default {
         var qMsgArr = [];
         for (var s = 0; s < best.length; s++) {
           if (best[s].scores[qName] < qMax) {
-            var relScore = Math.round(best[s].scores[qName] / qMax * 100);
+            var relScore = Math.round((best[s].scores[qName] / qMax) * 100);
             qMsgArr.push(best[s].name + ": " + relScore + " %");
           }
         }
-        var qMsg = qMsgArr.slice(0,2).join("; ");
+        var qMsg = qMsgArr.slice(0, 2).join("; ");
         if (qMsg != "") {
           msgArr.push(qName + ": " + qMsg);
         }
@@ -63,21 +60,21 @@ export default {
       );
     },
     warnLevel: function() {
-      var s=this.ComponentStatus;
+      var s = this.ComponentStatus;
       switch (this.msgArr.length) {
         case 0: {
-          s['best']='warn_0';
+          s["best"] = "warn_0";
           return "warn_0";
         }
         default: {
-          s['best']='warn_1';
+          s["best"] = "warn_1";
           return "warn_1";
         }
       }
     },
     hint: function() {
       if (this.warnLevel == "warn_1") {
-        return "Wenn selbst die besten Studierenden eine Frage nicht richtig beantworten können, so deutet dies darauf hin, dass die Frage unklar formuliert ist oder dass benötigtes Vorwissen nicht bekannt ist. Eine genauere Prüfung der Antworten der genannten Studierenden könnte genauere Hinweise liefern.";
+        return "Bei einem Vortest zur Feststellung von Vorkenntnissen ist das in Ordnung. Ansonsten deutet es darauf hin, dass eine Frage unklar formuliert ist oder dass benötigtes Vorwissen nicht bekannt ist. Eine genauere Prüfung der Antworten der genannten Studierenden könnte genauere Hinweise liefern.";
       } else {
         return "Wie erwartet haben die besten Studierenden alle Fragen richtig beantwortet.";
       }
@@ -94,8 +91,10 @@ export default {
     */
     bestLength: function() {
       var threshold = 0.2;
-      var bestLength= Math.floor(this.ScoredSorted.length * threshold) + 1;
-      if (bestLength > 10) {bestLength = 10;}
+      var bestLength = Math.floor(this.ScoredSorted.length * threshold) + 1;
+      if (bestLength > 10) {
+        bestLength = 10;
+      }
       return bestLength;
     }
   }

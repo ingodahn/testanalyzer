@@ -1,33 +1,31 @@
 <template>
   <div>
     <ul>
-      <li>
-        <a href="#testType">Art des Tests</a>
-      </li>
       <div v-if="QuestionsNr > 0">
-        <li>
+        <li v-if="Layout == 'all'">
+          <a href="#home">Daten</a>
+        </li>
+        <li v-if="Layout == 'all' || ComponentStatus['scoreDistribution'] == 'warn_1'">
           <a href="#scoreDistribution" :class="warnLevel('scoreDistribution')">Punkteverteilung</a>
         </li>
-        <li>
+        <li v-if="Layout == 'all' || ComponentStatus['less'] == 'warn_1'">
           <a href="#less" :class="warnLevel('less')">Wenig Punkte</a>
         </li>
-        <li>
+        <li v-if="Layout == 'all' || ComponentStatus['more'] == 'warn_1'">
           <a href="#more" :class="warnLevel('more')">Viele Punkte</a>
         </li>
-        <li>
+        <li v-if="Layout == 'all' || ComponentStatus['attempts'] == 'warn_1'">
           <a href="#attempts" :class="warnLevel('attempts')">Ungenutzt</a>
         </li>
-        <li>
+        <li v-if="Layout == 'all' || ComponentStatus['best'] == 'warn_1'">
           <a href="#best" :class="warnLevel('best')">Die Besten</a>
         </li>
-        <li>
+        <li v-if="Layout == 'all'">
           <a href="#questionStatistics">Fragen-Statistik</a>
         </li>
-        <!--
-                <li><a href="#rasch">Rasch-Modell</a></li>
-        -->
       </div>
       <div v-else>
+        <li class="inactive">Daten</li>
         <li class="inactive">Punkteverteilung</li>
         <li class="inactive">Wenig Punkte</li>
         <li class="inactive">Ungenutzt</li>
@@ -41,7 +39,7 @@
 <script>
 export default {
   name: "Navigation",
-  props: ["QuestionsNr", "ComponentStatus"],
+  props: ["QuestionsNr", "ComponentStatus", "Layout"],
   methods: {
     warnLevel: function(c) {
       return this.ComponentStatus[c];
