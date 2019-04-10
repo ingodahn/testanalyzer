@@ -19,7 +19,7 @@
             >Edge Computing</a>)
           </p>
           <p>
-            <b>Bitte bachten Sie:</b> Diese Software hat experimentellen Charakter. Es wird keinerlei Garantie übernommen. Hinweise auf Probleme und Wünsche zur Verbesserung der Seite sind jedoch
+            <b>Bitte bachten Sie:</b> Es wird keinerlei Garantie übernommen. Hinweise auf Probleme und Wünsche zur Verbesserung der Seite sind jedoch
             <a
               href="mailto:dahn@dahn-research.eu"
             >ausdrücklich erwünscht</a>.
@@ -337,6 +337,7 @@ export default {
   border: 1px solid #ccc;
   display: inline-block;
   padding: 6px 12px;
+  margin-right: 6px;
   cursor: pointer;
   background-color: hsl(198, 65%, 40%);
   color: white;

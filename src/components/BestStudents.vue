@@ -1,7 +1,7 @@
 <template>
   <div id="best" :class="warnLevel" v-if="Layout == 'all' || warnLevel == 'warn_1'">
     <h2>Wo machen auch die Besten Fehler?</h2>
-    <div>{{ msg }}</div>
+    <div v-html="msg"></div>
     <ul>
       <li v-for="item in msgArr" :key="item">{{ item }}</li>
     </ul>
@@ -32,15 +32,17 @@ export default {
         var qMsgArr = [];
         for (var s = 0; s < best.length; s++) {
           if (best[s].scores[qName] < qMax) {
-            var relScore = Math.round((best[s].scores[qName] / qMax) * 100);
-            qMsgArr.push(best[s].name + ": " + relScore + " %");
+            //var relScore = Math.round((best[s].scores[qName] / qMax) * 100);
+            //qMsgArr.push(best[s].name + ": " + relScore + " %");
+            qMsgArr.push(best[s].name);
           }
         }
-        var qMsg = qMsgArr.slice(0, 2).join("; ");
+        var qMsg = qMsgArr.slice(0, 2).join(", ");
         if (qMsg != "") {
           msgArr.push(qName + ": " + qMsg);
         }
       }
+
       return msgArr;
     },
     msg: function() {
@@ -51,12 +53,17 @@ export default {
         return "";
       }
       if (this.msgArr.length == 0) {
-        return "Die besten " + tp + " erreichten die volle Punktzahl";
+        return "Die besten " + tp + " erreichten immer die volle Punktzahl";
       }
+      var fr =
+        this.msgArr.length == 1
+          ? "Bei der folgenden Frage"
+          : "Bei den folgenden Fragen";
       return (
-        "Bei den folgenden Fragen erreichten die besten " +
+        fr +
+        " erreichten die besten " +
         tp +
-        " nicht die volle Punktzahl. Z.B. "
+        " nicht immer die volle Punktzahl, z.B. "
       );
     },
     warnLevel: function() {
