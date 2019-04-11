@@ -34,6 +34,11 @@
           stroke-dasharray="5 5"
           stroke-width="1px"
         ></line>
+        <linearGradient id="background" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="hsla(60,82%,63%,0.3)"></stop>
+          <stop offset="100%" stop-color="white"></stop>
+        </linearGradient>
+        <rect :x="0" :y="top" :width="width-left" :height="bottom-top" fill="url(#background)"></rect>
         <image xlink:href="../../public/flag.svg" :x="width-60" y="100" width="70" height="70"></image>
         <text :x="width-right+(right-left)*0.2-20" :y="bottom+15" fill="black">20 %</text>
         <text :x="width-right+(right-left)*0.4-20" :y="bottom+15" fill="black">40 %</text>
@@ -110,6 +115,8 @@ export default {
   border: 1px solid hsl(198, 65%, 40%);
   border-radius: 10px;
   box-shadow: -10px 19px 15px silver;
+  padding-left: 20px;
+  padding-top: 10px;
 }
 circle:hover {
   fill: hsl(198, 65%, 40%);
