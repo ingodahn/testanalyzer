@@ -22,7 +22,7 @@
                 wurden im Mittel mehr als {{ tp }} erreicht.
             </p>
         </div>
-        <b>Hinweis:</b> {{ hint }}
+        <b>Hinweis:</b> <span v-html="hint"></span>
     </div>
 </div>
 </template>
@@ -81,7 +81,7 @@ export default {
                     frage='Fragen';
                     ist='Sind';
                 }
-                return "Viele Studierende haben sehr viele Punkte erreicht. Woran kann das liegen? "+ist+" die "+frage+" zu leicht? Überlegen Sie, warum Sie diese "+frage+" in den Test aufgenommen haben. Wollten Sie die Studierenden mit einem guten Ergebnis motivieren? Dann ist das in Ordnung. Wollten Sie überprüfen, ob die Studierenden die für das Kommende benötigten Vorkenntnisse haben?  Dann ist dieses Ergebnis eine schöne Bestätigung, aber vielleicht können die Studierenden ja sogar noch mehr? Vielleicht können Sie diese "+frage+" doch noch etwas schwerer machen? Eventuell könnten Sie auch die Anzahl der für diese "+frage+" vergebenen Punkte reduzieren.";
+                return "Viele Studierende haben sehr viele Punkte erreicht. Woran kann das liegen? "+ist+" die "+frage+" zu leicht? Überlegen Sie, warum Sie diese "+frage+" in den Test aufgenommen haben. <dl><dt style='font-style:italic;'>Wollten Sie die Studierenden mit einem guten Ergebnis motivieren?</dt><dd>Dann ist das in Ordnung.</dd><dt style='font-style:italic;'>Wollten Sie überprüfen, ob die Studierenden die für das Kommende benötigten Vorkenntnisse haben?</dt><dd>Dann ist dieses Ergebnis eine schöne Bestätigung, aber vielleicht können die Studierenden ja sogar noch mehr? Vielleicht können Sie diese "+frage+" doch noch etwas schwerer machen? Eventuell könnten Sie auch die Anzahl der für diese "+frage+" vergebenen Punkte reduzieren.</dd><dt  style='font-style:italic;'>Wollten Sie die besonders schwachen Studierenden herausfinden, die selbst daran scheitern?</dt><dd>Verdeutlichen Sie den Studierenden den Wert der "+frage+", damit sie sich nicht überschätzen.</dd></dl>";
             } else {
                 return 'So sollte es sein. Ihre Aufgaben sind nicht zu leicht.';
             }

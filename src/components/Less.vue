@@ -112,11 +112,13 @@ export default {
           frage +
           " für alle eindeutig und verständlich formuliert? Haben die Studierenden das benötigte Wissen? Sprechen Sie mit den Studierenden darüber! Überlegen Sie, warum Sie diese " +
           frage +
-          " in den Test aufgenommen haben. <br/>Wollten Sie Wissensdefizit deutlich machen? Dies kann leicht demotivieren. <br/>Vielleicht können Sie diese " +
+          " in den Test aufgenommen haben. <br/><dl><dt style='font-style:italic;'>Wollten Sie Wissensdefizit deutlich machen?</dt><dd> Dies kann leicht demotivieren. <br/>Vielleicht können Sie diese " +
           frage +
           " in Teilaufgaben zerlegen, so dass die Studierenden schrittweise zur Lösung geführt werden? <br/>Sie könnten auch mehr Punkte für diese " +
           frage +
-          " vergeben, um die besondere Schwierigkeit zu berücksichtigen (s. Abschnitt Fragen-Statistik).";
+          " vergeben, um die besondere Schwierigkeit zu berücksichtigen (s. Abschnitt Fragen-Statistik).</dd><dt style='font-style:italic;'>Wollten Sie die besonders guten Studierenden herausfinden, die auch diese " +
+          frage +
+          " lösen können?</dt><dd>Dann ist das in Ordnung. Die Studierenden sollten Ihre Absicht kennen, damit sie die Ergebnisse auch selbst richtig werten können.</dd></dl>";
       } else {
         hint = "So sollte es sein. Ihre Aufgaben sind nicht zu schwer.";
       }
@@ -168,12 +170,12 @@ export default {
         return hint50;
       }
       hint50 +=
-        "Bei einem Vortest wäre das normal. Ansonsten  brauchen die Studierenden bei ";
+        "<br/>Bei einem <span  style='font-style:italic;'>Vortest</span> wäre das normal. <br/><span  style='font-style:italic;'>Ansonsten</span>  brauchen die Studierenden bei ";
       hint50 += qsl + l50l > 1 ? "diesen Fragen" : "dieser Frage";
       hint50 +=
-        " möglicherweise Ihre Hilfe, da sie sich nicht ausreichend gegenseitig helfen können.</p>";
+        " möglicherweise Ihre Hilfe, da sie sich nicht ausreichend gegenseitig helfen können.";
       hint50 +=
-        "<p>Sie könnten z.B. die Studierenden auf Literatur oder analoge Online-Selbsttests hinweisen und gelegentlich ähnliche Aufgaben zur Wiederholung stellen.</p>";
+        "<br/>Sie könnten z.B. die Studierenden auf Literatur oder analoge Online-Selbsttests hinweisen und gelegentlich ähnliche Aufgaben zur Wiederholung stellen.</p>";
       return hint50;
     },
     tp: function() {

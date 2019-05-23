@@ -6,8 +6,8 @@
       <li v-for="item in msgArr" :key="item">{{ item }}</li>
     </ul>
     <div v-if="Students.length != 0">
-      <b>Hinweis:</b>
-      {{ hint }}
+      <b>Hinweis:&nbsp;</b>
+      <span v-html="hint"></span>
     </div>
   </div>
 </template>
@@ -81,7 +81,7 @@ export default {
     },
     hint: function() {
       if (this.warnLevel == "warn_1") {
-        return "Bei einem Vortest zur Feststellung von Vorkenntnissen ist das in Ordnung. Ansonsten deutet es darauf hin, dass eine Frage unklar formuliert ist oder dass benötigtes Vorwissen nicht bekannt ist. Eine genauere Prüfung der Antworten der genannten Studierenden könnte genauere Hinweise liefern.";
+        return "Bei einem <span  style='font-style:italic;'>Vortest</span> zur Feststellung von Vorkenntnissen ist das in Ordnung.<br/><span  style='font-style:italic;'>Ansonsten</span> deutet es darauf hin, dass eine Frage unklar formuliert ist oder dass benötigtes Vorwissen nicht bekannt ist. Eine genauere Prüfung der Antworten der genannten Studierenden könnte genauere Hinweise liefern.";
       } else {
         return "Wie erwartet haben die besten Studierenden alle Fragen richtig beantwortet.";
       }
