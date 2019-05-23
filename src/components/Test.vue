@@ -33,21 +33,21 @@
           <p>
             <input
               v-if="! showUpload"
-              class="testButton"
+              class="testButton hvr-grow"
               type="button"
               v-on:click="showUpload = true; reset();"
               value="Neue Datei laden"
             >
             <input
               v-if="layout == 'all' && hasHint()"
-              class="testButton hintLayout"
+              class="testButton hintLayout hvr-grow"
               type="button"
               v-on:click="layout = 'hints'"
               value="Nur Hinweise anzeigen"
             >
             <input
               v-if="layout == 'hints'"
-              class="testButton"
+              class="testButton hvr-grow"
               type="button"
               v-on:click="layout = 'all'"
               value="Alles anzeigen"
@@ -289,6 +289,24 @@ export default {
 </script>
 
 <style scoped>
+/* Grow */
+.hvr-grow {
+  display: inline-block;
+  vertical-align: middle;
+  transform: translateZ(0);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+  backface-visibility: hidden;
+  -moz-osx-font-smoothing: grayscale;
+  transition-duration: 0.3s;
+  transition-property: transform;
+}
+
+.hvr-grow:hover,
+.hvr-grow:focus,
+.hvr-grow:active {
+  transform: scale(1.1);
+}
+
 .page-title {
   grid-column: 1/3;
   left: 0;

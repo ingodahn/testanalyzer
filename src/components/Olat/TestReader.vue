@@ -11,7 +11,7 @@
     </p>
     <p>
       <input
-        class="demoData"
+        class="demoData hvr-grow"
         type="button"
         onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOlat.xlsx'"
         value="Demo-Daten"
@@ -235,6 +235,24 @@ function parseCSV(csv, del = ",") {
 </script>
 
 <style scoped>
+/* Grow */
+.hvr-grow {
+  display: inline-block;
+  vertical-align: middle;
+  transform: translateZ(0);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+  backface-visibility: hidden;
+  -moz-osx-font-smoothing: grayscale;
+  transition-duration: 0.3s;
+  transition-property: transform;
+}
+
+.hvr-grow:hover,
+.hvr-grow:focus,
+.hvr-grow:active {
+  transform: scale(1.1);
+}
+
 .custom-file-upload,
 .demoData {
   border: 1px solid #ccc;
