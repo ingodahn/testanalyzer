@@ -10,7 +10,7 @@
         type="button"
         onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenIlias.csv'"
         value="Demo-Daten"
-      >
+      />
     </p>
     <div id="app">
       <div class="container-responsive">
@@ -96,21 +96,72 @@ function table2Test(table) {
     questions: [],
     studentNames: []
   };
-  var headings = table[0];
-  var questionsNr = headings.length - 19;
+  var iliasType = "normal";
+  if (table[0][0] == table[2][0]) {
+    iliasType = "shuffled";
+  }
+  switch (iliasType) {
+    case "shuffled":
+      table2TestShuffled(table, Test);
+      break;
+    default:
+      var headings = table[0].slice(19, table[0].length);
+      var questionsNr = headings.length;
+      Test.questionsNr = questionsNr;
+      for (var q = 0; q < questionsNr; q++) {
+        var qq = new Question(headings[q]);
+        qq.maxScore = 0;
+        Test.questions[q] = qq;
+      }
+      Test.studentsNr = table.length - 2;
+      // Ab hier weiter übertragen
+      for (var i = 1; i < table.length - 1; i++) {
+        var lineArray = table[i];
+        Test.studentNames.push(lineArray[0]);
+        for (var q1 = 0; q1 < questionsNr; q1++) {
+          var score = lineArray[19 + q1];
+          if (score != "") {
+            score = score.replace(",", ".");
+            var scoreVal = Number(score);
+            Test.questions[q1].scores.push(scoreVal);
+            if (Test.questions[q1].maxScore < scoreVal) {
+              Test.questions[q1].maxScore = scoreVal;
+            }
+          } else {
+            Test.questions[q1].scores.push(0);
+          }
+          Test.questions[q1].answers.push(score);
+        }
+      }
+  }
+
+  return Test;
+}
+
+function table2TestShuffled(table, Test) {
+  // Getting question titles sorted
+  var qTitles = table[0].slice(19, table[0].length).sort();
+  var questionsNr = qTitles.length;
+  //deshuffle assigns to each question title the question nr
+  var deshuffle = {};
+  for (var i = 0; i < questionsNr; i++) {
+    deshuffle[qTitles[i]] = i;
+  }
+  // Initializing Test.questions
   Test.questionsNr = questionsNr;
   for (var q = 0; q < questionsNr; q++) {
-    var qq = new Question(headings[19 + q]);
+    var qq = new Question(qTitles[q]);
     qq.maxScore = 0;
     Test.questions[q] = qq;
   }
-  Test.studentsNr = table.length - 2;
-
-  for (var i = 1; i < table.length - 1; i++) {
-    var lineArray = table[i];
+  Test.studentsNr = table.length / 2;
+  for (i = 0; i < Test.studentsNr; i++) {
+    var lineArrayTitle = table[2 * i];
+    var lineArray = table[2 * i + 1];
     Test.studentNames.push(lineArray[0]);
     for (var q1 = 0; q1 < questionsNr; q1++) {
-      var score = lineArray[19 + q1];
+      var qind = deshuffle[lineArrayTitle[19 + q1]];
+      var score = lineArray[19 + qind];
       if (score != "") {
         score = score.replace(",", ".");
         var scoreVal = Number(score);
@@ -124,8 +175,6 @@ function table2Test(table) {
       Test.questions[q1].answers.push(score);
     }
   }
-
-  return Test;
 }
 
 function parseCSV(csv, del = ",") {

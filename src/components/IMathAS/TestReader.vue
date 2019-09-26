@@ -6,7 +6,7 @@
       <i>Noten</i> auswählen. Auf der dann erscheinenden Seite gibt es unten den Link
       <i>Export Student Answer Details</i>. Klicken Sie darauf und nehmen Sie die Einstellungen genau so vor, wie auf diesem Bild gezeigt.
     </p>
-    <img class="center" src="./assets/csvEinstellung.png">
+    <img class="center" src="./assets/csvEinstellung.png" />
     <p>Ziehen Sie die so erstellte csv-Datei mit der Maus in diese Webseite auf die Fläche unten.</p>
     <p>
       <input
@@ -14,7 +14,7 @@
         type="button"
         onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenIMathAS.csv'"
         value="Demo-Daten"
-      >
+      />
     </p>
     <div id="app">
       <div class="container-responsive">

@@ -15,7 +15,7 @@
         type="button"
         onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOlat.xlsx'"
         value="Demo-Daten"
-      >
+      />
     </p>
     <div id="app">
       <div class="container-responsive">
