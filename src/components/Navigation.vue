@@ -23,6 +23,11 @@
         <li v-if="Layout == 'all'">
           <a href="#questionStatistics">Fragen-Statistik</a>
         </li>
+        <li>
+          <a
+            href="mailto:dahn@dahn-research.eu?subject=Problem%20beim%20Testanalyzer"
+          >Problem melden</a>
+        </li>
       </div>
       <div v-else>
         <li class="inactive">Daten</li>
@@ -31,6 +36,11 @@
         <li class="inactive">Ungenutzt</li>
         <li class="inactive">Die Besten</li>
         <li class="inactive">Fragen-Statistik</li>
+        <li>
+          <a
+            href="mailto:dahn@dahn-research.eu?subject=Problem%20beim%20Testanalyzer"
+          >Problem melden</a>
+        </li>
       </div>
     </ul>
   </div>

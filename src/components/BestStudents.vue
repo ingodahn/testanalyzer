@@ -5,7 +5,7 @@
     <ul>
       <li v-for="item in msgArr" :key="item">{{ item }}</li>
     </ul>
-    <div v-if="Students.length != 0">
+    <div v-if="ScoredSorted.length != 0">
       <b>Hinweis:&nbsp;</b>
       <span v-html="hint"></span>
     </div>
@@ -18,7 +18,7 @@ export default {
   data() {
     return {};
   },
-  props: ["Students", "ScoredSorted", "Questions", "ComponentStatus", "Layout"],
+  props: ["ScoredSorted", "Questions", "ComponentStatus", "Layout"],
   computed: {
     msgArr: function() {
       var best = this.ScoredSorted.slice(0);
@@ -31,9 +31,10 @@ export default {
         var qMax = Number(qq.maxScore);
         var qMsgArr = [];
         for (var s = 0; s < best.length; s++) {
-          if (best[s].scores[qName] < qMax) {
-            //var relScore = Math.round((best[s].scores[qName] / qMax) * 100);
-            //qMsgArr.push(best[s].name + ": " + relScore + " %");
+          if (
+            best[s].scores.hasOwnProperty(qName) &&
+            best[s].scores[qName] < qMax
+          ) {
             qMsgArr.push(best[s].name);
           }
         }
@@ -49,7 +50,7 @@ export default {
       // var threshold = 0.2;
       var tp = this.bestLength + " Studierenden";
 
-      if (this.Students.length == 0) {
+      if (this.ScoredSorted.length == 0) {
         return "";
       }
       if (this.msgArr.length == 0) {
@@ -86,16 +87,7 @@ export default {
         return "Wie erwartet haben die besten Studierenden alle Fragen richtig beantwortet.";
       }
     },
-    /*
-    scoredSorted: function() {
-      var ss = this.Students;
-      var scored = ss.map(studentScore);
-      var scoredSorted = scored.sort(function(a, b) {
-        return b.totalScore - a.totalScore;
-      });
-      return scoredSorted;
-    },
-    */
+
     bestLength: function() {
       var threshold = 0.2;
       var bestLength = Math.floor(this.ScoredSorted.length * threshold) + 1;

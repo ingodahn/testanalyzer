@@ -136,7 +136,7 @@ export default {
       var gaps = [];
       var i = 0;
       while (i < n - 1) {
-        if (scores[i + 1] <= scores[i] * 0.3) {
+        if (scores[i + 1] < scores[i] * 0.3) {
           gaps.push(i);
         }
         i++;

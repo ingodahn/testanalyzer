@@ -85,7 +85,7 @@ class Question {
     this.answers = [];
   }
   attempted(x) {
-    return x != "";
+    return x !== "" && x != "---";
   }
   get attempts() {
     return this.answers.filter(this.attempted).length;
@@ -98,6 +98,7 @@ function table2Test(table) {
     info: "",
     questionsNr: 0,
     studentsNr: 0,
+    setMaxScore: "none",
     questions: [],
     studentNames: []
   };

@@ -9,17 +9,17 @@
       >
         <h3>
           <span v-if="curGroup > 1">
-            <input type="button" class="player" @click="curGroup=0" value="|<">
+            <input type="button" class="player" @click="curGroup=0" value="|<" />
           </span>
           <span v-if="curGroup > 0">
-            <input type="button" class="player" @click="curGroup--" value="<">
+            <input type="button" class="player" @click="curGroup--" value="<" />
           </span>
           <span>Fragen {{curGroupStart+1}} - {{curGroupEnd}}</span>
           <span v-if="curGroup < ChartGroups.length-1">
-            <input type="button" class="player" @click="curGroup++" value=">">
+            <input type="button" class="player" @click="curGroup++" value=">" />
           </span>
           <span v-if="curGroup < ChartGroups.length-2">
-            <input type="button" class="player" @click="curGroup=ChartGroups.length-1" value=">|">
+            <input type="button" class="player" @click="curGroup=ChartGroups.length-1" value=">|" />
           </span>
         </h3>
         <LineChart :chartData="AttemptChart(curGroupStart,curGroupEnd)"></LineChart>
@@ -77,8 +77,8 @@ export default {
 
       for (var i = 0; i < this.Questions.length; i++) {
         var q = this.Questions[i];
-        var sn = q.scores.length;
-        var ua = q.answers.filter(j => j != "").length;
+        var sn = q.answers.filter(j => j != "---").length;
+        var ua = q.answers.filter(j => j !== "" && j != "---").length;
         if (ua / sn < threshold) {
           attempts.push(q.name);
         }
@@ -152,7 +152,7 @@ export default {
         } else if (start + (3 * n) / 2 >= ln) {
           if (start + n <= ln) {
             ar1.push([start, start + n]);
-            ar1.push([start + n, ln]);
+            if (start + n < ln) ar1.push([start + n, ln]);
           } else {
             ar1.push([start, ln]);
           }

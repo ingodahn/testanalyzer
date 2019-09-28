@@ -5,17 +5,17 @@
       <div class="chart-container" style="width:50%;display: inline-block;" v-if="Score.length > 0">
         <h3>
           <span v-if="curGroup > 1">
-            <input type="button" class="player" @click="curGroup=0" value="|<">
+            <input type="button" class="player" @click="curGroup=0" value="|<" />
           </span>
           <span v-if="curGroup > 0">
-            <input type="button" class="player" @click="curGroup--" value="<">
+            <input type="button" class="player" @click="curGroup--" value="<" />
           </span>
           <span>Fragen {{curGroupStart+1}} - {{curGroupEnd}}</span>
           <span v-if="curGroup < ChartGroups.length-1">
-            <input type="button" class="player" @click="curGroup++" value=">">
+            <input type="button" class="player" @click="curGroup++" value=">" />
           </span>
           <span v-if="curGroup < ChartGroups.length-2">
-            <input type="button" class="player" @click="curGroup=ChartGroups.length-1" value=">|">
+            <input type="button" class="player" @click="curGroup=ChartGroups.length-1" value=">|" />
           </span>
         </h3>
         <LineChart :chartData="ScoreChart(curGroupStart,curGroupEnd)"></LineChart>
@@ -99,7 +99,10 @@ export default {
     ScoreAdjust: function() {
       var sMaxAdj = [];
       for (var qi = 0; qi < this.Score.length; qi++) {
-        var si = Math.round(this.Score[qi].maxScore * (5 / this.QAvgs[qi]));
+        var si = 0;
+        if (this.QAvgs[qi] > 0) {
+          si = Math.round(this.Score[qi].maxScore * (5 / this.QAvgs[qi]));
+        }
         sMaxAdj[qi] = this.QNames[qi] + ": " + si + " Punkte";
       }
       return sMaxAdj;
@@ -116,7 +119,7 @@ export default {
         } else if (start + (3 * n) / 2 >= ln) {
           if (start + n <= ln) {
             ar1.push([start, start + n]);
-            ar1.push([start + n, ln]);
+            if (start + n < ln) ar1.push([start + n, ln]);
           } else {
             ar1.push([start, ln]);
           }
