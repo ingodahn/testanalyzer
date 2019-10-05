@@ -184,7 +184,7 @@ export default {
       for (var s = test.studentsNr - 1; s >= 0; s--) {
         var participated = false;
         for (var q = 0; q < this.questionsNr; q++) {
-          if (this.questions[q].answers[s] !== "") {
+          if (this.questions[q].attemptedBy(s)) {
             participated = true;
             break;
           }
@@ -192,9 +192,7 @@ export default {
         if (!participated) {
           this.studentNames.splice(s, 1);
           for (var q2 = 0; q2 < this.questionsNr; q2++) {
-            let qq = this.questions[q2];
-            qq.answers.splice(s, 1);
-            qq.scores.splice(s, 1);
+            this.questions[q2].removeStudent(s);
           }
           this.studentsNr--;
         }
@@ -217,21 +215,20 @@ export default {
       var scores = [];
       for (var i = 0; i < this.questionsNr; i++) {
         var q = this.questions[i];
-        var qscores = q.scores;
+        //var qscores = q.scores;
         var triedqscores = [];
-        for (var j = 0; j < qscores.length; j++) {
-          if (q.answers[j] != "---") {
-            if (this.type == "voluntary") {
-              if (q.answers[j] !== "") triedqscores.push(qscores[j]);
-            } else {
-              triedqscores.push(qscores[j]);
-            }
+        for (var j = 0; j < this.studentsNr; j++) {
+          switch (this.type) {
+            case "voluntary":
+              if (q.attemptedBy(i)) triedqscores.push(q.scoreOf(j));
+              break;
+            default:
+              if (q.presentedTo(i)) triedqscores.push(q.scoreOf(j));
           }
         }
-
         scores.push({
           name: q.name,
-          maxScore: Number(q.maxScore),
+          maxScore: q.getMaxScore(),
           scores: triedqscores
         });
       }
@@ -240,8 +237,7 @@ export default {
     totalScore: function() {
       var tScore = 0;
       for (var i = 0; i < this.questionsNr; i++) {
-        // maxScore can be string if modified by input
-        tScore += Number(this.questions[i].maxScore);
+        tScore += this.questions[i].getMaxScore();
       }
       return tScore;
     },
@@ -261,11 +257,11 @@ export default {
         };
         this.questions.forEach(qq => {
           if (
-            qq.answers[s] != "---" &&
-            (this.type == "compulsory" || qq.answers[s] !== "")
+            qq.presentedTo(s) &&
+            (this.type == "compulsory" || qq.attemptedBy(s))
           ) {
-            student32["scores"][qq["name"]] = qq.scores[s];
-            student32["totalScore"] += qq.scores[s];
+            student32["scores"][qq.name] = qq.scoreOf(s);
+            student32["totalScore"] += qq.scoreOf(s);
           }
         });
         studentScores.push(student32);

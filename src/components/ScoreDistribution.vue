@@ -168,7 +168,7 @@ export default {
 
       var weakStudentsQ = {};
       for (var q = 0; q < this.Questions.length; q++) {
-        weakStudentsQ[this.Questions[q]["name"]] = 0;
+        weakStudentsQ[this.Questions[q].name] = 0;
       }
       // How scored the weak students per question? weakStudentsQ sums up scores of weak students per question
       for (var i = 0; i < lweak; i++) {
@@ -182,15 +182,14 @@ export default {
       if (lgood == 0) {
         for (var qi = 0; qi < this.Questions.length; qi++) {
           var q1 = this.Questions[qi];
-          goodStudentsQ[q1["name"]] = q1["maxScore"];
+          goodStudentsQ[q1.name] = q1.getMaxScore();
         }
         lgood = 1;
       } else {
         // Otherwise we initialize goodStudentsQ with 0 for all questions
         for (qi = 0; qi < this.Questions.length; qi++) {
-          goodStudentsQ[this.Questions[qi]["name"]] = 0;
+          goodStudentsQ[this.Questions[qi].name] = 0;
         }
-        //goodStudentsQ = goodStudentsScores[0];
       }
 
       // Now we sum up the cores of the good students
@@ -218,8 +217,8 @@ export default {
 
       var maxDiffMaxScore = 0;
       for (var q2 = 0; q2 < this.Questions.length; q2++) {
-        if (this.Questions[q2]["name"] == maxDiffName) {
-          maxDiffMaxScore = this.Questions[q2]["maxScore"];
+        if (this.Questions[q2].name == maxDiffName) {
+          maxDiffMaxScore = this.Questions[q2].getMaxScore();
           break;
         }
       }

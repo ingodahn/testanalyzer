@@ -172,7 +172,7 @@ export default {
       return this.ChartGroups.length ? this.ChartGroups[this.curGroup][1] : 0;
     },
     QNames: function() {
-      return this.Questions.map(x => x["name"]);
+      return this.Questions.map(x => x.name);
     }
   }
 };

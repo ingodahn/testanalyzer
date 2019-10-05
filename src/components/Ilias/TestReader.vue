@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import { Question } from "../Reader";
 export default {
   data() {
     return {};
@@ -70,20 +71,6 @@ function handleDragover(e) {
   e.stopPropagation();
   e.preventDefault();
   e.dataTransfer.dropEffect = "copy";
-}
-class Question {
-  constructor(name) {
-    this.name = name;
-    this.maxScore = 1;
-    this.scores = [];
-    this.answers = [];
-  }
-  attempted(x) {
-    return x !== "" && x != "---";
-  }
-  get attempts() {
-    return this.answers.filter(this.attempted).length;
-  }
 }
 
 function table2Test(table) {

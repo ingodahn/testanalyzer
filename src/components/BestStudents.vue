@@ -28,7 +28,8 @@ export default {
       for (var q = 0; q < this.Questions.length; q++) {
         var qq = this.Questions[q];
         var qName = qq.name;
-        var qMax = Number(qq.maxScore);
+        //var qMax = Number(qq.maxScore);
+        var qMax = qq.getMaxScore();
         var qMsgArr = [];
         for (var s = 0; s < best.length; s++) {
           if (

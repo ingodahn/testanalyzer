@@ -35,10 +35,12 @@
 </template>
 
 <script>
-function avg(q) {
-  var maxScore = Number(q.maxScore);
+function avg(qScore) {
+  //eslint-disable-next-line
+  //console.log(q);
+  var maxScore = Number(qScore.maxScore);
   var avgScore = 0;
-  var scores = q.scores;
+  var scores = qScore.scores;
   var len = scores.length;
   for (var i = 0; i < len; i++) {
     avgScore += scores[i];

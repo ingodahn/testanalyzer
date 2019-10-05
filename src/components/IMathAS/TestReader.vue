@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import { Question } from "../Reader";
 export default {
   data() {
     return {};
@@ -76,7 +77,7 @@ function handleDragover(e) {
   e.preventDefault();
   e.dataTransfer.dropEffect = "copy";
 }
-
+/*
 class Question {
   constructor(name) {
     this.name = name;
@@ -91,7 +92,7 @@ class Question {
     return this.answers.filter(this.attempted).length;
   }
 }
-
+*/
 function table2Test(table) {
   var Test = {
     system: "IMathAS",
