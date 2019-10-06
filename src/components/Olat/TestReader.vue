@@ -82,7 +82,6 @@ export default {
         if (type == "xls") {
           addMaxScores(test.questions, toAnalyze[1]);
         }
-
         //  6. Emit signal (or modify Test object's parts?)
         this.$emit("testRead", test);
       };
@@ -114,22 +113,7 @@ function handleDragover(e) {
   e.preventDefault();
   e.dataTransfer.dropEffect = "copy";
 }
-/*
-class Question {
-  constructor(name) {
-    this.name = name;
-    this.maxScore = 1;
-    this.scores = [];
-    this.answers = [];
-  }
-  attempted(x) {
-    return x !== "" && x != "---";
-  }
-  get attempts() {
-    return this.answers.filter(this.attempted).length;
-  }
-}
-*/
+
 function table2Test(table, type) {
   var Test = {
     system: "Olat",
@@ -144,6 +128,7 @@ function table2Test(table, type) {
   var qTitleRow = table[0];
 
   var cols = qTitleRow.length;
+  // qPkt: Array hat collects the indices of columns with scores (heading contains 'Pkt')
   var qPkt = [];
   for (var c = 0; c < cols; c++) {
     var qs = qTitleRow[c];
@@ -172,21 +157,21 @@ function table2Test(table, type) {
       // In xlsx-Dateien erkennt man unversuchte Aufgaben an einem leeren Punkteeintrag
       for (var q1 = 0; q1 < Test.questionsNr; q1++) {
         if (line[qPkt[q1]].length == 0) {
-          Test.questions[q1].scores.push(0);
-          Test.questions[q1].answers.push("");
+          Test.questions[q1].scores.push([0]);
+          Test.questions[q1].answers.push([""]);
         } else {
-          Test.questions[q1].scores.push(Number(line[qPkt[q1]]));
-          Test.questions[q1].answers.push("X");
+          Test.questions[q1].scores.push([Number(line[qPkt[q1]])]);
+          Test.questions[q1].answers.push(["X"]);
         }
       }
     } else {
       // in xls-Dateien erkennt man unversuchte Aufgaben an einem "n/a" in der auf die Punktspalte folgenden Spalte für die Startzeit
       for (q1 = 0; q1 < Test.questionsNr; q1++) {
-        Test.questions[q1].scores.push(Number(line[qPkt[q1]]));
+        Test.questions[q1].scores.push([Number(line[qPkt[q1]])]);
         if (line[qPkt[q1] + 1].length < 4) {
-          Test.questions[q1].answers.push("");
+          Test.questions[q1].answers.push([""]);
         } else {
-          Test.questions[q1].answers.push("X");
+          Test.questions[q1].answers.push(["X"]);
         }
       }
     }
@@ -201,7 +186,6 @@ function table2Test(table, type) {
       qi++;
     }
   }
-
   return Test;
 }
 

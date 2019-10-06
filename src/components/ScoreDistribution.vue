@@ -68,6 +68,7 @@ export default {
       const maxScore = this.TotalScore;
       var i = 0;
       var lim = maxScore / n;
+
       for (var s = 0; s < studentsNr; s++) {
         var score = this.ScoredSorted[s].totalScore;
         if (score <= lim) {

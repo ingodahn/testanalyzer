@@ -36,16 +36,13 @@
 
 <script>
 function avg(qScore) {
-  //eslint-disable-next-line
-  //console.log(q);
-  var maxScore = Number(qScore.maxScore);
   var avgScore = 0;
   var scores = qScore.scores;
   var len = scores.length;
   for (var i = 0; i < len; i++) {
     avgScore += scores[i];
   }
-  avgScore = avgScore / (maxScore * len);
+  avgScore = avgScore / qScore.total;
   return avgScore;
 }
 export default {
@@ -63,8 +60,9 @@ export default {
       var questionsNr = questions.length;
       var qs = [];
       for (var i = 0; i < questionsNr; i++) {
-        if (avg(questions[i]) < threshold) {
-          qs.push(questions[i].name);
+        var qi = questions[i];
+        if (avg(qi) / qi.maxScore < threshold) {
+          qs.push(qi.name);
         }
       }
       return qs;

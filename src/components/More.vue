@@ -35,7 +35,7 @@ function avg(q) {
     for (var i=0; i<len; i++) {
         avgScore += scores[i];
     }
-    avgScore=avgScore/len;
+    avgScore=avgScore/q.total;
     return avgScore;
 }
 export default {
@@ -54,8 +54,8 @@ export default {
             var qs=[];
             for (var i=0; i< questionsNr; i++) {
                 var qi=questions[i];
-                if ((avg(qi)/Number(qi.maxScore)) > threshold) {
-                    qs.push(questions[i].name);
+                if ((avg(qi)/qi.maxScore) > threshold) {
+                    qs.push(qi.name);
                 }
             }
             return qs;

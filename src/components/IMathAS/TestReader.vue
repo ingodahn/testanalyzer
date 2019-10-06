@@ -77,22 +77,7 @@ function handleDragover(e) {
   e.preventDefault();
   e.dataTransfer.dropEffect = "copy";
 }
-/*
-class Question {
-  constructor(name) {
-    this.name = name;
-    this.maxScore = 1;
-    this.scores = [];
-    this.answers = [];
-  }
-  attempted(x) {
-    return x !== "" && x != "---";
-  }
-  get attempts() {
-    return this.answers.filter(this.attempted).length;
-  }
-}
-*/
+
 function table2Test(table) {
   var Test = {
     system: "IMathAS",
@@ -106,10 +91,10 @@ function table2Test(table) {
   var headings = table[0];
   var questionsNr = (headings.length - 2) / 2;
   Test.questionsNr = questionsNr;
-
+  var q, qq;
   var regex = /Points \((\d+) possible\)/;
-  for (var q = 0; q < questionsNr; q++) {
-    var qq = new Question(table[0][2 * q + 2]);
+  for (q = 0; q < questionsNr; q++) {
+    qq = new Question(table[0][2 * q + 2]);
     var ms = regex.exec(table[1][2 * q + 2])[1];
     qq.maxScore = parseInt(ms);
     Test.questions[q] = qq;
@@ -119,9 +104,10 @@ function table2Test(table) {
   for (var i = 2; i < table.length; i++) {
     var line = table[i];
     Test.studentNames.push(line[0]);
-    for (var q1 = 0; q1 < questionsNr; q1++) {
-      Test.questions[q1].scores.push(Number(line[2 + 2 * q1])),
-        Test.questions[q1].answers.push(line[3 + 2 * q1]);
+    for (q = 0; q < questionsNr; q++) {
+      qq = Test.questions[q];
+      qq.scores.push([Number(line[2 + 2 * q])]);
+      qq.answers.push([line[3 + 2 * q]]);
     }
   }
 

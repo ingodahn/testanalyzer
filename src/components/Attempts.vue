@@ -60,8 +60,8 @@ export default {
       chart.labels = this.QNames.slice(start, end);
       var attemptData = {
         label: "% der Studierenden, die die Frage bearbeitet haben",
-        data: this.Questions.slice(start, end).map(x =>
-          Math.round((x.attempts * 100) / x.answers.length)
+        data: this.Questions.slice(start, end).map(
+          x => x.attempted / x.presented
         ),
         borderColor: "blue"
       };
@@ -77,9 +77,8 @@ export default {
 
       for (var i = 0; i < this.Questions.length; i++) {
         var q = this.Questions[i];
-        var sn = q.answers.filter(j => j != "---").length;
-        var ua = q.answers.filter(j => j !== "" && j != "---").length;
-        if (ua / sn < threshold) {
+
+        if (q.attempted / q.presented < threshold) {
           attempts.push(q.name);
         }
       }

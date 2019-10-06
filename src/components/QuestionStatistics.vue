@@ -39,13 +39,13 @@
 </template>
 
 <script>
-function avg(scores) {
+function avg(scoresItem) {
   var avgScore = 0;
-  var len = scores.length;
+  var len = scoresItem.scores.length;
   for (var i = 0; i < len; i++) {
-    avgScore += scores[i];
+    avgScore += scoresItem.scores[i];
   }
-  avgScore = avgScore / len;
+  avgScore = avgScore / scoresItem.total;
   return avgScore;
 }
 
@@ -94,7 +94,7 @@ export default {
       return this.Score.map(x => x["name"]);
     },
     QAvgs: function() {
-      return this.Score.map(x => avg(x.scores).toFixed(2));
+      return this.Score.map(x => avg(x).toFixed(2));
     },
     ScoreAdjust: function() {
       var sMaxAdj = [];

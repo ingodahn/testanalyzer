@@ -74,6 +74,10 @@
             ></SetType>
           </div>
         </div>
+        <div v-if="multiPresented != ''">
+          <h3>Wiederholte Fragen</h3>
+          <p>{{multiPresented}}</p>
+        </div>
         <ScoreDistribution
           id="scoreDistribution"
           :ScoredSorted="scoredSorted"
@@ -179,7 +183,6 @@ export default {
       this.studentNames = test.studentNames.map(function(item, index) {
         return item + " (" + index + ")";
       });
-
       // Removing non-participants
       for (var s = test.studentsNr - 1; s >= 0; s--) {
         var participated = false;
@@ -220,16 +223,18 @@ export default {
         for (var j = 0; j < this.studentsNr; j++) {
           switch (this.type) {
             case "voluntary":
-              if (q.attemptedBy(i)) triedqscores.push(q.scoreOf(j));
+              if (q.attemptedBy(j)) triedqscores.push(q.scoreOf(j));
               break;
             default:
-              if (q.presentedTo(i)) triedqscores.push(q.scoreOf(j));
+              if (q.presentedTo(j)) triedqscores.push(q.scoreOf(j));
           }
         }
+        var totals = this.type == "voluntary" ? q.attempted : q.presented;
         scores.push({
           name: q.name,
           maxScore: q.getMaxScore(),
-          scores: triedqscores
+          scores: triedqscores,
+          total: totals
         });
       }
       return scores;
@@ -253,6 +258,7 @@ export default {
           name: this.studentNames[s],
           index: s,
           scores: {},
+          attempts: {},
           totalScore: 0
         };
         this.questions.forEach(qq => {
@@ -262,6 +268,7 @@ export default {
           ) {
             student32["scores"][qq.name] = qq.scoreOf(s);
             student32["totalScore"] += qq.scoreOf(s);
+            student32["attempts"][qq.name] = qq.attemptedBy(s);
           }
         });
         studentScores.push(student32);
@@ -282,6 +289,16 @@ export default {
         questionNames.push(this.questions[i].name);
       }
       return questionNames;
+    },
+    multiPresented: function() {
+      //for (var s = 0; s < this.studentsNr; s++) {
+      for (var s = 0; s < 1; s++) {
+        for (var qi = 0; qi < this.questionsNr; qi++) {
+          if (this.questions[qi].presentedTo(s) > 1)
+            return "Im Test werden den Studierenden Fragen mit demselben Titel mehrfach gestellt. Bei der Auswertung wird angenommen, dass es sich dabei um Varianten derselben Frage handelt.";
+        }
+      }
+      return "";
     },
     pSystem: function() {
       var pS = this.$route.path;
