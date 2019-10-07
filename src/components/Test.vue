@@ -292,11 +292,13 @@ export default {
       return questionNames;
     },
     multiPresented: function() {
-      //for (var s = 0; s < this.studentsNr; s++) {
-      for (var s = 0; s < 1; s++) {
-        for (var qi = 0; qi < this.questionsNr; qi++) {
-          if (this.questions[qi].presentedTo(s) > 1)
-            return "Im Test werden den Studierenden Fragen mit demselben Titel mehrfach gestellt. Bei der Auswertung wird angenommen, dass es sich dabei um Varianten derselben Frage handelt.";
+      //Only in Ilias (so far) questions may be presented multiple times in the same run
+      if (this.system == "Ilias") {
+        for (var s = 0; s < this.studentsNr; s++) {
+          for (var qi = 0; qi < this.questionsNr; qi++) {
+            if (this.questions[qi].presentedTo(s) > 1)
+              return "Im Test werden den Studierenden Fragen mit demselben Titel mehrfach gestellt. Bei der Auswertung wird angenommen, dass es sich dabei um Varianten derselben Frage handelt.";
+          }
         }
       }
       return "";
