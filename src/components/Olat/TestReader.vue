@@ -18,7 +18,8 @@
       />
     </p>
     <div id="app">
-      <div class="container-responsive">
+      <Spinner v-if="loading" class="spinner"></Spinner>
+      <div v-else class="container-responsive">
         <div class="row">
           <div class="col-md-12">
             <div
@@ -36,15 +37,22 @@
 
 <script>
 import { Question } from "../Reader";
+import Spinner from "../../third_party/Spinner.vue";
 export default {
   data() {
-    return {};
+    return {
+      loading: false
+    };
+  },
+  components: {
+    Spinner
   },
   methods: {
     handleDragover: handleDragover,
     handleDrop: function(e) {
       e.stopPropagation();
       e.preventDefault();
+      this.loading = true;
       var files = e.dataTransfer.files,
         f = files[0],
         type = f.name.split(".").pop(),
@@ -84,6 +92,7 @@ export default {
         }
         //  6. Emit signal (or modify Test object's parts?)
         this.$emit("testRead", test);
+        this.loading = false;
       };
       if (type == "xlsx") {
         reader.readAsArrayBuffer(f);
@@ -264,5 +273,9 @@ function parseCSV(csv, del = ",") {
   text-align: center;
   font: 20pt bold, "Vollkorn";
   color: #bbb;
+}
+.spinner {
+  margin: 0 auto;
+  width: 100px;
 }
 </style>

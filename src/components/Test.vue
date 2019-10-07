@@ -147,7 +147,8 @@ export default {
       },
       showContext: true,
       showUpload: true,
-      layout: "all"
+      layout: "all",
+      loading: false
     };
   },
   components: {
