@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { Question } from "../Reader";
+import { Question, Line } from "../Reader";
 import Spinner from "../../third_party/Spinner.vue";
 export default {
   data() {
@@ -126,76 +126,93 @@ function handleDragover(e) {
 function table2Test(table, type) {
   var Test = {
     system: "Olat",
-    info: "",
     questionsNr: 0,
-    studentsNr: 0,
-    setMaxScore: "none",
+    //setMaxScore: "none",
     questions: [],
-    studentNames: [],
+    studentNameLines: [],
     isSelfTest: false
   };
-  var qTitleRow = table[0];
-
-  var cols = qTitleRow.length;
-  // qPkt: Array hat collects the indices of columns with scores (heading contains 'Pkt')
-  var qPkt = [];
-  for (var c = 0; c < cols; c++) {
-    var qs = qTitleRow[c];
-
-    if (qs.length > 0 && !qs.match(/$Sektion/)) {
-      Test.questions[Test.questionsNr] = new Question(qs);
-    }
-    if (table[1][c].match(/Pkt/)) {
-      qPkt[Test.questionsNr] = c;
-      Test.questionsNr++;
-    }
-  }
+  var qPkt = getQuestions();
   if (table[1][1].length == 0) {
     Test.isSelfTest = true;
   }
-  var rowNr = 2;
-  while (rowNr < table.length) {
-    var line = table[rowNr];
-    if (Test.isSelfTest) {
-      Test.studentNames.push(line[1]);
-    } else {
-      Test.studentNames.push(line[1] + " " + line[2]);
-    }
+  var rowNr = 3,
+    rowName = "",
+    tl = table.length;
+  if (type == "xls") tl--;
+  while (rowNr < tl) {
+    var line = table[rowNr - 1],
+      lineItems = new Line();
+    // rowName wird nur berücksichtigt, wenn wenigstens eine Frage bearbeitet wurde
+    //var participated = 0;
+    rowName = Test.isSelfTest ? line[1] : line[1] + " " + line[2];
+    lineItems.lineName = rowName;
+    lineItems.lineNr = rowNr;
+    //lineItems.lineScore=Test.isSelfTest ? Number(line[4]) : Number(line[6])
 
-    if (type == "xlsx") {
-      // In xlsx-Dateien erkennt man unversuchte Aufgaben an einem leeren Punkteeintrag
-      for (var q1 = 0; q1 < Test.questionsNr; q1++) {
-        if (line[qPkt[q1]].length == 0) {
-          Test.questions[q1].scores.push([0]);
-          Test.questions[q1].answers.push([""]);
-        } else {
-          Test.questions[q1].scores.push([Number(line[qPkt[q1]])]);
-          Test.questions[q1].answers.push(["X"]);
+    for (var q1 = 0; q1 < Test.questionsNr; q1++) {
+      var qq = Test.questions[q1];
+      //Hoer weiter wir brauchen qPkt so, dass zu jeder Spalte mit Titel ein Titel und eine Spalte mit Punkten gehören, falls Titel mehrfach auftreten sollten
+      //if (!qq.answers.hasOwnProperty(rowName)) qq.answers[rowName] = {};
+      //qq.answers[rowName][rowNr] = [];
+      //var qqa = qq.answers[rowName][rowNr],
+      //  rowAnswer = {};
+      let rowAnswer = new Object();
+      switch (type) {
+        case "xlsx": {
+          // In xlsx-Dateien erkennt man unversuchte Aufgaben an einem leeren Punkteeintrag
+          let scoreVal = Number(line[qPkt[q1]]);
+          rowAnswer =
+            line[qPkt[q1]].length == 0
+              ? { attempted: false, score: 0 }
+              : { attempted: true, score: scoreVal };
+          //if (qq.maxScore < scoreVal) qq.maxScore = scoreVal;
+          break;
+        }
+        default: {
+          // in xls-Dateien erkennt man unversuchte Aufgaben an einem "n/a" in der auf die Punktspalte folgenden Spalte für die Startzeit
+          rowAnswer = {
+            score: Number(line[qPkt[q1]]),
+            attempted: line[qPkt[q1] + 1].length >= 4
+          };
         }
       }
-    } else {
-      // in xls-Dateien erkennt man unversuchte Aufgaben an einem "n/a" in der auf die Punktspalte folgenden Spalte für die Startzeit
-      for (q1 = 0; q1 < Test.questionsNr; q1++) {
-        Test.questions[q1].scores.push([Number(line[qPkt[q1]])]);
-        if (line[qPkt[q1] + 1].length < 4) {
-          Test.questions[q1].answers.push([""]);
-        } else {
-          Test.questions[q1].answers.push(["X"]);
-        }
-      }
+      rowAnswer["name"] = qq.name;
+      //if (rowAnswer.attempted) participated++;
+      lineItems.lineAnswers.push(rowAnswer);
     }
-
+    Test.studentNameLines.push(lineItems);
+    /*
+    if (participated)
+      Test.studentNameLines.push({
+        name: rowName,
+        lineNr: rowNr,
+        lineScore: Number(line[4])
+      });
+      */
     rowNr++;
   }
-  Test.studentsNr = rowNr - 2;
-  var qi = 0;
-  for (var i = rowNr; i < table.length; i++) {
-    if (table[i][2] == "maxValue") {
-      Test.questions[qi].maxScore = Number(table[i][3]);
-      qi++;
-    }
-  }
+
   return Test;
+
+  //getQuestions collects all questions in Test.questions and returns in qPkt for each question number the nr of the column with its score
+  function getQuestions() {
+    var qTitleRow = table[0];
+    var cols = qTitleRow.length;
+    // qPkt: Array hat collects the indices of columns with scores (heading contains 'Pkt')
+    var qPkt = [];
+    for (var c = 0; c < cols; c++) {
+      var qs = qTitleRow[c];
+      if (qs.length > 0 && !qs.match(/$Sektion/)) {
+        Test.questions[Test.questionsNr] = new Question(qs);
+      }
+      if (table[1][c].match(/Pkt/)) {
+        qPkt[Test.questionsNr] = c;
+        Test.questionsNr++;
+      }
+    }
+    return qPkt;
+  }
 }
 
 function addMaxScores(myQuestions, legend) {

@@ -56,10 +56,11 @@
           <hr />
           <div v-if="layout == 'all'">
             <h2>Daten</h2>
-            <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsDataNr}} Studierenden vor, von denen {{studentsNr}} am Test teilgenommen haben. Maximal können {{ calcMaxScore }} Punkte erreicht werden.</p>
+            <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor. Maximal können {{ calcMaxScore }} Punkte erreicht werden.</p>
             <p v-if="2*questionsNr >= studentsNr">
               <b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b>
             </p>
+
             <EditMaxScores
               v-if="layout == 'all' && (system == 'Ilias' || system == 'OLAT_xlsx')"
               :Questions="questions"
@@ -72,6 +73,22 @@
               :testtype="type"
               v-on:typeselected="settype"
             ></SetType>
+            <form v-if="multilineScore">
+              <h3>Mehrfache Versuche</h3>
+              <p>Studierende haben den Test mehrfach aufgerufen im Mittel {{(studentLinesNr / studentsNr).toFixed(1)}} mal. Welcher Versuch zählt?</p>
+              <fieldset>
+                <input type="radio" id="maxQuestion" v-model="multilineScore" value="maxQuestion" />
+                <label for="maxQuestion">Für jede Frage wird die beste Antwort gewertet</label>
+                <br />
+                <input type="radio" id="maxLine" v-model="multilineScore" value="maxLine" />
+                <label
+                  for="maxLine"
+                >Es werden die Antworten des Versuchs mit der höchsten Gesamtpunktzahl gewertet</label>
+                <br />
+                <input type="radio" id="single" v-model="multilineScore" value="single" />
+                <label for="single">Jeder Versuch wird separat gewertet</label>
+              </fieldset>
+            </form>
           </div>
         </div>
         <div v-if="multiPresented != ''">
@@ -87,6 +104,7 @@
           :Layout="layout"
         ></ScoreDistribution>
         <Less id="less" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></Less>
+        <!--
         <More id="more" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></More>
         <Attempts
           id="attempts"
@@ -102,6 +120,7 @@
           :Layout="layout"
         ></BestStudents>
         <QuestionStatistics id="questionStatistics" :Score="score" v-if="layout == 'all'"></QuestionStatistics>
+        -->
       </div>
       <div class="footer">
         <p>
@@ -133,11 +152,13 @@ export default {
       system: "",
       type: "compulsory",
       questionsNr: 0,
-      studentsNr: 0,
       studentsDataNr: 0,
       setMaxScore: "none",
       questions: [],
-      studentNames: [],
+      studentNameLines: {},
+      studentLinesNr: 0,
+      //multilineScore is false if each student has a single line. Otherwise it is one of 'maxQuestion', 'maxLine' or 'single'
+      multilineScore: false,
       componentStatus: {
         scoreDistribution: "warn_0",
         less: "warn_0",
@@ -167,40 +188,66 @@ export default {
       this.type = typeval;
     },
     reset: function() {
+      this.system = "";
       this.questionsNr = 0;
-      this.studentsNr = 0;
+      this.studentsDataNr = 0;
       this.questions = [];
-      this.studentNames = [];
+      this.studentNameLines = {};
+      this.multilineScore = false;
+      this.studentLinesNr = 0;
+      this.showContext = true;
+      this.showUpload = true;
       this.layout = "all";
       this.setMaxScore = "none";
+      this.loading = false;
     },
     testread: function(test) {
       this.system = test.system;
-      this.questionsNr = test.questionsNr;
-      this.setMaxScore = test.setMaxScore;
+      this.questionsNr = test.questions.length;
+      if (test.hasOwnProperty("setMaxScore"))
+        this.setMaxScore = test.setMaxScore;
+      else this.setMaxScore = "none";
       this.questions = test.questions;
-      this.studentsNr = test.studentsNr;
-      this.studentsDataNr = test.studentsNr;
-      this.studentNames = test.studentNames.map(function(item, index) {
-        return item + " (" + index + ")";
+      let qIndex = new Object();
+      this.questions.forEach(function(v, a) {
+        qIndex[v.name] = a;
       });
-      // Removing non-participants
-      for (var s = test.studentsNr - 1; s >= 0; s--) {
-        var participated = false;
-        for (var q = 0; q < this.questionsNr; q++) {
-          if (this.questions[q].attemptedBy(s)) {
-            participated = true;
-            break;
-          }
-        }
-        if (!participated) {
-          this.studentNames.splice(s, 1);
-          for (var q2 = 0; q2 < this.questionsNr; q2++) {
-            this.questions[q2].removeStudent(s);
-          }
-          this.studentsNr--;
+
+      this.studentsDataNr = test.studentsNr;
+      var snlThis = new Object();
+      this.studentLinesNr = 0;
+      var snlThat = test.studentNameLines;
+      for (var i = 0; i < snlThat.length; i++) {
+        let snli = snlThat[i],
+          snlName = snli.lineName,
+          snlScore = snli.lineScore,
+          snlNr = snli.lineNr;
+        this.studentNameLines = snlThis;
+        if (snli.participated) {
+          let snlEntry = { lineNr: snlNr, lineScore: snlScore };
+          if (!snlThis.hasOwnProperty(snlName)) snlThis[snlName] = [snlEntry];
+          else snlThis[snlName].push(snlEntry);
+          let snliAnswers = snli.lineAnswers;
+
+          snliAnswers.forEach(ans => {
+            let qn = this.questions[qIndex[ans.name]];
+            qn.addStudentLineAnswer(snlName, snlNr, ans.attempted, ans.score);
+          });
+
+          this.studentLinesNr++;
         }
       }
+
+      let sNames = Object.keys(snlThis);
+
+      this.stundentsNr == sNames.length;
+      if (sNames.length < this.studentLinesNr) {
+        sNames.forEach(sn => {
+          snlThis[sn] = snlThis[sn].sort((a, b) => b.lineScore - a.lineScore);
+        });
+        this.multilineScore = "maxQuestion";
+      }
+
       this.showUpload = false;
       this.showContext = false;
     },
@@ -210,10 +257,14 @@ export default {
   },
 
   computed: {
+    studentsNr: function() {
+      if (this.multilineScore) return Object.keys(this.studentNameLines).length;
+      return this.studentLinesNr;
+    },
     /* score is an array containing for each question
      * - its name
      * - its maximum score
-     *  - an array of student scores for this questions, considering only students who have been presented this question (q.answers[j]!='---') and - in voluntary case only - who have attempted that question (q.answers[j]!="")
+     *  - an array of student scores for this questions, considering only students who have been presented this question and - in voluntary case only - who have attempted that question
      */
     score: function() {
       var scores = [];
@@ -221,7 +272,7 @@ export default {
         var q = this.questions[i];
         //var qscores = q.scores;
         var triedqscores = [];
-        for (var j = 0; j < this.studentsNr; j++) {
+        Object.keys(this.studentNameLines).forEach(j => {
           switch (this.type) {
             case "voluntary":
               if (q.attemptedBy(j)) triedqscores.push(q.scoreOf(j));
@@ -229,7 +280,7 @@ export default {
             default:
               if (q.presentedTo(j)) triedqscores.push(q.scoreOf(j));
           }
-        }
+        });
         var totals = this.type == "voluntary" ? q.attempted : q.presented;
         scores.push({
           name: q.name,
@@ -248,31 +299,88 @@ export default {
       return tScore;
     },
     calcMaxScore: function() {
-      if (this.setMaxScore == "none") return this.totalScore;
+      if (isNaN(this.setMaxScore)) return this.totalScore;
       return this.setMaxScore;
     },
     students: function() {
       var studentScores = [];
+      var nameArray = Object.entries(this.studentNameLines);
 
-      for (var s = 0; s < this.studentsNr; s++) {
-        var student32 = {
-          name: this.studentNames[s],
-          index: s,
+      for (const [sname, slines] of nameArray) {
+        // Entry template for students
+        var student = {
+          name: sname,
+          // scores has for each question the total score for this question
           scores: {},
+          // attempts has for each question the number of attempts
           attempts: {},
           totalScore: 0
         };
+        var l = slines[0];
+        var studentLines = new Object();
+        studentLines[l] = student;
+        if (this.multilineScore == "single") {
+          studentLines = {};
+          slines.forEach(ll => {
+            studentLines[ll.lineNr] = {
+              name: sname + " (" + ll.lineNr + ")",
+              scores: {},
+              attempts: {},
+              totalScore: 0
+            };
+          });
+        }
         this.questions.forEach(qq => {
-          if (
-            qq.presentedTo(s) &&
-            (this.type == "compulsory" || qq.attemptedBy(s))
-          ) {
-            student32["scores"][qq.name] = qq.scoreOf(s);
-            student32["totalScore"] += qq.scoreOf(s);
-            student32["attempts"][qq.name] = qq.attemptedBy(s);
+          switch (this.multilineScore) {
+            case "maxQuestion": {
+              const ssatt = qq.scoreAttemptsOf(sname, "max");
+              student["scores"][qq.name] = ssatt.totalScore;
+              student["totalScore"] += ssatt.totalScore;
+              student["attempts"][qq.name] = ssatt.attempts ? 1 : 0;
+              break;
+            }
+            case "maxLine": {
+              let sl = qq.scoreOfInLine(sname, slines[0].lineNr);
+              student["scores"][qq.name] = sl;
+              student["totalScore"] += sl;
+              student["attempts"] = qq.attemptedByInLine(
+                sname,
+                slines[0].lineNr
+              );
+              break;
+            }
+            case "single": {
+              slines.forEach(ll => {
+                if (this.type == "compulsory" || qq.attemptedBy(sname)) {
+                  let lr = ll.lineNr;
+                  studentLines[lr]["scores"][qq.name] = qq.scoreOfInLine(
+                    sname,
+                    lr
+                  );
+                  studentLines[ll.lineNr]["totalScore"] += qq.scoreOfInLine(
+                    sname,
+                    lr
+                  );
+                  studentLines[ll.lineNr]["attempts"][
+                    qq.name
+                  ] = qq.attemptedByInLine(sname, lr);
+                }
+              });
+              break;
+            }
+            default: {
+              if (
+                qq.presentedTo(sname) &&
+                (this.type == "compulsory" || qq.attemptedBy(sname))
+              ) {
+                student["scores"][qq.name] = qq.scoreOf(sname);
+                student["totalScore"] += qq.scoreOf(sname);
+                student["attempts"][qq.name] = qq.attemptedBy(sname);
+              }
+            }
           }
         });
-        studentScores.push(student32);
+        studentScores = studentScores.concat(Object.values(studentLines));
       }
       return studentScores;
     },
