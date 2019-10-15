@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { Question } from "../Reader";
+import { Question, Line } from "../Reader";
 import Spinner from "../../third_party/Spinner.vue";
 export default {
   data() {
@@ -95,31 +95,36 @@ function table2Test(table) {
     studentsNr: 0,
     setMaxScore: "none",
     questions: [],
-    studentNames: []
+    studentNameLines: []
   };
   var headings = table[0];
   var questionsNr = (headings.length - 2) / 2;
   Test.questionsNr = questionsNr;
-  var q, qq;
   var regex = /Points \((\d+) possible\)/;
-  for (q = 0; q < questionsNr; q++) {
-    qq = new Question(table[0][2 * q + 2]);
+  for (let q = 0; q < questionsNr; q++) {
+    let qq = new Question(table[0][2 * q + 2]);
     var ms = regex.exec(table[1][2 * q + 2])[1];
     qq.maxScore = parseInt(ms);
     Test.questions[q] = qq;
   }
   Test.studentsNr = table.length - 2;
 
-  for (var i = 2; i < table.length; i++) {
-    var line = table[i];
-    Test.studentNames.push(line[0]);
-    for (q = 0; q < questionsNr; q++) {
-      qq = Test.questions[q];
-      qq.scores.push([Number(line[2 + 2 * q])]);
-      qq.answers.push([line[3 + 2 * q]]);
+  for (let i = 2; i < table.length; i++) {
+    let line = table[i];
+    let lineItems = new Line();
+    lineItems.lineName = line[0];
+    lineItems.lineNr = i;
+    for (let q = 0; q < questionsNr; q++) {
+      let qq = Test.questions[q];
+      let rowAnswer = {
+        name: qq.name,
+        attempted: line[3 + 2 * q] !== "",
+        score: Number(line[2 + 2 * q])
+      };
+      lineItems.lineAnswers.push(rowAnswer);
     }
+    Test.studentNameLines.push(lineItems);
   }
-
   return Test;
 }
 

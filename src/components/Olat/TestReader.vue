@@ -143,20 +143,12 @@ function table2Test(table, type) {
   while (rowNr < tl) {
     var line = table[rowNr - 1],
       lineItems = new Line();
-    // rowName wird nur berücksichtigt, wenn wenigstens eine Frage bearbeitet wurde
-    //var participated = 0;
     rowName = Test.isSelfTest ? line[1] : line[1] + " " + line[2];
     lineItems.lineName = rowName;
     lineItems.lineNr = rowNr;
-    //lineItems.lineScore=Test.isSelfTest ? Number(line[4]) : Number(line[6])
 
     for (var q1 = 0; q1 < Test.questionsNr; q1++) {
       var qq = Test.questions[q1];
-      //Hoer weiter wir brauchen qPkt so, dass zu jeder Spalte mit Titel ein Titel und eine Spalte mit Punkten gehören, falls Titel mehrfach auftreten sollten
-      //if (!qq.answers.hasOwnProperty(rowName)) qq.answers[rowName] = {};
-      //qq.answers[rowName][rowNr] = [];
-      //var qqa = qq.answers[rowName][rowNr],
-      //  rowAnswer = {};
       let rowAnswer = new Object();
       switch (type) {
         case "xlsx": {
@@ -166,7 +158,6 @@ function table2Test(table, type) {
             line[qPkt[q1]].length == 0
               ? { attempted: false, score: 0 }
               : { attempted: true, score: scoreVal };
-          //if (qq.maxScore < scoreVal) qq.maxScore = scoreVal;
           break;
         }
         default: {
@@ -178,18 +169,9 @@ function table2Test(table, type) {
         }
       }
       rowAnswer["name"] = qq.name;
-      //if (rowAnswer.attempted) participated++;
       lineItems.lineAnswers.push(rowAnswer);
     }
     Test.studentNameLines.push(lineItems);
-    /*
-    if (participated)
-      Test.studentNameLines.push({
-        name: rowName,
-        lineNr: rowNr,
-        lineScore: Number(line[4])
-      });
-      */
     rowNr++;
   }
 
