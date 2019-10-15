@@ -104,7 +104,6 @@
           :Layout="layout"
         ></ScoreDistribution>
         <Less id="less" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></Less>
-        <!--
         <More id="more" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></More>
         <Attempts
           id="attempts"
@@ -120,7 +119,6 @@
           :Layout="layout"
         ></BestStudents>
         <QuestionStatistics id="questionStatistics" :Score="score" v-if="layout == 'all'"></QuestionStatistics>
-        -->
       </div>
       <div class="footer">
         <p>
