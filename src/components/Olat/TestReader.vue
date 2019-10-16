@@ -127,7 +127,6 @@ function table2Test(table, type) {
   var Test = {
     system: "Olat",
     questionsNr: 0,
-    //setMaxScore: "none",
     questions: [],
     studentNameLines: [],
     isSelfTest: false

@@ -206,6 +206,7 @@ export default {
         this.setMaxScore = test.setMaxScore;
       else this.setMaxScore = "none";
       this.questions = test.questions;
+
       let qIndex = new Object();
       this.questions.forEach(function(v, a) {
         qIndex[v.name] = a;

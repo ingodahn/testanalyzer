@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { Question } from "../Reader";
+import { Question, Line } from "../Reader";
 import Spinner from "../../third_party/Spinner.vue";
 export default {
   data() {
@@ -51,10 +51,7 @@ export default {
       var files = e.dataTransfer.files,
         f = files[0],
         csv;
-
       var reader = new FileReader();
-      //name = f.name;
-
       reader.onload = e => {
         // 1. Getting file
         csv = e.target.result;
@@ -85,12 +82,11 @@ function handleDragover(e) {
 function table2Test(table) {
   var Test = {
     system: "Ilias",
-    info: "",
     questionsNr: 0,
-    studentsNr: 0,
-    setMaxScore: "none",
     questions: [],
-    studentNames: []
+    studentsNr: 0,
+    studentNameLines: [],
+    setMaxScore: "none"
   };
   var iliasType = "normal";
   if (table[0][0] == table[2][0]) {
@@ -106,30 +102,33 @@ function table2Test(table) {
       var questionsNr = headings.length;
       Test.questionsNr = questionsNr;
       Test.setMaxScore = table[1][3];
-      for (var q = 0; q < questionsNr; q++) {
-        var qq = new Question(headings[q]);
-        qq.maxScore = 0;
+      for (let q = 0; q < questionsNr; q++) {
+        let qq = new Question(headings[q]);
         Test.questions[q] = qq;
       }
       Test.studentsNr = table.length - 2;
-      // Ab hier weiter übertragen
-      for (var i = 1; i < table.length - 1; i++) {
-        var lineArray = table[i];
-        Test.studentNames.push(lineArray[0]);
-        for (var q1 = 0; q1 < questionsNr; q1++) {
-          var score = lineArray[19 + q1];
+      for (let rowNr = 1; rowNr < table.length - 1; rowNr++) {
+        let line = table[rowNr],
+          lineItems = new Line(),
+          rowName = line[0];
+        lineItems.lineName = rowName;
+        lineItems.lineNr = rowNr;
+        for (let q1 = 0; q1 < questionsNr; q1++) {
+          let qq = Test.questions[q1];
+          let rowAnswer = new Object();
+          rowAnswer.name = qq.name;
+          rowAnswer.attempted = score !== "";
+          let score = line[19 + q1];
           if (score !== "") {
             score = score.replace(",", ".");
             var scoreVal = Number(score);
-            Test.questions[q1].scores.push([scoreVal]);
-            if (Test.questions[q1].maxScore < scoreVal) {
-              Test.questions[q1].maxScore = scoreVal;
-            }
+            rowAnswer.score = scoreVal;
           } else {
-            Test.questions[q1].scores.push([0]);
+            rowAnswer.score = 0;
           }
-          Test.questions[q1].answers.push([score]);
+          lineItems.lineAnswers.push(rowAnswer);
         }
+        Test.studentNameLines.push(lineItems);
       }
   }
   return Test;
@@ -137,63 +136,60 @@ function table2Test(table) {
 
 // In selected tests an random choice of all questions is presented
 function table2TestShuffled(table, Test) {
-  // Getting question titles sorted
-  var qTitlesRaw = [];
   Test.setMaxScore = table[1][3];
-  var qq;
-  for (var s = 0; s < table.length / 2; s++) {
-    var ss = 2 * s;
-    for (qq = 19; qq < table[ss].length; qq++) {
-      if (!qTitlesRaw.includes(table[ss][qq])) qTitlesRaw.push(table[ss][qq]);
-    }
-  }
-  var qTitles = qTitlesRaw.sort();
-  var questionsNr = qTitles.length;
-  // Initializing Test.questions
-  Test.questionsNr = questionsNr;
-  for (var q = 0; q < questionsNr; q++) {
-    qq = new Question(qTitles[q]);
-    qq.maxScore = 0;
-    Test.questions[q] = qq;
-  }
+  // Getting question titles sorted
+  let qTitlePos = getQuestions();
+  //let questionsNr = qTitlePos.length;
   Test.studentsNr = table.length / 2;
-  var i;
-  var q1, q1n;
+  //var i;
+  //var q1, q1n;
 
-  for (i = 0; i < Test.studentsNr; i++) {
-    var lineArrayTitle = table[2 * i];
-    var lineArray = table[2 * i + 1];
+  for (let i = 0; i < Test.studentsNr; i++) {
+    let lineArrayTitle = table[2 * i];
+    let rowNr = 2 * i + 1;
+    var line = table[2 * i + 1],
+      lineItems = new Line();
     if (Test.setMaxScore < table[1][3]) Test.setMaxScore = table[1][3];
-    Test.studentNames.push(lineArray[0]);
-    var studentScores = {};
-    var studentAnswers = {};
-    var studentMaxScores = {};
-    for (q1 = 0; q1 < Test.questionsNr; q1++) {
-      q1n = Test.questions[q1].name;
-      studentScores[q1n] = [];
-      studentAnswers[q1n] = [];
-      studentMaxScores[q1n] = 0;
-    }
-    for (q1 = 19; q1 < lineArrayTitle.length; q1++) {
-      var score = lineArray[q1];
-      q1n = lineArrayTitle[q1];
-      if (score !== "") {
-        var scoreVal = Number(score.replace(",", "."));
-        studentScores[q1n].push(scoreVal);
-        if (studentMaxScores[q1n] < scoreVal) studentMaxScores[q1n] = scoreVal;
+    let rowName = line[0];
+    lineItems.lineName = rowName;
+    lineItems.lineNr = rowNr;
+    for (let q1 = 19; q1 < lineArrayTitle.length; q1++) {
+      let score = line[q1],
+        q1n = lineArrayTitle[q1];
+      let qq = Test.questions[qTitlePos[q1n]];
+      let rowAnswer = new Object();
+      rowAnswer.name = qq.name;
+      rowAnswer.attempted = score !== "";
+      if (score === "") {
+        rowAnswer.score = 0;
       } else {
-        studentScores[q1n].push(0);
+        rowAnswer.score = Number(score.replace(",", "."));
       }
-      studentAnswers[q1n].push(score);
+      lineItems.lineAnswers.push(rowAnswer);
     }
-    for (q1 = 0; q1 < questionsNr; q1++) {
-      qq = Test.questions[q1];
-      q1n = qq.name;
-      qq.scores.push(studentScores[q1n]);
-      qq.answers.push(studentAnswers[q1n]);
-      if (qq.getMaxScore() < studentMaxScores[q1n])
-        qq.maxScore = studentMaxScores[q1n];
+    Test.studentNameLines.push(lineItems);
+  }
+
+  function getQuestions() {
+    let qTitlesRaw = [];
+    for (let s = 0; s < table.length / 2; s++) {
+      let ss = 2 * s,
+        line = table[ss];
+      for (let qq = 19; qq < line.length; qq++) {
+        if (!qTitlesRaw.includes(line[qq])) qTitlesRaw.push(line[qq]);
+      }
     }
+    let qTitles = qTitlesRaw.sort();
+    let questionsNr = qTitles.length;
+    // Initializing Test.questions
+    Test.questionsNr = questionsNr;
+    let qTitlePos = new Object();
+    for (let q = 0; q < questionsNr; q++) {
+      let qq = new Question(qTitles[q]);
+      Test.questions[q] = qq;
+      qTitlePos[qTitles[q]] = q;
+    }
+    return qTitlePos;
   }
 }
 
