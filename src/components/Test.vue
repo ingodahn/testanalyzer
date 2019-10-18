@@ -97,13 +97,20 @@
         </div>
         <ScoreDistribution
           id="scoreDistribution"
+          :StudentsMaxScores="studentsMaxScores"
           :ScoredSorted="scoredSorted"
           :TotalScore="calcMaxScore"
           :Questions="questions"
           :ComponentStatus="componentStatus"
           :Layout="layout"
         ></ScoreDistribution>
-        <Less id="less" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></Less>
+        <Less
+          id="less"
+          :StudentsMaxScores="studentsMaxScores"
+          :Score="score"
+          :ComponentStatus="componentStatus"
+          :Layout="layout"
+        ></Less>
         <More id="more" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></More>
         <Attempts
           id="attempts"
@@ -390,6 +397,19 @@ export default {
         return a.totalScore - b.totalScore;
       });
       return scoredSorted;
+    },
+    studentsMaxScores: function() {
+      let sMS = new Object();
+      let nameArray = Object.keys(this.studentNameLines);
+      nameArray.map(sn => {
+        let sqData = new Object();
+        this.questions.forEach(q => {
+          sqData[q.name] = q.scoreAttemptsOf(sn, "max");
+        });
+
+        sMS[sn] = sqData;
+      });
+      return sMS;
     },
     questionNames: function() {
       var questionNames = [];

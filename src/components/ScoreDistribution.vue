@@ -4,6 +4,11 @@
     <div v-if="ScoredSorted.length > 0">
       <div style="text-align: center;" v-if="Layout == 'all'">
         <div class="chart-container" style="width:25%; display: inline-block;">
+          <BarChart :chartData="studentMaxScoreChart"></BarChart>
+        </div>
+      </div>
+      <div style="text-align: center;" v-if="Layout == 'all'">
+        <div class="chart-container" style="width:25%; display: inline-block;">
           <BarChart :chartData="studentScores"></BarChart>
         </div>
       </div>
@@ -49,6 +54,7 @@ export default {
     };
   },
   props: [
+    "StudentsMaxScores",
     "ScoredSorted",
     "TotalScore",
     "Questions",
@@ -70,6 +76,29 @@ export default {
       var lim = maxScore / n;
       for (var s = 0; s < studentsNr; s++) {
         var score = this.ScoredSorted[s].totalScore;
+        if (score <= lim) {
+          scoreClasses[i]++;
+        } else {
+          while (score > lim) {
+            i++;
+            lim = lim + maxScore / n;
+          }
+          scoreClasses[i]++;
+        }
+      }
+      return scoreClasses;
+    },
+    scoreClassesMax: function() {
+      // Return list of numbers of students in n groups by score
+      const n = this.bucketsNr;
+      var scoreClasses = Array(n).fill(0);
+      let sss = sortStudents(this.StudentsMaxScores);
+      var studentsNr = sss.length;
+      const maxScore = this.TotalScore;
+      var i = 0;
+      var lim = maxScore / n;
+      for (var s = 0; s < studentsNr; s++) {
+        var score = sss[s].totalScore;
         if (score <= lim) {
           scoreClasses[i]++;
         } else {
@@ -109,6 +138,26 @@ export default {
       var chartData = {
         label: "Studierende",
         data: this.scoreClasses,
+        backgroundColor: backgroundColor
+      };
+      chart.datasets[0] = chartData;
+      return chart;
+    },
+    studentMaxScoreChart: function() {
+      if (this.StudentsMaxScores == {}) {
+        return {};
+      }
+      var chart = {
+        labels: [],
+        datasets: []
+      };
+      const n = this.bucketsNr;
+      var backgroundColor = Array(n).fill("hsl(198, 65%, 40%)");
+
+      chart.labels = this.chartLabels;
+      var chartData = {
+        label: "Studierende",
+        data: this.scoreClassesMax,
         backgroundColor: backgroundColor
       };
       chart.datasets[0] = chartData;
@@ -253,6 +302,21 @@ export default {
     }
   }
 };
+
+//We take an object of studentname-questionname-{totalScore-attempts}, calculate the total score for each student and sort decreasing by this totalScore
+function sortStudents(ss) {
+  let sscored = [];
+  Object.keys(ss).forEach(sname => {
+    let sscore = { name: sname, totalScore: 0 };
+    Object.keys(ss[sname]).forEach(
+      qname => (sscore.totalScore += ss[sname][qname].totalScore)
+    );
+    sscored.push(sscore);
+  });
+  return sscored.sort(function(a, b) {
+    return a.totalScore - b.totalScore;
+  });
+}
 
 function sum(array, start, end) {
   if (array.length == 0) {

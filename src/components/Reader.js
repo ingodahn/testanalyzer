@@ -144,7 +144,10 @@ export class Question {
   // Number of times this question has been attempted
   get attempts() {
     //return this.answers.filter(this.attempted).length;
-    return this.answers.reduce((a, b) => a + this.attemptedBy(b), 0);
+    return Object.keys(this.answers).reduce(
+      (a, b) => a + this.attemptedBy(b),
+      0
+    );
   }
 }
 
