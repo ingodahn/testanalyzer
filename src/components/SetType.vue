@@ -12,7 +12,7 @@
           v-model="typeset"
           checked
           @click="typeSelected('compulsory')"
-        >
+        />
         <label
           for="compulsory"
         >Der Test ist verpflichtend. Es wird erwartet, dass alle Studierenden alle Fragen bearbeiten. Eine nicht beantwortete Frage wird in der Analyse genauso bewertet, wie eine falsch beantwortete Frage.</label>
@@ -25,7 +25,7 @@
           value="voluntary"
           v-model="typeset"
           @click="typeSelected('voluntary')"
-        >
+        />
         <label
           for="voluntary"
         >Der Test ist freiwillig. Die Studierenden können wählen, welche Fragen sie bearbeiten. Die Analyse berücksichtigt nur Fragen, die beantwortet wurden.</label>

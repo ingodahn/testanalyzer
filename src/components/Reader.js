@@ -123,12 +123,14 @@ export class Question {
     return { attempts: 0, totalScore: 0 };
   }
 
+  // Adds student answers to question, returns, how often the student has asnwered this question in this line
   addStudentLineAnswer(studentName, lineNr, att, sco) {
     if (!this.answers.hasOwnProperty(studentName))
       this.answers[studentName] = new Object();
     if (!this.answers[studentName].hasOwnProperty(lineNr))
       this.answers[studentName][lineNr] = [];
     this.answers[studentName][lineNr].push({ attempted: att, score: sco });
+    return this.answers[studentName][lineNr].length;
   }
 
   // Remove 1 line from 1 student

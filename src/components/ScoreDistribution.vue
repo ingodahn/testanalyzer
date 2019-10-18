@@ -2,6 +2,22 @@
   <div id="diagram" :class="warnLevel" v-if="Layout == 'all' || warnLevel == 'warn_1'">
     <h2>Punkteverteilung</h2>
     <div v-if="ScoredSorted.length > 0">
+      <form v-if="Mode.multiline || Mode.multiquestion">
+        <h3>Mehrfache Versuche</h3>
+        <p>Studierende haben Fragen mehrfach bearbeitet. Welcher Versuch zählt?</p>
+        <fieldset>
+          <input type="radio" id="maxQuestion" v-model="multilineScore" value="maxQuestion" />
+          <label for="maxQuestion">Für jede Frage wird die beste Antwort gewertet</label>
+          <br />
+          <input type="radio" id="maxLine" v-model="multilineScore" value="maxLine" />
+          <label
+            for="maxLine"
+          >Es werden die Antworten des Versuchs mit der höchsten Gesamtpunktzahl gewertet</label>
+          <br />
+          <input type="radio" id="single" v-model="multilineScore" value="single" />
+          <label for="single">Jeder Versuch wird separat gewertet</label>
+        </fieldset>
+      </form>
       <div style="text-align: center;" v-if="Layout == 'all'">
         <div class="chart-container" style="width:25%; display: inline-block;">
           <BarChart :chartData="studentMaxScoreChart"></BarChart>
@@ -50,11 +66,13 @@ export default {
           title: "Punkteverteilung"
         }
       },
-      bucketsNr: 5
+      bucketsNr: 5,
+      multilineScore: "maxQuestion"
     };
   },
   props: [
     "StudentsMaxScores",
+    "Mode",
     "ScoredSorted",
     "TotalScore",
     "Questions",

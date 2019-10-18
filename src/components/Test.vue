@@ -70,7 +70,7 @@
             <SetType
               v-if="layout == 'all'"
               id="testType"
-              :testtype="type"
+              :testtype="mode.testtype"
               v-on:typeselected="settype"
             ></SetType>
             <form v-if="multilineScore">
@@ -101,6 +101,7 @@
           :ScoredSorted="scoredSorted"
           :TotalScore="calcMaxScore"
           :Questions="questions"
+          :Mode="mode"
           :ComponentStatus="componentStatus"
           :Layout="layout"
         ></ScoreDistribution>
@@ -149,7 +150,7 @@ import BestStudents from "./BestStudents.vue";
 import EditMaxScores from "./EditMaxScores.vue";
 import ScoreDistribution from "./ScoreDistribution.vue";
 import QuestionStatistics from "./QuestionStatistics.vue";
-
+import { Student } from "./Scoring.js";
 export default {
   name: "Test",
   data() {
@@ -162,8 +163,16 @@ export default {
       questions: [],
       studentNameLines: {},
       studentLinesNr: 0,
+      mode: {
+        testtype: "compulsory",
+        // multiline is true iff at least one student name occurs in more than one line
+        multiline: false,
+        // multiquestion is true iff in at least one line at least one question occurs more than once
+        multiquestion: false
+      },
       //multilineScore is false if each student has a single line. Otherwise it is one of 'maxQuestion', 'maxLine' or 'single'
       multilineScore: false,
+
       componentStatus: {
         scoreDistribution: "warn_0",
         less: "warn_0",
@@ -190,7 +199,7 @@ export default {
   },
   methods: {
     settype: function(typeval) {
-      this.type = typeval;
+      this.mode.testtype = typeval;
     },
     reset: function() {
       this.system = "";
@@ -199,6 +208,11 @@ export default {
       this.questions = [];
       this.studentNameLines = {};
       this.multilineScore = false;
+      this.mode = {
+        testtype: "compulsory",
+        multiline: false,
+        multiquestion: false
+      };
       this.studentLinesNr = 0;
       this.showContext = true;
       this.showUpload = true;
@@ -231,13 +245,22 @@ export default {
         this.studentNameLines = snlThis;
         if (snli.participated) {
           let snlEntry = { lineNr: snlNr, lineScore: snlScore };
-          if (!snlThis.hasOwnProperty(snlName)) snlThis[snlName] = [snlEntry];
-          else snlThis[snlName].push(snlEntry);
+          if (!snlThis.hasOwnProperty(snlName)) {
+            let s = new Student(snlName);
+            s.lines = [snlEntry];
+            snlThis[snlName] = s;
+          } else snlThis[snlName].lines.push(snlEntry);
           let snliAnswers = snli.lineAnswers;
-
           snliAnswers.forEach(ans => {
             let qn = this.questions[qIndex[ans.name]];
-            qn.addStudentLineAnswer(snlName, snlNr, ans.attempted, ans.score);
+
+            let cnt = qn.addStudentLineAnswer(
+              snlName,
+              snlNr,
+              ans.attempted,
+              ans.score
+            );
+            if (cnt > 1) this.mode.multiquestion = true;
           });
 
           this.studentLinesNr++;
@@ -251,11 +274,14 @@ export default {
         sNames.forEach(sn => {
           snlThis[sn] = snlThis[sn].sort((a, b) => b.lineScore - a.lineScore);
         });
+        this.mode.multiline = true;
         this.multilineScore = "maxQuestion";
       }
 
       this.showUpload = false;
       this.showContext = false;
+      //eslint-disable-next-line
+      console.log(this.studentNameLines);
     },
     hasHint: function() {
       return Object.values(this.componentStatus).find(x => x == "warn_1");
@@ -279,15 +305,14 @@ export default {
         //var qscores = q.scores;
         var triedqscores = [];
         Object.keys(this.studentNameLines).forEach(j => {
-          switch (this.type) {
-            case "voluntary":
-              if (q.attemptedBy(j)) triedqscores.push(q.scoreOf(j));
-              break;
-            default:
-              if (q.presentedTo(j)) triedqscores.push(q.scoreOf(j));
+          if (this.mode.testtype == "compulsory") {
+            if (q.presentedTo(j)) triedqscores.push(q.scoreOf(j));
+          } else {
+            if (q.attemptedBy(j)) triedqscores.push(q.scoreOf(j));
           }
         });
-        var totals = this.type == "voluntary" ? q.attempted : q.presented;
+        var totals =
+          this.mode.testtype == "compulsory" ? q.presented : q.attempted;
         scores.push({
           name: q.name,
           maxScore: q.getMaxScore(),
@@ -310,7 +335,9 @@ export default {
     },
     students: function() {
       var studentScores = [];
-      var nameArray = Object.entries(this.studentNameLines);
+      var nameArray = Object.keys(this.studentNameLines).map(s => {
+        return [s, this.studentNameLines[s].lines];
+      });
 
       for (const [sname, slines] of nameArray) {
         // Entry template for students
@@ -357,7 +384,10 @@ export default {
             }
             case "single": {
               slines.forEach(ll => {
-                if (this.type == "compulsory" || qq.attemptedBy(sname)) {
+                if (
+                  this.mode.testtype == "compulsory" ||
+                  qq.attemptedBy(sname)
+                ) {
                   let lr = ll.lineNr;
                   studentLines[lr]["scores"][qq.name] = qq.scoreOfInLine(
                     sname,
@@ -377,7 +407,7 @@ export default {
             default: {
               if (
                 qq.presentedTo(sname) &&
-                (this.type == "compulsory" || qq.attemptedBy(sname))
+                (this.mode.testtype == "compulsory" || qq.attemptedBy(sname))
               ) {
                 student["scores"][qq.name] = qq.scoreOf(sname);
                 student["totalScore"] += qq.scoreOf(sname);
