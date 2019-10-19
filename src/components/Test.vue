@@ -60,37 +60,41 @@
             <p v-if="2*questionsNr >= studentsNr">
               <b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b>
             </p>
-
+            <!--
             <EditMaxScores
               v-if="layout == 'all' && (system == 'Ilias' || system == 'OLAT_xlsx')"
               :Questions="questions"
               :CalcMaxScore="calcMaxScore"
               :TotalScore="totalScore"
             ></EditMaxScores>
-            <SetType
+            -->
+            <ControlCenter
               v-if="layout == 'all'"
               id="testType"
-              :testtype="mode.testtype"
+              :Mode="mode"
               v-on:typeselected="settype"
-            ></SetType>
-            <form v-if="multilineScore">
+            ></ControlCenter>
+            <!--
+            <form v-if="multiLineScore">
               <h3>Mehrfache Versuche</h3>
               <p>Studierende haben den Test mehrfach aufgerufen im Mittel {{(studentLinesNr / studentsNr).toFixed(1)}} mal. Welcher Versuch zählt?</p>
               <fieldset>
-                <input type="radio" id="maxQuestion" v-model="multilineScore" value="maxQuestion" />
+                <input type="radio" id="maxQuestion" v-model="multiLineScore" value="maxQuestion" />
                 <label for="maxQuestion">Für jede Frage wird die beste Antwort gewertet</label>
                 <br />
-                <input type="radio" id="maxLine" v-model="multilineScore" value="maxLine" />
+                <input type="radio" id="maxLine" v-model="multiLineScore" value="maxLine" />
                 <label
                   for="maxLine"
                 >Es werden die Antworten des Versuchs mit der höchsten Gesamtpunktzahl gewertet</label>
                 <br />
-                <input type="radio" id="single" v-model="multilineScore" value="single" />
+                <input type="radio" id="single" v-model="multiLineScore" value="single" />
                 <label for="single">Jeder Versuch wird separat gewertet</label>
               </fieldset>
             </form>
+            -->
           </div>
         </div>
+        <!--
         <div v-if="multiPresented != ''">
           <h3>Wiederholte Fragen</h3>
           <p>{{multiPresented}}</p>
@@ -127,6 +131,7 @@
           :Layout="layout"
         ></BestStudents>
         <QuestionStatistics id="questionStatistics" :Score="score" v-if="layout == 'all'"></QuestionStatistics>
+        -->
       </div>
       <div class="footer">
         <p>
@@ -142,7 +147,7 @@
 
 <script>
 import Navigation from "./Navigation.vue";
-import SetType from "./SetType.vue";
+import ControlCenter from "./ControlCenter.vue";
 import Less from "./Less.vue";
 import More from "./More.vue";
 import Attempts from "./Attempts.vue";
@@ -156,7 +161,7 @@ export default {
   data() {
     return {
       system: "",
-      type: "compulsory",
+      //type: "compulsory",
       questionsNr: 0,
       studentsDataNr: 0,
       setMaxScore: "none",
@@ -164,15 +169,17 @@ export default {
       students: {},
       studentLinesNr: 0,
       mode: {
-        testtype: "compulsory",
-        // multiline is true iff at least one student name occurs in more than one line
-        multiline: false,
-        // multiquestion is true iff in at least one line at least one question occurs more than once
-        multiquestion: false
+        //questionScore: compulsory|voluntary
+        questionScore: "compulsory",
+        //multiQuestionScore: multiMaxQuestion|multiAvgQuestion
+        multiQuestionScore: "multiMaxQuestion",
+        //studentScore: maxQuestion|maxLine|avgLine|single
+        studentScore: "maxQuestion",
+        // multiLine is true iff at least one student name occurs in more than one line
+        multiLine: false,
+        // multiQuestion is true iff in at least one line at least one question occurs more than once
+        multiQuestion: false
       },
-      //multilineScore is false if each student has a single line. Otherwise it is one of 'maxQuestion', 'maxLine' or 'single'
-      multilineScore: false,
-
       componentStatus: {
         scoreDistribution: "warn_0",
         less: "warn_0",
@@ -188,7 +195,7 @@ export default {
   },
   components: {
     Navigation,
-    SetType,
+    ControlCenter,
     Less,
     More,
     Attempts,
@@ -199,21 +206,24 @@ export default {
   },
   methods: {
     settype: function(typeval) {
-      this.mode.testtype = typeval;
+      console.log(typeval);
+      this.mode[typeval[0]] = typeval[1];
     },
     reset: function() {
       this.system = "";
       this.questionsNr = 0;
       this.studentsDataNr = 0;
+      this.setMaxScore = "none";
       this.questions = [];
       this.students = {};
-      this.multilineScore = false;
-      this.mode = {
-        testtype: "compulsory",
-        multiline: false,
-        multiquestion: false
-      };
       this.studentLinesNr = 0;
+      this.mode = {
+        questionScore: "compulsory",
+        multiQuestionScore: "multiMaxQuestion",
+        studentScore: "maxQuestion",
+        multiLine: false,
+        multiQuestion: false
+      };
       this.showContext = true;
       this.showUpload = true;
       this.layout = "all";
@@ -260,7 +270,7 @@ export default {
               ans.attempted,
               ans.score
             );
-            if (cnt > 1) this.mode.multiquestion = true;
+            if (cnt > 1) this.mode.multiQuestion = true;
           });
 
           this.studentLinesNr++;
@@ -277,8 +287,8 @@ export default {
             (a, b) => b.lineScore - a.lineScore
           );
         });
-        this.mode.multiline = true;
-        this.multilineScore = "maxQuestion";
+        this.mode.multiLine = true;
+        this.mode.studentScore = "maxQuestion";
       }
 
       this.showUpload = false;
@@ -291,7 +301,7 @@ export default {
 
   computed: {
     studentsNr: function() {
-      if (this.multilineScore) return Object.keys(this.students).length;
+      if (this.multiLineScore) return Object.keys(this.students).length;
       return this.studentLinesNr;
     },
     /* score is an array containing for each question
@@ -353,7 +363,7 @@ export default {
         var l = slines[0];
         var studentLines = new Object();
         studentLines[l] = student;
-        if (this.multilineScore == "single") {
+        if (this.mode.studentScore == "single") {
           studentLines = {};
           slines.forEach(ll => {
             studentLines[ll.lineNr] = {
@@ -365,7 +375,7 @@ export default {
           });
         }
         this.questions.forEach(qq => {
-          switch (this.multilineScore) {
+          switch (this.mode.studentScore) {
             case "maxQuestion": {
               const ssatt = qq.scoreAttemptsOf(sname, "max");
               student["scores"][qq.name] = ssatt.totalScore;
