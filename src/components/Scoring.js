@@ -5,16 +5,24 @@ export class Student {
     this.scores = new Object();
   }
   getScore(method, questions) {
-    if (isNaN(this.score[method])) {
-      let score = 0;
-      switch (method) {
-        case "maxQuestion": {
-          questions.forEach(q => (score += q.scoreAttemptsOf(name, "max")));
-        }
+    if (this.scores.hasOwnProperty(method)) return this.scores[method];
+    let score = 0;
+    switch (method) {
+      case "maxQuestion": {
+        questions.forEach(q => {
+          score += q.scoreAttemptsOf(this.name, "max").totalScore;
+        });
+        break;
       }
-      this.score[method] = score;
-      return score;
+      case "maxLine": {
+        score = this.lines[0].lineScore;
+        break;
+      }
+      case "single": {
+        score = this.lines;
+      }
     }
-    return this.score(method);
+    this.scores[method] = score;
+    return score;
   }
 }

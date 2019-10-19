@@ -97,7 +97,7 @@
         </div>
         <ScoreDistribution
           id="scoreDistribution"
-          :StudentsMaxScores="studentsMaxScores"
+          :Students="students"
           :ScoredSorted="scoredSorted"
           :TotalScore="calcMaxScore"
           :Questions="questions"
@@ -161,7 +161,7 @@ export default {
       studentsDataNr: 0,
       setMaxScore: "none",
       questions: [],
-      studentNameLines: {},
+      students: {},
       studentLinesNr: 0,
       mode: {
         testtype: "compulsory",
@@ -206,7 +206,7 @@ export default {
       this.questionsNr = 0;
       this.studentsDataNr = 0;
       this.questions = [];
-      this.studentNameLines = {};
+      this.students = {};
       this.multilineScore = false;
       this.mode = {
         testtype: "compulsory",
@@ -242,7 +242,7 @@ export default {
           snlName = snli.lineName,
           snlScore = snli.lineScore,
           snlNr = snli.lineNr;
-        this.studentNameLines = snlThis;
+        this.students = snlThis;
         if (snli.participated) {
           let snlEntry = { lineNr: snlNr, lineScore: snlScore };
           if (!snlThis.hasOwnProperty(snlName)) {
@@ -270,9 +270,12 @@ export default {
       let sNames = Object.keys(snlThis);
 
       this.stundentsNr == sNames.length;
+      // if a student has more attempts, we sort her lines by lineScore
       if (sNames.length < this.studentLinesNr) {
         sNames.forEach(sn => {
-          snlThis[sn] = snlThis[sn].sort((a, b) => b.lineScore - a.lineScore);
+          snlThis[sn].lines = snlThis[sn].lines.sort(
+            (a, b) => b.lineScore - a.lineScore
+          );
         });
         this.mode.multiline = true;
         this.multilineScore = "maxQuestion";
@@ -280,8 +283,6 @@ export default {
 
       this.showUpload = false;
       this.showContext = false;
-      //eslint-disable-next-line
-      console.log(this.studentNameLines);
     },
     hasHint: function() {
       return Object.values(this.componentStatus).find(x => x == "warn_1");
@@ -290,13 +291,13 @@ export default {
 
   computed: {
     studentsNr: function() {
-      if (this.multilineScore) return Object.keys(this.studentNameLines).length;
+      if (this.multilineScore) return Object.keys(this.students).length;
       return this.studentLinesNr;
     },
     /* score is an array containing for each question
      * - its name
      * - its maximum score
-     *  - an array of student scores for this questions, considering only students who have been presented this question and - in voluntary case only - who have attempted that question
+     *  - an array of student scores for this questions, considering only studentScores who have been presented this question and - in voluntary case only - who have attempted that question
      */
     score: function() {
       var scores = [];
@@ -304,7 +305,7 @@ export default {
         var q = this.questions[i];
         //var qscores = q.scores;
         var triedqscores = [];
-        Object.keys(this.studentNameLines).forEach(j => {
+        Object.keys(this.students).forEach(j => {
           if (this.mode.testtype == "compulsory") {
             if (q.presentedTo(j)) triedqscores.push(q.scoreOf(j));
           } else {
@@ -333,14 +334,14 @@ export default {
       if (isNaN(this.setMaxScore)) return this.totalScore;
       return this.setMaxScore;
     },
-    students: function() {
+    studentScores: function() {
       var studentScores = [];
-      var nameArray = Object.keys(this.studentNameLines).map(s => {
-        return [s, this.studentNameLines[s].lines];
+      var nameArray = Object.keys(this.students).map(s => {
+        return [s, this.students[s].lines];
       });
 
       for (const [sname, slines] of nameArray) {
-        // Entry template for students
+        // Entry template for studentScores
         var student = {
           name: sname,
           // scores has for each question the total score for this question
@@ -422,15 +423,17 @@ export default {
     },
 
     scoredSorted: function() {
-      var ss = this.students.slice(0);
+      var ss = this.studentScores.slice(0);
       var scoredSorted = ss.sort(function(a, b) {
         return a.totalScore - b.totalScore;
       });
+      // eslint-disable-next-line
+      console.log(scoredSorted);
       return scoredSorted;
     },
     studentsMaxScores: function() {
       let sMS = new Object();
-      let nameArray = Object.keys(this.studentNameLines);
+      let nameArray = Object.keys(this.students);
       nameArray.map(sn => {
         let sqData = new Object();
         this.questions.forEach(q => {

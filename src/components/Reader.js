@@ -120,6 +120,8 @@ export class Question {
         totalScore: score
       };
     }
+    //eslint-disable-next-line
+    console.log("WRONG");
     return { attempts: 0, totalScore: 0 };
   }
 

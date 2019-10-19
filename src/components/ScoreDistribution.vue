@@ -17,18 +17,20 @@
           <input type="radio" id="single" v-model="multilineScore" value="single" />
           <label for="single">Jeder Versuch wird separat gewertet</label>
         </fieldset>
+        <br />
       </form>
       <div style="text-align: center;" v-if="Layout == 'all'">
         <div class="chart-container" style="width:25%; display: inline-block;">
-          <BarChart :chartData="studentMaxScoreChart"></BarChart>
+          <BarChart :chartData="studentScoreChart"></BarChart>
         </div>
       </div>
+      <!--
       <div style="text-align: center;" v-if="Layout == 'all'">
         <div class="chart-container" style="width:25%; display: inline-block;">
           <BarChart :chartData="studentScores"></BarChart>
         </div>
       </div>
-
+      -->
       <p v-if="hint">
         <b>Hinweis:</b>
         {{ hint }}
@@ -42,6 +44,7 @@
           <li>Fehlt ihnen die Motivation (insbesondere, wenn sie die Frage gar nicht erst versucht haben)?</li>
         </ul>
       </div>
+      <!--
       <Race
         id="trackComponent"
         :ScoredSorted="ScoredSorted"
@@ -49,6 +52,7 @@
         :Questions="Questions"
         v-if="Layout == 'all'"
       ></Race>
+      -->
     </div>
   </div>
 </template>
@@ -71,7 +75,7 @@ export default {
     };
   },
   props: [
-    "StudentsMaxScores",
+    "Students",
     "Mode",
     "ScoredSorted",
     "TotalScore",
@@ -84,6 +88,7 @@ export default {
     Race
   },
   computed: {
+    /*
     scoreClasses: function() {
       // Return list of numbers of students in n groups by score
       const n = this.bucketsNr;
@@ -106,11 +111,17 @@ export default {
       }
       return scoreClasses;
     },
+    */
     scoreClassesMax: function() {
       // Return list of numbers of students in n groups by score
       const n = this.bucketsNr;
       var scoreClasses = Array(n).fill(0);
-      let sss = sortStudents(this.StudentsMaxScores);
+
+      let sss = sortStudents(
+        this.Students,
+        this.multilineScore,
+        this.Questions
+      );
       var studentsNr = sss.length;
       const maxScore = this.TotalScore;
       var i = 0;
@@ -141,6 +152,7 @@ export default {
       }
       return chartLabels;
     },
+    /*
     studentScores: function() {
       if (this.ScoredSorted.length == 0) {
         return {};
@@ -161,8 +173,9 @@ export default {
       chart.datasets[0] = chartData;
       return chart;
     },
-    studentMaxScoreChart: function() {
-      if (this.StudentsMaxScores == {}) {
+    */
+    studentScoreChart: function() {
+      if (this.Students == {}) {
         return {};
       }
       var chart = {
@@ -194,6 +207,7 @@ export default {
         }
       }
     },
+    /*
     gaps: function() {
       const scores = this.scoreClasses;
       if (this.ScoredSorted.length == 0) {
@@ -210,6 +224,24 @@ export default {
       }
       return gaps;
     },
+    */
+    gaps: function() {
+      const scores = this.scoreClassesMax;
+      if (this.Students == {}) {
+        return [];
+      }
+      const n = this.bucketsNr;
+      var gaps = [];
+      var i = 0;
+      while (i < n - 1) {
+        if (scores[i + 1] < scores[i] * 0.3) {
+          gaps.push(i);
+        }
+        i++;
+      }
+      return gaps;
+    },
+    /*
     hintDetails: function() {
       // No gaps - no hints...
       if (this.gaps.length == 0) {
@@ -217,6 +249,8 @@ export default {
       }
       // ...else take first gap
       var gap = this.gaps[0];
+      //eslint-disable-next-line
+      console.log(this.gaps);
       // Calculate number of students before gap
       var snr = sum(this.scoreClasses, 0, gap);
       // We selct maximum 10 students before the gap...
@@ -307,6 +341,107 @@ export default {
         ", bzw. fragen Sie sie, warum sie diese Frage nicht bearbeitet haben."
       );
     },
+    */
+    hintDetails: function() {
+      // No gaps - no hints...
+      if (this.gaps.length == 0) {
+        return "";
+      }
+      var gap = this.gaps[0];
+      let sss = sortStudents(
+        this.Students,
+        this.multilineScore,
+        this.Questions
+      );
+      // Calculate number of students before gap
+      var snr = sum(this.scoreClassesMax, 0, gap);
+      // We selct maximum 10 students before the gap...
+      const weakStudents = sss.slice(Math.max(0, snr - 10), snr);
+      //... and maximum 10 students after the gap
+      const goodStudents = sss.slice(snr, Math.min(snr + 10, sss.length));
+      // Build array of scores of weak students...
+      const weakStudentsScores = weakStudents.map(x => x.totalScore);
+      // ...and of good students
+      const goodStudentsScores = goodStudents.map(x => x.totalScore);
+      var lgood = goodStudents.length;
+      const lweak = weakStudents.length;
+
+      var weakStudentsQ = {};
+      for (var q = 0; q < this.Questions.length; q++) {
+        weakStudentsQ[this.Questions[q].name] = 0;
+      }
+      //eslint-disable-next-line
+      console.log(weakStudentsScores);
+      // How scored the weak students per question? weakStudentsQ sums up scores of weak students per question
+      for (var i = 0; i < lweak; i++) {
+        for (var name in weakStudentsScores[i]) {
+          weakStudentsQ[name] += weakStudentsScores[i][name];
+        }
+      }
+      // How scored the good students per question? goodStudentsQ sums up scores of good students per question
+      // We start with the maxScores if the gap is the top class
+      var goodStudentsQ = {};
+      if (lgood == 0) {
+        for (var qi = 0; qi < this.Questions.length; qi++) {
+          var q1 = this.Questions[qi];
+          goodStudentsQ[q1.name] = q1.getMaxScore();
+        }
+        lgood = 1;
+      } else {
+        // Otherwise we initialize goodStudentsQ with 0 for all questions
+        for (qi = 0; qi < this.Questions.length; qi++) {
+          goodStudentsQ[this.Questions[qi].name] = 0;
+        }
+      }
+
+      // Now we sum up the cores of the good students
+      for (var i1 = 0; i1 < lgood; i1++) {
+        for (var name1 in goodStudentsScores[i1]) {
+          goodStudentsQ[name1] += goodStudentsScores[i1][name1];
+        }
+      }
+
+      // Calculate the diference in average score between good and weak students
+      var diffScores = {};
+      for (var name2 in goodStudentsQ) {
+        diffScores[name2] =
+          goodStudentsQ[name2] / lgood - weakStudentsQ[name2] / lweak;
+      }
+
+      var maxDiff = 0;
+      var maxDiffName = "";
+      for (var name3 in diffScores) {
+        if (diffScores[name3] > maxDiff) {
+          maxDiff = diffScores[name3];
+          maxDiffName = name3;
+        }
+      }
+
+      var maxDiffMaxScore = 0;
+      for (var q2 = 0; q2 < this.Questions.length; q2++) {
+        if (this.Questions[q2].name == maxDiffName) {
+          maxDiffMaxScore = this.Questions[q2].getMaxScore();
+          break;
+        }
+      }
+      var wsi = 0;
+      for (var wi = lweak - 1; wi >= 0; wi--) {
+        if (weakStudents[wi].scores[maxDiffName] < maxDiffMaxScore) {
+          wsi = wi;
+          break;
+        }
+      }
+      var ws = weakStudents[wsi].name;
+      return (
+        "Sehen Sie sich insbesondere die Antworten der Studierenden mit " +
+        this.chartLabels[gap] +
+        " Punkten auf die Frage " +
+        maxDiffName +
+        " an, z.B. von " +
+        ws +
+        ", bzw. fragen Sie sie, warum sie diese Frage nicht bearbeitet haben."
+      );
+    },
     hint: function() {
       if (this.gaps.length == 0) {
         return "";
@@ -322,14 +457,21 @@ export default {
 };
 
 //We take an object of studentname-questionname-{totalScore-attempts}, calculate the total score for each student and sort decreasing by this totalScore
-function sortStudents(ss) {
+function sortStudents(ss, method, questions) {
   let sscored = [];
   Object.keys(ss).forEach(sname => {
-    let sscore = { name: sname, totalScore: 0 };
-    Object.keys(ss[sname]).forEach(
-      qname => (sscore.totalScore += ss[sname][qname].totalScore)
-    );
-    sscored.push(sscore);
+    let sscore = {
+      name: sname,
+      totalScore: ss[sname].getScore(method, questions)
+    };
+    if (method == "single") {
+      sscore.totalScore.map(e =>
+        sscored.push({
+          name: sname + "(" + e.lineNr + ")",
+          totalScore: e.lineScore
+        })
+      );
+    } else sscored.push(sscore);
   });
   return sscored.sort(function(a, b) {
     return a.totalScore - b.totalScore;
