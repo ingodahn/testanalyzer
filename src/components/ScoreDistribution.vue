@@ -50,7 +50,6 @@ export default {
   props: [
     "Students",
     "Mode",
-    "ScoredSorted",
     "TotalScore",
     "Questions",
     "ComponentStatus",

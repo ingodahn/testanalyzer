@@ -78,7 +78,6 @@
         <ScoreDistribution
           id="scoreDistribution"
           :Students="students"
-          :ScoredSorted="scoredSorted"
           :TotalScore="calcMaxScore"
           :Questions="questions"
           :Mode="mode"
@@ -277,7 +276,7 @@ export default {
 
   computed: {
     studentsNr: function() {
-      if (this.multiLineScore) return Object.keys(this.students).length;
+      if (this.mode.multiLine) return Object.keys(this.students).length;
       return this.studentLinesNr;
     },
     /* score is an array containing for each question
