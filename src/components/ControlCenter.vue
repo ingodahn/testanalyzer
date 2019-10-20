@@ -3,7 +3,7 @@
     <h3>Art des Tests</h3>
     <form v-if="Mode.multiLine">
       <fieldset>
-        <legend>Studierende haben mehrere Versuche gemacht. Wie bewerten Sie deren Gesamtleistung?</legend>
+        <legend>Bei Studierenden mit mehreren Versuchen...</legend>
         <div>
           <input
             v-if="!Mode.multiQuestion"
@@ -15,7 +15,7 @@
             @click="typeSelected(['studentScore','maxQuestion'])"
           />
           <label for="maxQuestion">
-            Für jede Frage wird das beste Ergebnis gewertet.
+            ... wird für jede Frage das beste Ergebnis gewertet.
             <br />
           </label>
           <input
@@ -27,7 +27,7 @@
             @click="typeSelected(['studentScore','maxLine'])"
           />
           <label for="maxLine">
-            Der Versuch mit dem besten Gesamtergebnis zählt.
+            ... wird der Versuch mit dem besten Gesamtergebnis gewwertet.
             <br />
           </label>
           <input
@@ -39,7 +39,7 @@
             @click="typeSelected(['studentScore','avgLine'])"
           />
           <label for="avgLine">
-            Es wird der Durchschnitt aller Versuche genommen.
+            ... wird der Durchschnitt aller Versuche gewertet.
             <br />
           </label>
           <input
@@ -51,7 +51,7 @@
             @click="typeSelected(['studentScore','single'])"
           />
           <label for="single">
-            Jeder Versuch wird separat bewertet.
+            ... wird jeder Versuch separat gewertet.
             <br />
           </label>
         </div>
@@ -60,7 +60,7 @@
     <br />
     <form>
       <fieldset>
-        <legend>Wie bewerten Sie die Kenntnisse der Studierenden bei einzelnen Fragen?</legend>
+        <legend>Der Test ist...</legend>
         <input
           type="radio"
           id="compulsory"
@@ -70,7 +70,7 @@
           @click="typeSelected(['questionScore','compulsory'])"
         />
         <label for="compulsory">
-          Der Test ist verpflichtend. Es wird erwartet, dass alle Studierenden alle Fragen bearbeiten. Eine nicht beantwortete Frage wird genauso bewertet, wie eine falsch beantwortete Frage.
+          ... verpflichtend. Es wird erwartet, dass alle Studierenden alle Fragen bearbeiten. Eine nicht beantwortete Frage wird genauso bewertet, wie eine falsch beantwortete Frage.
           <br />
         </label>
         <input
@@ -82,13 +82,13 @@
           @click="typeSelected(['questionScore','voluntary'])"
         />
         <label for="voluntary">
-          Der Test ist freiwillig. Die Studierenden können wählen, welche Fragen sie bearbeiten. Fragen, die nicht beantwortet wurden, werden bei der Leistungsbewertung nicht berücksichtigt.
+          ... freiwillig. Die Studierenden können wählen, welche Fragen sie bearbeiten. Fragen, die nicht beantwortet wurden, werden bei der Leistungsbewertung nicht berücksichtigt.
           <br />
         </label>
       </fieldset>
     </form>
     <br />
-    <form v-if="Mode.multiLine || Mode.multiQuestion">
+    <form v-if="(Mode.multiLine && ! (Mode.studentScore == 'single')) || Mode.multiQuestion">
       <fieldset>
         <legend>Bei mehrfach gestellten Fragen zählt...</legend>
         <input
@@ -100,7 +100,7 @@
           @click="typeSelected(['multiQuestionScore','multiMaxQuestion'])"
         />
         <label for="multiMaxQuestion">
-          ...das beste Ergebnis.
+          ... das beste Ergebnis.
           <br />
         </label>
         <input
@@ -117,25 +117,6 @@
         </label>
       </fieldset>
     </form>
-    <!--
-    <form v-if="Mode.multiLine || Mode.multiQuestion">
-        <h3>Mehrfache Versuche</h3>
-        <p>Studierende haben Fragen mehrfach bearbeitet. Welcher Versuch zählt?</p>
-        <fieldset>
-          <input type="radio" id="maxQuestion" v-model="multiLineScore" value="maxQuestion" />
-          <label for="maxQuestion">Für jede Frage wird die beste Antwort gewertet<br/></label>
-          <br />
-          <input type="radio" id="maxLine" v-model="multiLineScore" value="maxLine" />
-          <label
-            for="maxLine"
-          >Es werden die Antworten des Versuchs mit der höchsten Gesamtpunktzahl gewertet<br/></label>
-          <br />
-          <input type="radio" id="single" v-model="multiLineScore" value="single" />
-          <label for="single">Jeder Versuch wird separat gewertet<br/></label>
-        </fieldset>
-        <br />
-      </form>
-    -->
   </div>
 </template>
 

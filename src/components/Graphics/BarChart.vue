@@ -24,8 +24,8 @@ export default {
           {
             ticks: {
               display: true,
-              beginAtZero: true
-              //min: 0
+              beginAtZero: true,
+              min: 0
             }
           }
         ]

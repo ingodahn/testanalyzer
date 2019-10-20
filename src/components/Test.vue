@@ -60,44 +60,20 @@
             <p v-if="2*questionsNr >= studentsNr">
               <b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b>
             </p>
-            <!--
+
             <EditMaxScores
               v-if="layout == 'all' && (system == 'Ilias' || system == 'OLAT_xlsx')"
               :Questions="questions"
               :CalcMaxScore="calcMaxScore"
               :TotalScore="totalScore"
             ></EditMaxScores>
-            -->
             <ControlCenter
               v-if="layout == 'all'"
               id="testType"
               :Mode="mode"
               v-on:typeselected="settype"
             ></ControlCenter>
-            <!--
-            <form v-if="multiLineScore">
-              <h3>Mehrfache Versuche</h3>
-              <p>Studierende haben den Test mehrfach aufgerufen im Mittel {{(studentLinesNr / studentsNr).toFixed(1)}} mal. Welcher Versuch zählt?</p>
-              <fieldset>
-                <input type="radio" id="maxQuestion" v-model="multiLineScore" value="maxQuestion" />
-                <label for="maxQuestion">Für jede Frage wird die beste Antwort gewertet</label>
-                <br />
-                <input type="radio" id="maxLine" v-model="multiLineScore" value="maxLine" />
-                <label
-                  for="maxLine"
-                >Es werden die Antworten des Versuchs mit der höchsten Gesamtpunktzahl gewertet</label>
-                <br />
-                <input type="radio" id="single" v-model="multiLineScore" value="single" />
-                <label for="single">Jeder Versuch wird separat gewertet</label>
-              </fieldset>
-            </form>
-            -->
           </div>
-        </div>
-        <!--
-        <div v-if="multiPresented != ''">
-          <h3>Wiederholte Fragen</h3>
-          <p>{{multiPresented}}</p>
         </div>
         <ScoreDistribution
           id="scoreDistribution"
@@ -109,6 +85,7 @@
           :ComponentStatus="componentStatus"
           :Layout="layout"
         ></ScoreDistribution>
+        <!--
         <Less
           id="less"
           :StudentsMaxScores="studentsMaxScores"
@@ -206,7 +183,6 @@ export default {
   },
   methods: {
     settype: function(typeval) {
-      console.log(typeval);
       this.mode[typeval[0]] = typeval[1];
     },
     reset: function() {
@@ -437,8 +413,6 @@ export default {
       var scoredSorted = ss.sort(function(a, b) {
         return a.totalScore - b.totalScore;
       });
-      // eslint-disable-next-line
-      console.log(scoredSorted);
       return scoredSorted;
     },
     studentsMaxScores: function() {

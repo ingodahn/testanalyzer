@@ -18,6 +18,11 @@ export class Student {
         score = this.lines[0].lineScore;
         break;
       }
+      case "avgLine": {
+        score =
+          this.lines.reduce((a, b) => a + b.lineScore, 0) / this.lines.length;
+        break;
+      }
       case "single": {
         score = this.lines;
       }
