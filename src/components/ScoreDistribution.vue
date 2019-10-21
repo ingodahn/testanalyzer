@@ -90,7 +90,6 @@ export default {
       var scoreClasses = Array(n).fill(0);
 
       let sss = this.studentsSorted;
-      console.log(sss);
       const studentsNr = sss.length;
       const maxScore = this.TotalScore;
       let i = 0;
@@ -107,7 +106,6 @@ export default {
           scoreClasses[i]++;
         }
       }
-      console.log(scoreClasses);
       return scoreClasses;
     },
     chartLabels: function() {
@@ -142,7 +140,6 @@ export default {
         data: this.scoreClasses,
         backgroundColor: backgroundColor
       };
-      console.log(chartData);
       chart.datasets[0] = chartData;
       return chart;
     },

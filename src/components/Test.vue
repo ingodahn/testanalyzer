@@ -84,14 +84,17 @@
           :ComponentStatus="componentStatus"
           :Layout="layout"
         ></ScoreDistribution>
-        <!--
         <Less
           id="less"
+          :Students="students"
+          :Questions="questions"
+          :Mode="mode"
           :StudentsMaxScores="studentsMaxScores"
           :Score="score"
           :ComponentStatus="componentStatus"
           :Layout="layout"
         ></Less>
+        <!--
         <More id="more" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></More>
         <Attempts
           id="attempts"
@@ -285,27 +288,20 @@ export default {
      *  - an array of student scores for this questions, considering only studentScores who have been presented this question and - in voluntary case only - who have attempted that question
      */
     score: function() {
-      var scores = [];
-      for (var i = 0; i < this.questionsNr; i++) {
-        var q = this.questions[i];
-        //var qscores = q.scores;
-        var triedqscores = [];
-        Object.keys(this.students).forEach(j => {
-          if (this.mode.testtype == "compulsory") {
-            if (q.presentedTo(j)) triedqscores.push(q.scoreOf(j));
-          } else {
-            if (q.attemptedBy(j)) triedqscores.push(q.scoreOf(j));
-          }
+      var scores = new Object();
+      this.questions.forEach(q => {
+        let qs = [];
+        Object.keys(this.students).forEach(sn => {
+          let sscore = q.relativeScoreOf(sn, this.mode);
+          console.log(sscore);
+          if (sscore >= 0) qs.push({ name: sn, score: sscore });
         });
-        var totals =
-          this.mode.testtype == "compulsory" ? q.presented : q.attempted;
-        scores.push({
-          name: q.name,
-          maxScore: q.getMaxScore(),
-          scores: triedqscores,
-          total: totals
+        let qs1 = qs.sort((a, b) => {
+          return b.score - a.score;
         });
-      }
+        scores[q.name] = qs;
+      });
+      console.log(scores);
       return scores;
     },
     totalScore: function() {

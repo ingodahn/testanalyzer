@@ -106,12 +106,12 @@
         <input
           type="radio"
           id="multiAvgQuestion"
-          name="questionScore"
-          value="voluntary"
+          name="multiQuestionScore"
+          value="multiAvgQuestion"
           v-model="Mode.multiQuestionScore"
           @click="typeSelected(['multiQuestionScore','multiAvgQuestion'])"
         />
-        <label for="voluntary">
+        <label for="multiAvgQuestion">
           ... der Durchschnitt aller Ergebnisse.
           <br />
         </label>

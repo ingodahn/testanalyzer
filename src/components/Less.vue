@@ -1,7 +1,7 @@
 <template>
   <div id="less" v-if="Layout == 'all' || warnLevel == 'warn_1'">
     <h2 :class="warnLevel">Bei welchen Fragen wurden oft wenige Punkte erreicht?</h2>
-    <div v-if="Score.length != 0">
+    <div v-if="Questions.length != 0">
       <div :class="warnLevel1" v-if="Layout == 'all' || warnLevel1 == 'warn_1'">
         <div v-if="questionSuccess.length == 0">
           <p>Es wurden bei allen Aufgaben im Mittel mindestens {{ tp }} erreicht.</p>
@@ -35,19 +35,16 @@
 </template>
 
 <script>
-function avg(qScore) {
-  var avgScore = 0;
-  var scores = qScore.scores;
-  var len = scores.length;
-  for (var i = 0; i < len; i++) {
-    avgScore += scores[i];
-  }
-  avgScore = avgScore / qScore.total;
-  return avgScore;
-}
 export default {
   name: "Less",
-  props: ["Score", "ComponentStatus", "Layout"],
+  props: [
+    "Students",
+    "Questions",
+    "Mode",
+    "Score",
+    "ComponentStatus",
+    "Layout"
+  ],
   data() {
     return {
       threshold: 0.2
@@ -56,15 +53,12 @@ export default {
   computed: {
     questionSuccess: function() {
       var threshold = 0.2;
-      var questions = this.Score;
+      var questions = this.Questions;
       var questionsNr = questions.length;
-      var qs = [];
-      for (var i = 0; i < questionsNr; i++) {
-        var qi = questions[i];
-        if (avg(qi) / qi.maxScore < threshold) {
-          qs.push(qi.name);
-        }
-      }
+      let qs = [];
+      questions.forEach(qi => {
+        if (this.avg(qi) / qi.getMaxScore() < this.threshold) qs.push(qi.name);
+      });
       return qs;
     },
     less50: function() {
@@ -180,6 +174,20 @@ export default {
     },
     tp: function() {
       return this.threshold * 100 + "% der Punkte";
+    }
+  },
+  methods: {
+    avg: function(q) {
+      let snames = Object.keys(this.Students);
+      let qs = 0,
+        qnr = 0;
+      snames.forEach(sn => {
+        let sa = q.scoreAttemptsOf(sn, "max");
+        qs += sa.totalScore;
+        qnr +=
+          this.Mode.questionScore == "compulsory" ? sa.presented : sa.attempts;
+      });
+      return qs / qnr;
     }
   }
 };

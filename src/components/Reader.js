@@ -94,6 +94,17 @@ export class Question {
     return 0;
   }
 
+  relativeScoreOf(studentName, mode) {
+    let ss = this.scoreAttemptsOf(studentName, "max");
+    console.log(ss);
+    if (ss.presented) {
+      if (mode.questionScore == "compulsory")
+        return ss.totalScore / ss.presented;
+      else return ss.attempts ? ss.totalScore / ss.attempts : 0;
+    }
+    return -1;
+  }
+
   scoreAttemptsOf(studentName, method) {
     if (this.answers.hasOwnProperty(studentName)) {
       var lineContents = Object.values(this.answers[studentName]);
@@ -117,10 +128,11 @@ export class Question {
           (a, b) => a + b.filter(j => j.attempted).length,
           0
         ),
-        totalScore: score
+        totalScore: score,
+        presented: lineContents.reduce((a, b) => a + b.length, 0)
       };
     }
-    return { attempts: 0, totalScore: 0 };
+    return { attempts: 0, totalScore: 0, presented: 0 };
   }
 
   // Adds student answers to question, returns, how often the student has asnwered this question in this line
