@@ -2,23 +2,6 @@
   <div id="diagram" :class="warnLevel" v-if="Layout == 'all' || warnLevel == 'warn_1'">
     <h2>Punkteverteilung</h2>
     <div v-if="ScoredSorted.length > 0">
-      <form v-if="Mode.multiline || Mode.multiquestion">
-        <h3>Mehrfache Versuche</h3>
-        <p>Studierende haben Fragen mehrfach bearbeitet. Welcher Versuch zählt?</p>
-        <fieldset>
-          <input type="radio" id="maxQuestion" v-model="multilineScore" value="maxQuestion" />
-          <label for="maxQuestion">Für jede Frage wird die beste Antwort gewertet</label>
-          <br />
-          <input type="radio" id="maxLine" v-model="multilineScore" value="maxLine" />
-          <label
-            for="maxLine"
-          >Es werden die Antworten des Versuchs mit der höchsten Gesamtpunktzahl gewertet</label>
-          <br />
-          <input type="radio" id="single" v-model="multilineScore" value="single" />
-          <label for="single">Jeder Versuch wird separat gewertet</label>
-        </fieldset>
-        <br />
-      </form>
       <div style="text-align: center;" v-if="Layout == 'all'">
         <div class="chart-container" style="width:25%; display: inline-block;">
           <BarChart :chartData="studentScoreChart"></BarChart>
@@ -44,7 +27,6 @@
           <li>Fehlt ihnen die Motivation (insbesondere, wenn sie die Frage gar nicht erst versucht haben)?</li>
         </ul>
       </div>
-      <!--
       <Race
         id="trackComponent"
         :ScoredSorted="ScoredSorted"
@@ -52,7 +34,6 @@
         :Questions="Questions"
         v-if="Layout == 'all'"
       ></Race>
-      -->
     </div>
   </div>
 </template>
@@ -88,7 +69,6 @@ export default {
     Race
   },
   computed: {
-    /*
     scoreClasses: function() {
       // Return list of numbers of students in n groups by score
       const n = this.bucketsNr;
@@ -111,23 +91,19 @@ export default {
       }
       return scoreClasses;
     },
-    */
+
+    /*
     scoreClassesMax: function() {
       // Return list of numbers of students in n groups by score
+      console.log(this.ScoredSorted);
       const n = this.bucketsNr;
       var scoreClasses = Array(n).fill(0);
-
-      let sss = sortStudents(
-        this.Students,
-        this.multilineScore,
-        this.Questions
-      );
-      var studentsNr = sss.length;
+      var studentsNr = this.ScoredSorted.length;
       const maxScore = this.TotalScore;
       var i = 0;
       var lim = maxScore / n;
       for (var s = 0; s < studentsNr; s++) {
-        var score = sss[s].totalScore;
+        var score = this.ScoredSorted[s].totalScore;
         if (score <= lim) {
           scoreClasses[i]++;
         } else {
@@ -140,6 +116,7 @@ export default {
       }
       return scoreClasses;
     },
+    */
     chartLabels: function() {
       const n = this.bucketsNr;
       const maxScore = this.TotalScore;
@@ -188,7 +165,7 @@ export default {
       chart.labels = this.chartLabels;
       var chartData = {
         label: "Studierende",
-        data: this.scoreClassesMax,
+        data: this.scoreClasses,
         backgroundColor: backgroundColor
       };
       chart.datasets[0] = chartData;
@@ -226,7 +203,7 @@ export default {
     },
     */
     gaps: function() {
-      const scores = this.scoreClassesMax;
+      const scores = this.scoreClasses;
       if (this.Students == {}) {
         return [];
       }
@@ -348,13 +325,9 @@ export default {
         return "";
       }
       var gap = this.gaps[0];
-      let sss = sortStudents(
-        this.Students,
-        this.multilineScore,
-        this.Questions
-      );
+      let sss = this.ScoredSorted;
       // Calculate number of students before gap
-      var snr = sum(this.scoreClassesMax, 0, gap);
+      var snr = sum(this.scoreClasses, 0, gap);
       // We selct maximum 10 students before the gap...
       const weakStudents = sss.slice(Math.max(0, snr - 10), snr);
       //... and maximum 10 students after the gap
@@ -366,40 +339,57 @@ export default {
       var lgood = goodStudents.length;
       const lweak = weakStudents.length;
 
-      var weakStudentsQ = {};
-      for (var q = 0; q < this.Questions.length; q++) {
-        weakStudentsQ[this.Questions[q].name] = 0;
-      }
-      //eslint-disable-next-line
-      console.log(weakStudentsScores);
+      let weakStudentsQ = new Object();
+      this.Questions.forEach(q => {
+        weakStudentsQ[q.name] = 0;
+      });
+
       // How scored the weak students per question? weakStudentsQ sums up scores of weak students per question
-      for (var i = 0; i < lweak; i++) {
-        for (var name in weakStudentsScores[i]) {
-          weakStudentsQ[name] += weakStudentsScores[i][name];
-        }
-      }
+      weakStudents.forEach(s => {
+        s["scores"] = new Object();
+        this.Questions.forEach(q => {
+          let sc = q.scoreAttemptsOf(s.realName, "max").totalScore;
+          weakStudentsQ[q.name] += sc;
+          s.scores[q.name] = sc;
+        });
+      });
       // How scored the good students per question? goodStudentsQ sums up scores of good students per question
       // We start with the maxScores if the gap is the top class
-      var goodStudentsQ = {};
+      let goodStudentsQ = new Object();
       if (lgood == 0) {
+        this.Questions.forEach(q => {
+          goodStudentsQ[q.name] = q.getMaxScore();
+        });
+        /*
         for (var qi = 0; qi < this.Questions.length; qi++) {
           var q1 = this.Questions[qi];
           goodStudentsQ[q1.name] = q1.getMaxScore();
         }
+        */
         lgood = 1;
       } else {
         // Otherwise we initialize goodStudentsQ with 0 for all questions
-        for (qi = 0; qi < this.Questions.length; qi++) {
-          goodStudentsQ[this.Questions[qi].name] = 0;
-        }
+        this.Questions.forEach(q => {
+          goodStudentsQ[q.name] = 0;
+        });
       }
 
       // Now we sum up the cores of the good students
+      goodStudents.forEach(s => {
+        this.Questions.forEach(q => {
+          goodStudentsQ[q.name] += q.scoreAttemptsOf(
+            s.realName,
+            "max"
+          ).totalScore;
+        });
+      });
+      /*
       for (var i1 = 0; i1 < lgood; i1++) {
         for (var name1 in goodStudentsScores[i1]) {
           goodStudentsQ[name1] += goodStudentsScores[i1][name1];
         }
       }
+      */
 
       // Calculate the diference in average score between good and weak students
       var diffScores = {};
@@ -424,6 +414,7 @@ export default {
           break;
         }
       }
+      // we need the score of weakStudents[wi] for question with name maxDiffName
       var wsi = 0;
       for (var wi = lweak - 1; wi >= 0; wi--) {
         if (weakStudents[wi].scores[maxDiffName] < maxDiffMaxScore) {

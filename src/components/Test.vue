@@ -67,34 +67,20 @@
               :CalcMaxScore="calcMaxScore"
               :TotalScore="totalScore"
             ></EditMaxScores>
-            <SetType
+            <ControlCenter
               v-if="layout == 'all'"
-              id="testType"
-              :testtype="mode.testtype"
-              v-on:typeselected="settype"
-            ></SetType>
-            <form v-if="multilineScore">
-              <h3>Mehrfache Versuche</h3>
-              <p>Studierende haben den Test mehrfach aufgerufen im Mittel {{(studentLinesNr / studentsNr).toFixed(1)}} mal. Welcher Versuch zählt?</p>
-              <fieldset>
-                <input type="radio" id="maxQuestion" v-model="multilineScore" value="maxQuestion" />
-                <label for="maxQuestion">Für jede Frage wird die beste Antwort gewertet</label>
-                <br />
-                <input type="radio" id="maxLine" v-model="multilineScore" value="maxLine" />
-                <label
-                  for="maxLine"
-                >Es werden die Antworten des Versuchs mit der höchsten Gesamtpunktzahl gewertet</label>
-                <br />
-                <input type="radio" id="single" v-model="multilineScore" value="single" />
-                <label for="single">Jeder Versuch wird separat gewertet</label>
-              </fieldset>
-            </form>
+              id="controlCenter"
+              :Mode="mode"
+              v-on:typeselected="setMode"
+            ></ControlCenter>
           </div>
         </div>
+        <!--
         <div v-if="multiPresented != ''">
           <h3>Wiederholte Fragen</h3>
           <p>{{multiPresented}}</p>
         </div>
+        -->
         <ScoreDistribution
           id="scoreDistribution"
           :Students="students"
@@ -109,6 +95,7 @@
           id="less"
           :StudentsMaxScores="studentsMaxScores"
           :Score="score"
+          :Mode="mode"
           :ComponentStatus="componentStatus"
           :Layout="layout"
         ></Less>
@@ -142,7 +129,7 @@
 
 <script>
 import Navigation from "./Navigation.vue";
-import SetType from "./SetType.vue";
+import ControlCenter from "./ControlCenter.vue";
 import Less from "./Less.vue";
 import More from "./More.vue";
 import Attempts from "./Attempts.vue";
@@ -164,15 +151,14 @@ export default {
       students: {},
       studentLinesNr: 0,
       mode: {
-        testtype: "compulsory",
-        // multiline is true iff at least one student name occurs in more than one line
-        multiline: false,
-        // multiquestion is true iff in at least one line at least one question occurs more than once
-        multiquestion: false
+        questionScore: "compulsory",
+        // multiLine is true iff at least one student name occurs in more than one line
+        multiLine: false,
+        // multiQuestion is true iff in at least one line at least one question occurs more than once
+        multiQuestion: false,
+        //mode.multiLineScore is false if each student has a single line. Otherwise it is one of 'maxQuestion', 'maxLine' or 'single'
+        multiLineScore: false
       },
-      //multilineScore is false if each student has a single line. Otherwise it is one of 'maxQuestion', 'maxLine' or 'single'
-      multilineScore: false,
-
       componentStatus: {
         scoreDistribution: "warn_0",
         less: "warn_0",
@@ -188,7 +174,7 @@ export default {
   },
   components: {
     Navigation,
-    SetType,
+    ControlCenter,
     Less,
     More,
     Attempts,
@@ -198,8 +184,8 @@ export default {
     QuestionStatistics
   },
   methods: {
-    settype: function(typeval) {
-      this.mode.testtype = typeval;
+    setMode: function(typeval) {
+      this.mode[typeval[0]] = typeval[1];
     },
     reset: function() {
       this.system = "";
@@ -207,11 +193,11 @@ export default {
       this.studentsDataNr = 0;
       this.questions = [];
       this.students = {};
-      this.multilineScore = false;
+      this.mode.multiLine = false;
       this.mode = {
-        testtype: "compulsory",
-        multiline: false,
-        multiquestion: false
+        questionScore: "compulsory",
+        multiLine: false,
+        multiQuestion: false
       };
       this.studentLinesNr = 0;
       this.showContext = true;
@@ -260,7 +246,7 @@ export default {
               ans.attempted,
               ans.score
             );
-            if (cnt > 1) this.mode.multiquestion = true;
+            if (cnt > 1) this.mode.multiQuestion = true;
           });
 
           this.studentLinesNr++;
@@ -277,8 +263,8 @@ export default {
             (a, b) => b.lineScore - a.lineScore
           );
         });
-        this.mode.multiline = true;
-        this.multilineScore = "maxQuestion";
+        this.mode.multiLine = true;
+        this.mode.multiLineScore = "maxQuestion";
       }
 
       this.showUpload = false;
@@ -291,7 +277,7 @@ export default {
 
   computed: {
     studentsNr: function() {
-      if (this.multilineScore) return Object.keys(this.students).length;
+      if (this.mode.multiLine) return Object.keys(this.students).length;
       return this.studentLinesNr;
     },
     /* score is an array containing for each question
@@ -306,14 +292,14 @@ export default {
         //var qscores = q.scores;
         var triedqscores = [];
         Object.keys(this.students).forEach(j => {
-          if (this.mode.testtype == "compulsory") {
+          if (this.mode.questionScore == "compulsory") {
             if (q.presentedTo(j)) triedqscores.push(q.scoreOf(j));
           } else {
             if (q.attemptedBy(j)) triedqscores.push(q.scoreOf(j));
           }
         });
         var totals =
-          this.mode.testtype == "compulsory" ? q.presented : q.attempted;
+          this.mode.questionScore == "compulsory" ? q.presented : q.attempted;
         scores.push({
           name: q.name,
           maxScore: q.getMaxScore(),
@@ -335,100 +321,50 @@ export default {
       return this.setMaxScore;
     },
     studentScores: function() {
-      var studentScores = [];
-      var nameArray = Object.keys(this.students).map(s => {
-        return [s, this.students[s].lines];
-      });
+      let studentScores = [];
+      let nameArray = Object.keys(this.students);
 
-      for (const [sname, slines] of nameArray) {
-        // Entry template for studentScores
-        var student = {
-          name: sname,
-          // scores has for each question the total score for this question
-          scores: {},
-          // attempts has for each question the number of attempts
-          attempts: {},
-          totalScore: 0
-        };
-        var l = slines[0];
-        var studentLines = new Object();
-        studentLines[l] = student;
-        if (this.multilineScore == "single") {
-          studentLines = {};
-          slines.forEach(ll => {
-            studentLines[ll.lineNr] = {
-              name: sname + " (" + ll.lineNr + ")",
-              scores: {},
-              attempts: {},
-              totalScore: 0
-            };
+      if (!this.mode.multiLine) {
+        nameArray.forEach(sname => {
+          studentScores.push({
+            name: sname,
+            realName: sname,
+            totalScore: this.students[sname].getScore(this.mode, this.questions)
           });
-        }
-        this.questions.forEach(qq => {
-          switch (this.multilineScore) {
-            case "maxQuestion": {
-              const ssatt = qq.scoreAttemptsOf(sname, "max");
-              student["scores"][qq.name] = ssatt.totalScore;
-              student["totalScore"] += ssatt.totalScore;
-              student["attempts"][qq.name] = ssatt.attempts ? 1 : 0;
-              break;
-            }
-            case "maxLine": {
-              let sl = qq.scoreOfInLine(sname, slines[0].lineNr);
-              student["scores"][qq.name] = sl;
-              student["totalScore"] += sl;
-              student["attempts"] = qq.attemptedByInLine(
-                sname,
-                slines[0].lineNr
-              );
-              break;
-            }
-            case "single": {
-              slines.forEach(ll => {
-                if (
-                  this.mode.testtype == "compulsory" ||
-                  qq.attemptedBy(sname)
-                ) {
-                  let lr = ll.lineNr;
-                  studentLines[lr]["scores"][qq.name] = qq.scoreOfInLine(
-                    sname,
-                    lr
-                  );
-                  studentLines[ll.lineNr]["totalScore"] += qq.scoreOfInLine(
-                    sname,
-                    lr
-                  );
-                  studentLines[ll.lineNr]["attempts"][
-                    qq.name
-                  ] = qq.attemptedByInLine(sname, lr);
-                }
+        });
+      } else if (this.mode.multiLine && this.mode.multiLineScore == "single") {
+        nameArray.forEach(sname => {
+          {
+            let scoreArray = this.students[sname].getScore(
+              this.mode,
+              this.questions
+            );
+            scoreArray.forEach(ll => {
+              studentScores.push({
+                name: sname + " (" + ll.lineNr + ")",
+                realName: sname,
+                lineNr: ll.lineNr,
+                totalScore: ll.lineScore
               });
-              break;
-            }
-            default: {
-              if (
-                qq.presentedTo(sname) &&
-                (this.mode.testtype == "compulsory" || qq.attemptedBy(sname))
-              ) {
-                student["scores"][qq.name] = qq.scoreOf(sname);
-                student["totalScore"] += qq.scoreOf(sname);
-                student["attempts"][qq.name] = qq.attemptedBy(sname);
-              }
-            }
+            });
           }
         });
-        studentScores = studentScores.concat(Object.values(studentLines));
+      } else if (this.mode.multiLine) {
+        nameArray.forEach(sname => {
+          studentScores.push({
+            name: sname,
+            realName: sname,
+            totalScore: this.students[sname].getScore(this.mode, this.questions)
+          });
+        });
       }
       return studentScores;
     },
-
     scoredSorted: function() {
       var ss = this.studentScores.slice(0);
       var scoredSorted = ss.sort(function(a, b) {
         return a.totalScore - b.totalScore;
       });
-      // eslint-disable-next-line
-      console.log(scoredSorted);
       return scoredSorted;
     },
     studentsMaxScores: function() {
@@ -450,18 +386,6 @@ export default {
         questionNames.push(this.questions[i].name);
       }
       return questionNames;
-    },
-    multiPresented: function() {
-      //Only in Ilias (so far) questions may be presented multiple times in the same run
-      if (this.system == "Ilias") {
-        for (var s = 0; s < this.studentsNr; s++) {
-          for (var qi = 0; qi < this.questionsNr; qi++) {
-            if (this.questions[qi].presentedTo(s) > 1)
-              return "Im Test werden den Studierenden Fragen mit demselben Titel mehrfach gestellt. Bei der Auswertung wird angenommen, dass es sich dabei um Varianten derselben Frage handelt.";
-          }
-        }
-      }
-      return "";
     },
     pSystem: function() {
       var pS = this.$route.path;

@@ -32,10 +32,7 @@ export default {
         var qMax = qq.getMaxScore();
         var qMsgArr = [];
         for (var s = 0; s < best.length; s++) {
-          if (
-            best[s].scores.hasOwnProperty(qName) &&
-            best[s].scores[qName] < qMax
-          ) {
+          if (qq.scoreAttemptsOf(best[s].realName, "max").totalScore < qMax) {
             qMsgArr.push(best[s].name);
           }
         }

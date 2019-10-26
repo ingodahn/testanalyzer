@@ -47,7 +47,7 @@ function avg(qScore) {
 }
 export default {
   name: "Less",
-  props: ["Score", "ComponentStatus", "Layout"],
+  props: ["Score", "Mode", "ComponentStatus", "Layout"],
   data() {
     return {
       threshold: 0.2
@@ -153,7 +153,11 @@ export default {
       if (this.less50.length == 0) {
         return "";
       }
-      return "nicht die volle Punktzahl erreichen.";
+      let multiTxt =
+        this.Mode.multiLine || this.Mode.multiQuestion
+          ? "auch nach mehreren Versuchen "
+          : "";
+      return multiTxt + "nicht die volle Punktzahl erreichen.";
     },
     hint50: function() {
       const qsl = this.questionSuccess.length,
