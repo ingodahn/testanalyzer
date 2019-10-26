@@ -36,6 +36,7 @@ export class Question {
       return this.answers[studentName][lineNr].length;
     return 0;
   }
+
   // Question has been presented to student that many times
   presentedTo(studentName) {
     if (this.answers.hasOwnProperty(studentName)) {

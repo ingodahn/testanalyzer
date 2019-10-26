@@ -5,12 +5,6 @@ export class Student {
     this.scores = new Object();
   }
 
-  getLineScore(line) {
-    let ls = this.lines.filter(j => j.lineNr == line);
-    if (ls.length) return ls[0].lineScore;
-    else return 0;
-  }
-
   getScore(mode, questions) {
     let method = "compulsory",
       score = 0;

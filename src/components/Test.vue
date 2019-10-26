@@ -57,9 +57,6 @@
           <div v-if="layout == 'all'">
             <h2>Daten</h2>
             <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor. Maximal können {{ calcMaxScore }} Punkte erreicht werden.</p>
-            <p v-if="2*questionsNr >= studentsNr">
-              <b>Für aussagekräftige Ergebnisse sollte es wenigstens doppelt so viele Studierende wie Fragen geben.</b>
-            </p>
 
             <EditMaxScores
               v-if="layout == 'all' && (system == 'Ilias' || system == 'OLAT_xlsx')"
@@ -75,25 +72,16 @@
             ></ControlCenter>
           </div>
         </div>
-        <!--
-        <div v-if="multiPresented != ''">
-          <h3>Wiederholte Fragen</h3>
-          <p>{{multiPresented}}</p>
-        </div>
-        -->
         <ScoreDistribution
           id="scoreDistribution"
-          :Students="students"
           :ScoredSorted="scoredSorted"
           :TotalScore="calcMaxScore"
           :Questions="questions"
-          :Mode="mode"
           :ComponentStatus="componentStatus"
           :Layout="layout"
         ></ScoreDistribution>
         <Less
           id="less"
-          :StudentsMaxScores="studentsMaxScores"
           :Score="score"
           :Mode="mode"
           :ComponentStatus="componentStatus"
@@ -367,6 +355,7 @@ export default {
       });
       return scoredSorted;
     },
+    /*
     studentsMaxScores: function() {
       let sMS = new Object();
       let nameArray = Object.keys(this.students);
@@ -380,6 +369,7 @@ export default {
       });
       return sMS;
     },
+
     questionNames: function() {
       var questionNames = [];
       for (var i = 0; i < this.questionsNr; i++) {
@@ -387,6 +377,7 @@ export default {
       }
       return questionNames;
     },
+    */
     pSystem: function() {
       var pS = this.$route.path;
       if (pS.match(/imathas/g)) return "IMathAS";
