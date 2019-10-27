@@ -2,7 +2,11 @@
   <div id="questionStatistics">
     <h2>Fragen-Statistik</h2>
     <div style="text-align: center;">
-      <div class="chart-container" style="width:50%;display: inline-block;" v-if="Score.length > 0">
+      <div
+        class="chart-container"
+        style="width:50%;display: inline-block;"
+        v-if="Questions.length > 0"
+      >
         <h3>
           <span v-if="curGroup > 1">
             <input type="button" class="player" @click="curGroup=0" value="|<" />
@@ -21,12 +25,14 @@
         <LineChart :chartData="ScoreChart(curGroupStart,curGroupEnd)"></LineChart>
       </div>
     </div>
-    <div v-if="Score.length > 0" style="margin-top: 25px;">
-      <p>
-        <b>Hinweis:</b>Wenn die maximal mögliche Punktzahl der Schwierigkeit der Aufgabe entsprechen soll, so vergleichen Sie die beiden Kurven.
+    <div v-if="Questions.length > 0" style="margin-top: 25px;">
+      <b>Hinweis:</b>
+      <div v-html="multiLineHint" v-if="Mode.multiLine || Mode.multiQuestion"></div>
+      <div>
+        Wenn die maximal mögliche Punktzahl der Schwierigkeit der Aufgabe entsprechen soll, so vergleichen Sie die blaue mit der grünen Kurve.
         Bei schwierigen Fragen ist der mittlere Punktwert niedrig, verglichen mit dem Maximalpunktwert.
         Derartige Fragen kann man mit einem entsprechend höheren Maximalpunktwert belohnen.
-      </p>
+      </div>
       <p>Eine angepasste Punkteverteilung wäre z.B.:</p>
 
       <ul>
@@ -55,10 +61,12 @@ export default {
   components: {
     LineChart
   },
-  props: ["Score"],
+  props: ["Questions", "Mode"],
   data() {
     return {
-      curGroup: 0
+      curGroup: 0,
+      multiLineHint:
+        "Studierende haben Fragen mehrfach bearbeitet. Die <span style='color:red; font-weight:bold'>rote Kurve </span>zeigt, wieviele Punkte die Studierenden dabei maximal erreicht haben. Dies ist ein Hinweis auf den erreichten Leistungsstand (sofern die Aufgabe nicht durch mehrfaches Raten gelöst werden kann). Die <span style='color:blue; font-weight:bold'>blaue Kurve</span> zeigt die im Mittel aller Versuche erreichte Punktzahl. Die Differenz zwischen der blauen und der roten Kurve ist ein Indiz für den Lernerfolg während der Laufzeit des Tests."
     };
   },
   methods: {
@@ -67,7 +75,7 @@ export default {
         labels: [],
         datasets: []
       };
-      if (this.Score.length == 0) {
+      if (this.Questions.length == 0) {
         return {
           data: [chart]
         };
@@ -76,32 +84,56 @@ export default {
       chart.labels = this.QNames.slice(start, end);
       var maxData = {
         label: "Maximale Punktzahl",
-        data: this.Score.slice(start, end).map(x => x.maxScore),
+        data: this.Questions.slice(start, end).map(x => x.getMaxScore()),
         borderColor: "green"
       };
       chart.datasets[0] = maxData;
       var avgData = {
-        label: "Mittlere Punktzahl",
+        label:
+          !this.Mode.multiLine && !this.Mode.multiQuestion
+            ? "Mittlere Punktzahl"
+            : "Mittlere Punktzahl aller Versuche",
         data: this.QAvgs.slice(start, end),
         borderColor: "blue"
       };
       chart.datasets[1] = avgData;
+      if (this.Mode.multiLine || this.Mode.multiQuestion) {
+        let maxStudentData = {
+          label: "Mittlere maximale Punktzahl aller Studierenden",
+          data: this.QMax.slice(start, end),
+          borderColor: "red"
+        };
+        chart.datasets[2] = maxStudentData;
+      }
       return chart;
     }
   },
   computed: {
     QNames: function() {
-      return this.Score.map(x => x["name"]);
+      return this.Questions.map(x => x["name"]);
     },
     QAvgs: function() {
-      return this.Score.map(x => avg(x).toFixed(2));
+      let avgData = [];
+      this.Questions.forEach(q => {
+        avgData.push(q.getStudentScoreAvg(this.Mode.questionScore));
+      });
+      return avgData;
+    },
+    QMax: function() {
+      let maxData = [];
+      this.Questions.forEach(q => {
+        maxData.push(q.getMaxStudentScoreAvg());
+      });
+      return maxData;
     },
     ScoreAdjust: function() {
       var sMaxAdj = [];
-      for (var qi = 0; qi < this.Score.length; qi++) {
+      for (var qi = 0; qi < this.Questions.length; qi++) {
         var si = 0;
         if (this.QAvgs[qi] > 0) {
-          si = Math.round(this.Score[qi].maxScore * (5 / this.QAvgs[qi]));
+          si = Math.round(
+            this.Questions[qi].getMaxScore() * (5 / this.QAvgs[qi])
+          );
         }
         sMaxAdj[qi] = this.QNames[qi] + ": " + si + " Punkte";
       }
@@ -111,7 +143,7 @@ export default {
       var ar1 = [];
       var n = 20;
       var start = 0;
-      var ln = this.Score.length;
+      var ln = this.Questions.length;
       do {
         if (start + 2 * n <= ln) {
           ar1.push([start, start + n]);
@@ -133,9 +165,11 @@ export default {
       return ar1;
     },
     curGroupStart: function() {
+      if (this.curGroup >= this.ChartGroups.length) this.curGroup = 0;
       return this.ChartGroups.length ? this.ChartGroups[this.curGroup][0] : 0;
     },
     curGroupEnd: function() {
+      if (this.curGroup >= this.ChartGroups.length) this.curGroup = 0;
       return this.ChartGroups.length ? this.ChartGroups[this.curGroup][1] : 0;
     }
   }

@@ -165,9 +165,11 @@ export default {
       return ar1;
     },
     curGroupStart: function() {
+      if (this.curGroup >= this.ChartGroups.length) this.curGroup = 0;
       return this.ChartGroups.length ? this.ChartGroups[this.curGroup][0] : 0;
     },
     curGroupEnd: function() {
+      if (this.curGroup >= this.ChartGroups.length) this.curGroup = 0;
       return this.ChartGroups.length ? this.ChartGroups[this.curGroup][1] : 0;
     },
     QNames: function() {

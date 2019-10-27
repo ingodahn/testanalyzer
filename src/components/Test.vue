@@ -101,7 +101,12 @@
           :ComponentStatus="componentStatus"
           :Layout="layout"
         ></BestStudents>
-        <QuestionStatistics id="questionStatistics" :Score="score" v-if="layout == 'all'"></QuestionStatistics>
+        <QuestionStatistics
+          id="questionStatistics"
+          :Questions="questions"
+          :Mode="mode"
+          v-if="layout == 'all'"
+        ></QuestionStatistics>
       </div>
       <div class="footer">
         <p>
@@ -185,7 +190,8 @@ export default {
       this.mode = {
         questionScore: "compulsory",
         multiLine: false,
-        multiQuestion: false
+        multiQuestion: false,
+        multiLineScore: false
       };
       this.studentLinesNr = 0;
       this.showContext = true;
@@ -218,12 +224,16 @@ export default {
           snlNr = snli.lineNr;
         this.students = snlThis;
         if (snli.participated) {
+          let s;
           let snlEntry = { lineNr: snlNr, lineScore: snlScore };
           if (!snlThis.hasOwnProperty(snlName)) {
-            let s = new Student(snlName);
+            s = new Student(snlName);
             s.lines = [snlEntry];
             snlThis[snlName] = s;
-          } else snlThis[snlName].lines.push(snlEntry);
+          } else {
+            s = snlThis[snlName];
+            s.lines.push(snlEntry);
+          }
           let snliAnswers = snli.lineAnswers;
           snliAnswers.forEach(ans => {
             let qn = this.questions[qIndex[ans.name]];
@@ -355,29 +365,7 @@ export default {
       });
       return scoredSorted;
     },
-    /*
-    studentsMaxScores: function() {
-      let sMS = new Object();
-      let nameArray = Object.keys(this.students);
-      nameArray.map(sn => {
-        let sqData = new Object();
-        this.questions.forEach(q => {
-          sqData[q.name] = q.scoreAttemptsOf(sn, "max");
-        });
 
-        sMS[sn] = sqData;
-      });
-      return sMS;
-    },
-
-    questionNames: function() {
-      var questionNames = [];
-      for (var i = 0; i < this.questionsNr; i++) {
-        questionNames.push(this.questions[i].name);
-      }
-      return questionNames;
-    },
-    */
     pSystem: function() {
       var pS = this.$route.path;
       if (pS.match(/imathas/g)) return "IMathAS";
