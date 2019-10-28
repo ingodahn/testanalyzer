@@ -50,7 +50,7 @@
       <form v-if="Mode.multiLine">
         <p>Studierende haben den Test mehrfach aufgerufen:</p>
         <fieldset>
-          <legend>Welcher Versuch zählt?</legend>
+          <legend>Welcher Versuch zählt für die Gesamtleistung?</legend>
           <input
             type="radio"
             id="maxQuestion"

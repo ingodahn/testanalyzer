@@ -27,7 +27,15 @@
     </div>
     <div v-if="Questions.length > 0" style="margin-top: 25px;">
       <b>Hinweis:</b>
-      <div v-html="multiLineHint" v-if="Mode.multiLine || Mode.multiQuestion"></div>
+      <div v-if="Mode.multiLine || Mode.multiQuestion">
+        <span v-html="multiLineHint"></span>
+        <img
+          src="../../public/info.png"
+          width="20"
+          title="Genauer: Blau: Für jede(n) Studierende(n) wird zunächst die bei allen Versuchen im Mittel erreichte Punktzahl bestimmt. Rot: Es wird für jede(n) Studierende(n) die maximal erreichte Punktzahl ermittelt. Diese Werte werden dann über alle Studierenden gemittelt. Bei freiwilligen Tests zählen nur die Versuche, bei denen eine Antwort eingegeben wurde."
+        />
+      </div>
+
       <div>
         Wenn die maximal mögliche Punktzahl der Schwierigkeit der Aufgabe entsprechen soll, so vergleichen Sie die blaue mit der grünen Kurve.
         Bei schwierigen Fragen ist der mittlere Punktwert niedrig, verglichen mit dem Maximalpunktwert.
@@ -45,16 +53,6 @@
 </template>
 
 <script>
-function avg(scoresItem) {
-  var avgScore = 0;
-  var len = scoresItem.scores.length;
-  for (var i = 0; i < len; i++) {
-    avgScore += scoresItem.scores[i];
-  }
-  avgScore = avgScore / scoresItem.total;
-  return avgScore;
-}
-
 import LineChart from "./Graphics/LineChart.vue";
 export default {
   name: "questionStatistics",
@@ -66,7 +64,7 @@ export default {
     return {
       curGroup: 0,
       multiLineHint:
-        "Studierende haben Fragen mehrfach bearbeitet. Die <span style='color:red; font-weight:bold'>rote Kurve </span>zeigt, wieviele Punkte die Studierenden dabei maximal erreicht haben. Dies ist ein Hinweis auf den erreichten Leistungsstand (sofern die Aufgabe nicht durch mehrfaches Raten gelöst werden kann). Die <span style='color:blue; font-weight:bold'>blaue Kurve</span> zeigt die im Mittel aller Versuche erreichte Punktzahl. Die Differenz zwischen der blauen und der roten Kurve ist ein Indiz für den Lernerfolg während der Laufzeit des Tests."
+        "Studierende haben Fragen mehrfach bearbeitet. Die <span style='color:red; font-weight:bold'>rote Kurve </span>zeigt, wieviele Punkte die Studierenden dabei maximal erreicht haben. Dies ist ein Hinweis auf den erreichten Leistungsstand (sofern die Aufgabe nicht durch mehrfaches Raten gelöst werden kann). Die <span style='color:blue; font-weight:bold'>blaue Kurve</span> zeigt die von den Studierenden im Mittel aller Versuche erreichte Punktzahl. Die Differenz zwischen der blauen und der roten Kurve ist ein Indiz für den Lernerfolg während der Laufzeit des Tests."
     };
   },
   methods: {
@@ -89,23 +87,23 @@ export default {
       };
       chart.datasets[0] = maxData;
       var avgData = {
-        label:
-          !this.Mode.multiLine && !this.Mode.multiQuestion
-            ? "Mittlere Punktzahl"
-            : "Mittlere Punktzahl aller Versuche",
+        label: "Mittlere Punktzahl",
         data: this.QAvgs.slice(start, end),
         borderColor: "blue"
       };
       chart.datasets[1] = avgData;
       if (this.Mode.multiLine || this.Mode.multiQuestion) {
         let maxStudentData = {
-          label: "Mittlere maximale Punktzahl aller Studierenden",
+          label: "Mittlere maximal erreichte Punktzahl",
           data: this.QMax.slice(start, end),
           borderColor: "red"
         };
         chart.datasets[2] = maxStudentData;
       }
       return chart;
+    },
+    ResetCurGroup: function() {
+      this.curGroup = 0;
     }
   },
   computed: {
@@ -122,7 +120,7 @@ export default {
     QMax: function() {
       let maxData = [];
       this.Questions.forEach(q => {
-        maxData.push(q.getMaxStudentScoreAvg());
+        maxData.push(q.getMaxStudentScoreAvg(this.Mode.questionScore));
       });
       return maxData;
     },
@@ -165,11 +163,11 @@ export default {
       return ar1;
     },
     curGroupStart: function() {
-      if (this.curGroup >= this.ChartGroups.length) this.curGroup = 0;
+      if (this.curGroup >= this.ChartGroups.length) this.ResetCurGroup();
       return this.ChartGroups.length ? this.ChartGroups[this.curGroup][0] : 0;
     },
     curGroupEnd: function() {
-      if (this.curGroup >= this.ChartGroups.length) this.curGroup = 0;
+      if (this.curGroup >= this.ChartGroups.length) this.ResetCurGroup();
       return this.ChartGroups.length ? this.ChartGroups[this.curGroup][1] : 0;
     }
   }

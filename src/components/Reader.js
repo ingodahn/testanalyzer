@@ -3,7 +3,7 @@ export class Question {
     this.name = name;
     this.maxScore = "none";
     this.studentScoreAvg = { compulsory: "none", voluntary: "none" };
-    this.maxStudentScoreAvg = "none";
+    this.maxStudentScoreAvg = { compulsory: "none", voluntary: "none" };
     /*
      * answers is the object of scores achieved by students. Keys of scores are student names.
      * answers[studentName] is an object, the keys of which are line numbers.
@@ -106,29 +106,49 @@ export class Question {
     }
     return { attempts: 0, totalScore: 0 };
   }
+  //We take for each student the average score of all attempts under consideration
+  // and then the average of these averages -
+  //this prevents individual students with many attempts from dominating the statistics
   getStudentScoreAvg(questionScore) {
     if (this.studentScoreAvg[questionScore] == "none") {
       let ssa = Object.values(this.studentScores);
+      console.log(ssa);
       let sz = 0,
         sn = 0,
         m = questionScore == "voluntary" ? "attempted" : "presented";
       ssa.forEach(s => {
-        sz += s.totalScore;
-        sn += s[m];
+        if (s[m]) {
+          sz += s.totalScore / s[m];
+          sn++;
+        }
       });
       this.studentScoreAvg[questionScore] = sn ? sz / sn : 0;
     }
     return this.studentScoreAvg[questionScore];
   }
-  getMaxStudentScoreAvg() {
-    if (this.maxStudentScoreAvg == "none") {
+  getMaxStudentScoreAvg(questionScore) {
+    if (this.maxStudentScoreAvg[questionScore] == "none") {
       let ssa = Object.values(this.studentScores);
+      let sz = 0,
+        sn = 0,
+        vol = questionScore == "voluntary";
+      ssa.forEach(s => {
+        sz += s.maxScore;
+        if (vol) {
+          sn += s.attempted ? 1 : 0;
+        } else {
+          sn += s.presented ? 1 : 0;
+        }
+      });
+      this.maxStudentScoreAvg[questionScore] = sn ? sz / sn : 0;
+      /*
       this.maxStudentScoreAvg =
         ssa.length > 0
           ? ssa.reduce((a, b) => a + b.maxScore, 0) / ssa.length
           : 0;
+          */
     }
-    return this.maxStudentScoreAvg;
+    return this.maxStudentScoreAvg[questionScore];
   }
 
   // Adds student answers to question, returns, how often the student has asnwered this question in this line

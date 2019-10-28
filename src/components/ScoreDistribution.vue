@@ -160,10 +160,6 @@ export default {
       const weakStudents = sss.slice(Math.max(0, snr - 10), snr);
       //... and maximum 10 students after the gap
       const goodStudents = sss.slice(snr, Math.min(snr + 10, sss.length));
-      // Build array of scores of weak students...
-      const weakStudentsScores = weakStudents.map(x => x.totalScore);
-      // ...and of good students
-      const goodStudentsScores = goodStudents.map(x => x.totalScore);
       var lgood = goodStudents.length;
       const lweak = weakStudents.length;
 
@@ -188,12 +184,6 @@ export default {
         this.Questions.forEach(q => {
           goodStudentsQ[q.name] = q.getMaxScore();
         });
-        /*
-        for (var qi = 0; qi < this.Questions.length; qi++) {
-          var q1 = this.Questions[qi];
-          goodStudentsQ[q1.name] = q1.getMaxScore();
-        }
-        */
         lgood = 1;
       } else {
         // Otherwise we initialize goodStudentsQ with 0 for all questions
@@ -268,29 +258,6 @@ export default {
   }
 };
 
-/*
-//We take an object of studentname-questionname-{totalScore-attempts}, calculate the total score for each student and sort decreasing by this totalScore
-function sortStudents(ss, method, questions) {
-  let sscored = [];
-  Object.keys(ss).forEach(sname => {
-    let sscore = {
-      name: sname,
-      totalScore: ss[sname].getScore(method, questions)
-    };
-    if (method == "single") {
-      sscore.totalScore.map(e =>
-        sscored.push({
-          name: sname + "(" + e.lineNr + ")",
-          totalScore: e.lineScore
-        })
-      );
-    } else sscored.push(sscore);
-  });
-  return sscored.sort(function(a, b) {
-    return a.totalScore - b.totalScore;
-  });
-}
-*/
 function sum(array, start, end) {
   if (array.length == 0) {
     return 0;

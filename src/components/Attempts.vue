@@ -68,6 +68,9 @@ export default {
 
       chart.datasets[0] = attemptData;
       return chart;
+    },
+    ResetCurGroup: function() {
+      this.curGroup = 0;
     }
   },
   computed: {
@@ -165,11 +168,11 @@ export default {
       return ar1;
     },
     curGroupStart: function() {
-      if (this.curGroup >= this.ChartGroups.length) this.curGroup = 0;
+      if (this.curGroup >= this.ChartGroups.length) this.ResetCurGroup();
       return this.ChartGroups.length ? this.ChartGroups[this.curGroup][0] : 0;
     },
     curGroupEnd: function() {
-      if (this.curGroup >= this.ChartGroups.length) this.curGroup = 0;
+      if (this.curGroup >= this.ChartGroups.length) this.ResetCurGroup();
       return this.ChartGroups.length ? this.ChartGroups[this.curGroup][1] : 0;
     },
     QNames: function() {
