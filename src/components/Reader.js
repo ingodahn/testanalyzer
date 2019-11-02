@@ -19,18 +19,6 @@ export class Question {
         (a, b) => Math.max(a, b.maxScore),
         0
       );
-      /*
-      let ms = 0;
-      Object.values(this.answers).forEach(snVal => {
-        Object.values(snVal).forEach(lnVal => {
-          lnVal.forEach(a => {
-            if (ms < a.score) ms = a.score;
-          });
-        });
-      });
-      this.maxScore = ms;
-      return this.maxScore;
-      */
     }
     // maxScore can be string if modified by input
     return Number(this.maxScore);
@@ -112,7 +100,6 @@ export class Question {
   getStudentScoreAvg(questionScore) {
     if (this.studentScoreAvg[questionScore] == "none") {
       let ssa = Object.values(this.studentScores);
-      console.log(ssa);
       let sz = 0,
         sn = 0,
         m = questionScore == "voluntary" ? "attempted" : "presented";
@@ -141,12 +128,6 @@ export class Question {
         }
       });
       this.maxStudentScoreAvg[questionScore] = sn ? sz / sn : 0;
-      /*
-      this.maxStudentScoreAvg =
-        ssa.length > 0
-          ? ssa.reduce((a, b) => a + b.maxScore, 0) / ssa.length
-          : 0;
-          */
     }
     return this.maxStudentScoreAvg[questionScore];
   }

@@ -4,6 +4,7 @@ import Selector from "./components/Selector.vue";
 const IMathAS = () => import("./components/IMathAS/TestReader.vue");
 const Ilias = () => import("./components/Ilias/TestReader.vue");
 const Olat = () => import("./components/Olat/TestReader.vue");
+const Opal = () => import("./components/Opal/TestReader.vue");
 
 Vue.use(Router);
 
@@ -23,6 +24,11 @@ export default new Router({
       path: "/olat",
       name: "olat",
       component: Olat
+    },
+    {
+      path: "/opal",
+      name: "opal",
+      component: Opal
     },
     {
       path: "*",

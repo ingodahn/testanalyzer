@@ -5,6 +5,7 @@
       <router-link to="/imathas" class="hvr-grow">IMathAS</router-link>
       <router-link to="/ilias" class="hvr-grow">ILIAS</router-link>
       <router-link to="/olat" class="hvr-grow">Open OLAT</router-link>
+      <router-link to="/opal" class="hvr-grow">OPAL</router-link>
     </nav>
   </div>
 </template>

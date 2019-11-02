@@ -61,7 +61,7 @@ export default {
       var attemptData = {
         label: "% der Studierenden, die die Frage bearbeitet haben",
         data: this.Questions.slice(start, end).map(
-          x => x.attempted / x.presented
+          x => (x.attempted / x.presented) * 100
         ),
         borderColor: "blue"
       };

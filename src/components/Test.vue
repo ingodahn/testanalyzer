@@ -26,7 +26,7 @@
           </p>
         </div>
         <div id="system" v-if="showUpload">
-          <router-view v-on:load="reset" v-on:testRead="testread" />
+          <router-view v-on:load="reset" v-on:testRead="testread" v-on:errorRead="errorRead" />
         </div>
 
         <div id="basics" v-if="questionsNr != 0">
@@ -200,7 +200,30 @@ export default {
       this.setMaxScore = "none";
       this.loading = false;
     },
+    errorRead: function(error) {
+      let send =
+        " Falls dies wirklich eine Datei von " +
+        this.pSystem +
+        " ist, so wäre es hilfreich,wenn Sie sie anonymisiert an dahn@dahn-research.eu einschicken würden.";
+      switch (error) {
+        case "loadError":
+          alert("Fehler beim Lesen der Datei.  " + send);
+          break;
+        case "processError":
+          alert("Fehler beim Verarbeiten der Datei." + send);
+          break;
+        default:
+          alert(
+            "Beim Verarbeiten der Datei ist ein unbekannter Fehler aufgetreten. " +
+              send
+          );
+      }
+      this.reset();
+    },
     testread: function(test) {
+      if (test == "error") {
+        this.reset();
+      }
       this.system = test.system;
       this.questionsNr = test.questions.length;
       if (test.hasOwnProperty("setMaxScore"))
@@ -371,6 +394,7 @@ export default {
       if (pS.match(/imathas/g)) return "IMathAS";
       if (pS.match(/ilias/)) return "Ilias";
       if (pS.match(/olat/)) return "Open OLAT";
+      if (pS.match(/opal/)) return "OPAL";
       return "";
     }
   }

@@ -38,6 +38,7 @@
 <script>
 import { Question, Line } from "../Reader";
 import Spinner from "../../third_party/Spinner.vue";
+
 export default {
   data() {
     return {
@@ -73,6 +74,11 @@ export default {
         } else {
           // 3. Parsing File into csv if necessary
           var fileData = getXLSX(data);
+          if (fileData == "loadError") {
+            this.$emit("errorRead", "loadError");
+            this.loading = false;
+            return;
+          }
           csv = XLSX.utils.sheet_to_csv(fileData);
         }
 
@@ -83,9 +89,19 @@ export default {
         } else {
           csvArray = parseCSV(csv, ",");
         }
+        if (csvArray == "loadError") {
+          this.$emit("errorRead", "loadError");
+          this.loading = false;
+          return;
+        }
 
         // 5. table2test
         var test = table2Test(csvArray, type);
+        if (test == "processError") {
+          this.$emit("errorRead", "processError");
+          this.loading = false;
+          return;
+        }
         test.system = "OLAT_" + type;
         if (type == "xls") {
           addMaxScores(test.questions, toAnalyze[1]);
@@ -102,6 +118,7 @@ export default {
     }
   }
 };
+
 import XLSX from "xlsx";
 
 function fixdata(data) {
@@ -124,58 +141,61 @@ function handleDragover(e) {
 }
 
 function table2Test(table, type) {
-  var Test = {
-    system: "Olat",
-    questionsNr: 0,
-    questions: [],
-    studentNameLines: [],
-    isSelfTest: false
-  };
-  var qPkt = getQuestions();
-  if (table[1][1].length == 0) {
-    Test.isSelfTest = true;
-  }
-  var rowNr = 3,
-    rowName = "",
-    tl = table.length;
-  if (type == "xls") tl--;
-  while (rowNr < tl) {
-    var line = table[rowNr - 1],
-      lineItems = new Line();
-    rowName = Test.isSelfTest ? line[1] : line[1] + " " + line[2];
-    lineItems.lineName = rowName;
-    lineItems.lineNr = rowNr;
-
-    for (var q1 = 0; q1 < Test.questionsNr; q1++) {
-      var qq = Test.questions[q1];
-      let rowAnswer = new Object();
-      switch (type) {
-        case "xlsx": {
-          // In xlsx-Dateien erkennt man unversuchte Aufgaben an einem leeren Punkteeintrag
-          let scoreVal = Number(line[qPkt[q1]]);
-          rowAnswer =
-            line[qPkt[q1]].length == 0
-              ? { attempted: false, score: 0 }
-              : { attempted: true, score: scoreVal };
-          break;
-        }
-        default: {
-          // in xls-Dateien erkennt man unversuchte Aufgaben an einem "n/a" in der auf die Punktspalte folgenden Spalte für die Startzeit
-          rowAnswer = {
-            score: Number(line[qPkt[q1]]),
-            attempted: line[qPkt[q1] + 1].length >= 4
-          };
-        }
-      }
-      rowAnswer["name"] = qq.name;
-      lineItems.lineAnswers.push(rowAnswer);
+  try {
+    var Test = {
+      system: "Olat",
+      questionsNr: 0,
+      questions: [],
+      studentNameLines: [],
+      isSelfTest: false
+    };
+    var qPkt = getQuestions();
+    if (table[1][1].length == 0) {
+      Test.isSelfTest = true;
     }
-    Test.studentNameLines.push(lineItems);
-    rowNr++;
+    var rowNr = 3,
+      rowName = "",
+      tl = table.length;
+    if (type == "xls") tl--;
+    while (rowNr < tl) {
+      var line = table[rowNr - 1],
+        lineItems = new Line();
+      rowName = Test.isSelfTest ? line[1] : line[1] + " " + line[2];
+      lineItems.lineName = rowName;
+      lineItems.lineNr = rowNr;
+
+      for (var q1 = 0; q1 < Test.questionsNr; q1++) {
+        var qq = Test.questions[q1];
+        let rowAnswer = new Object();
+        switch (type) {
+          case "xlsx": {
+            // In xlsx-Dateien erkennt man unversuchte Aufgaben an einem leeren Punkteeintrag
+            let scoreVal = Number(line[qPkt[q1]]);
+            rowAnswer =
+              line[qPkt[q1]].length == 0
+                ? { attempted: false, score: 0 }
+                : { attempted: true, score: scoreVal };
+            break;
+          }
+          default: {
+            // in xls-Dateien erkennt man unversuchte Aufgaben an einem "n/a" in der auf die Punktspalte folgenden Spalte für die Startzeit
+            rowAnswer = {
+              score: Number(line[qPkt[q1]]),
+              attempted: line[qPkt[q1] + 1].length >= 4
+            };
+          }
+        }
+        rowAnswer["name"] = qq.name;
+        lineItems.lineAnswers.push(rowAnswer);
+      }
+      Test.studentNameLines.push(lineItems);
+      rowNr++;
+    }
+
+    return Test;
+  } catch {
+    return "processError";
   }
-
-  return Test;
-
   //getQuestions collects all questions in Test.questions and returns in qPkt for each question number the nr of the column with its score
   function getQuestions() {
     var qTitleRow = table[0];
@@ -210,20 +230,28 @@ function addMaxScores(myQuestions, legend) {
 }
 
 function getXLSX(data) {
-  var fixedData = fixdata(data),
-    workbook = XLSX.read(btoa(fixedData), { type: "base64" }),
-    firstSheetName = workbook.SheetNames[0];
-  return workbook.Sheets[firstSheetName];
+  try {
+    var fixedData = fixdata(data),
+      workbook = XLSX.read(btoa(fixedData), { type: "base64" }),
+      firstSheetName = workbook.SheetNames[0];
+    return workbook.Sheets[firstSheetName];
+  } catch {
+    return "loadError";
+  }
 }
 
 function parseCSV(csv, del = ",") {
-  var parse = require("csv-parse/lib/sync");
-  var csvArray = parse(csv, {
-    delimiter: del,
-    trim: true,
-    relax_column_count: true
-  });
-  return csvArray;
+  try {
+    var parse = require("csv-parse/lib/sync");
+    var csvArray = parse(csv, {
+      delimiter: del,
+      trim: true,
+      relax_column_count: true
+    });
+    return csvArray;
+  } catch {
+    return "loadError";
+  }
 }
 </script>
 
