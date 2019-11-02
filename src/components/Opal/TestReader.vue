@@ -20,7 +20,7 @@
     </div>
     <div v-if="processError">
       <p>
-        Die Datei wurde geladen, konnte aber nicht verarbeitet werden. Wenn diese Datei wirklich von OPA stammt, so speichern Sie sie bitte in anonymisierter Form und schicken Sie sie an
+        Die Datei wurde geladen, konnte aber nicht verarbeitet werden. Wenn diese Datei wirklich von OPAL stammt, so speichern Sie sie bitte in anonymisierter Form und schicken Sie sie an
         <a
           href="mailto:dahn@dahn-research.eu"
         >dahn@dahn-research.eu</a>.
