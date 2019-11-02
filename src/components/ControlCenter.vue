@@ -1,21 +1,24 @@
 <template>
   <div>
     <h3>Art des Tests</h3>
+    <p></p>
     <div v-html="modeText"></div>
-    <input
-      v-if="showControls"
-      class="testButton hvr-grow"
-      type="button"
-      v-on:click="showControls = false"
-      value="Auswahl ausblenden"
-    />
-    <input
-      v-if="!showControls"
-      class="testButton hvr-grow"
-      type="button"
-      v-on:click="showControls=true"
-      value="Einstellungen ändern"
-    />
+    <p>
+      <input
+        v-if="showControls"
+        class="testButton hvr-grow"
+        type="button"
+        v-on:click="showControls = false"
+        value="Auswahl ausblenden"
+      />
+      <input
+        v-if="!showControls"
+        class="testButton hvr-grow"
+        type="button"
+        v-on:click="showControls=true"
+        value="Einstellungen ändern"
+      />
+    </p>
     <div v-if="showControls">
       <h4>Auswahl</h4>
       <form>

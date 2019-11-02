@@ -10,6 +10,31 @@
         value="Demo-Daten"
       />
     </p>
+    <div v-if="loadError">
+      <p>
+        Die Datei konnte nicht geladen werden. Wenn diese Datei wirklich von OPAL erzeugt wurde, so schicken Sie bitte eine anonymisierte Version davon an
+        <a
+          href="mailto:dahn@dahn-research.eu"
+        >dahn@dahn-research.eu</a>.
+      </p>
+    </div>
+    <div v-if="processError">
+      <p>
+        Die Datei wurde geladen, konnte aber nicht verarbeitet werden. Wenn diese Datei wirklich von OPA stammt, so speichern Sie sie bitte in anonymisierter Form und schicken Sie sie an
+        <a
+          href="mailto:dahn@dahn-research.eu"
+        >dahn@dahn-research.eu</a>.
+      </p>
+      <p>Beim Öffnen der anonymisierten Datei gibt Excel möglicherweise eine Warnung aus, da sie nicht von einer Excel bekannten Quelle stammt.</p>
+      <p>
+        <input
+          class="demoData hvr-grow"
+          type="button"
+          v-on:click="anonymize()"
+          value="Anonymisieren"
+        />
+      </p>
+    </div>
     <div id="app">
       <Spinner v-if="loading" class="spinner"></Spinner>
       <div v-else class="container-responsive">
@@ -31,12 +56,16 @@
 <script>
 import { Question, Line } from "../Reader";
 import Spinner from "../../third_party/Spinner.vue";
+import { saveAs } from "file-saver";
 
 export default {
   name: "OPAL-Reader",
   data() {
     return {
-      loading: false
+      loadError: false,
+      processError: false,
+      loading: false,
+      lineArray: []
     };
   },
   components: {
@@ -48,6 +77,8 @@ export default {
       e.stopPropagation();
       e.preventDefault();
       this.loading = true;
+      this.loadError = false;
+      this.processError = false;
       var files = e.dataTransfer.files,
         f = files[0];
       var reader = new FileReader();
@@ -68,13 +99,19 @@ export default {
         // 3. Parsing File into json
 
         // 4. Getting array of arrays of items
-        let lineArray = Object.values(jsn)[0];
+        this.lineArray = Object.values(jsn)[0];
+        if (this.lineArray === undefined) {
+          this.loading = false;
+          this.loadError = true;
+          return;
+        }
 
         // 5. table2test
-        var test = table2Test(lineArray);
+        var test = table2Test(this.lineArray);
         if (test == "processError") {
-          this.$emit("errorRead", "processError");
+          //this.$emit("errorRead", "processError");
           this.loading = false;
+          this.processError = true;
           return;
         }
         //  6. Emit signal (or modify Test object's parts?)
@@ -82,6 +119,28 @@ export default {
         this.loading = false;
       };
       reader.readAsArrayBuffer(f);
+    },
+    // Anonymize and save
+    anonymize: function() {
+      let names = new Object();
+      for (let lineNr = 2; lineNr < this.lineArray.length - 3; lineNr++) {
+        let pii =
+          this.lineArray[lineNr][1] +
+          this.lineArray[lineNr][2] +
+          this.lineArray[lineNr][3];
+        if (!names.hasOwnProperty(pii)) {
+          names[pii] = {
+            name: "Name_" + lineNr.toString(),
+            given: "Vorname_" + lineNr.toString(),
+            matrikel: "Matrikel_" + lineNr.toString()
+          };
+        }
+        this.lineArray[lineNr][1] = names[pii].name;
+        this.lineArray[lineNr][2] = names[pii].given;
+        this.lineArray[lineNr][3] = names[pii].matrikel;
+      }
+      writeXLS(this.lineArray);
+      this.processError = false;
     }
   }
 };
@@ -149,12 +208,22 @@ function table2Test(table) {
     let cols = qTitleRow.length;
     // qPkt: Array hat collects the indices of columns with scores (heading contains 'Pkt')
     let qPkt = [],
+      qTitles = [],
       regex = /^Max\.\sPunkte:\s(\d+)/;
     for (let c = 0; c < cols; c++) {
       let qs = qTitleRow[c];
       if (qs && qs.match(regex)) {
         if (qNr > 0) {
-          Test.questions[qNr - 1] = new Question("Frage " + qNr.toString());
+          let qT = qTitleRow[c - 1];
+          if (qT === undefined || qT.length == 0)
+            qT = "Frage " + qNr.toString();
+          if (qTitles.includes(qT)) {
+            throw "processError";
+          }
+
+          //Test.questions[qNr - 1] = new Question("Frage " + qNr.toString());
+          Test.questions[qNr - 1] = new Question(qT);
+          qTitles.push(qT);
           Test.questions[qNr - 1].maxScore = parseInt(regex.exec(qs)[1]);
           qPkt.push(c);
           qNr++;
@@ -165,6 +234,7 @@ function table2Test(table) {
       }
     }
     Test.questionsNr = qNr - 1;
+    if (qNr < 2) throw "processError";
     return qPkt;
   }
 }
@@ -175,9 +245,11 @@ function handleDragover(e) {
   e.dataTransfer.dropEffect = "copy";
 }
 
-// see https://oss.sheetjs.com/js-xlsx/ and
-// https://www.youtube.com/watch?v=FymC0XlK0Gs
-// https://redstapler.co/sheetjs-tutorial-convert-excel-html-table/
+/*
+ * see https://oss.sheetjs.com/js-xlsx/ and
+ * https://www.youtube.com/watch?v=FymC0XlK0Gs
+ * https://redstapler.co/sheetjs-tutorial-convert-excel-html-table/
+ */
 function getXLS(data) {
   try {
     data = new Uint8Array(data);
@@ -186,6 +258,33 @@ function getXLS(data) {
   } catch {
     return "loadError";
   }
+}
+
+// See https://redstapler.co/sheetjs-tutorial-create-xlsx/
+function writeXLS(lineArray) {
+  var wb = XLSX.utils.book_new();
+  wb.Props = {
+    Title: "OPAL Spreadsheet",
+    Subject: "Error",
+    Author: "Testanalyzer",
+    CreatedDate: new Date(2017, 12, 19)
+  };
+  wb.SheetNames.push("onyx_results");
+  var ws = XLSX.utils.aoa_to_sheet(lineArray);
+  wb.Sheets["onyx_results"] = ws;
+  var wbout = XLSX.write(wb, { bookType: "biff8", type: "binary" });
+  saveAs(
+    //new Blob([s2ab(wbout)], { type: "application/octet-stream" }),
+    new Blob([s2ab(wbout)], { type: "application/vnd.ms-excel" }),
+    "opal_anonymous.xls"
+  );
+}
+
+function s2ab(s) {
+  var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+  var view = new Uint8Array(buf); //create uint8array as viewer
+  for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xff; //convert to octet
+  return buf;
 }
 </script>
 
