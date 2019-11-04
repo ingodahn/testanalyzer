@@ -11,12 +11,37 @@
     </p>
     <p>
       <input
-        class="demoData hvr-grow"
+        class="readerButton hvr-grow"
         type="button"
         onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOlat.xlsx'"
         value="Demo-Daten"
       />
     </p>
+    <div v-if="loadError">
+      <p>
+        Die Datei konnte nicht geladen werden. Wenn diese Datei wirklich von Open OLAT erzeugt wurde, so schicken Sie bitte eine anonymisierte Version davon an
+        <a
+          href="mailto:dahn@dahn-research.eu"
+        >dahn@dahn-research.eu</a>.
+      </p>
+    </div>
+    <div v-if="processError">
+      <p>
+        Die Datei wurde geladen, konnte aber nicht verarbeitet werden. Wenn diese Datei wirklich von Open OLAT stammt, so speichern Sie sie bitte in anonymisierter Form und schicken Sie sie an
+        <a
+          href="mailto:dahn@dahn-research.eu"
+        >dahn@dahn-research.eu</a>.
+      </p>
+      <p>Beim Öffnen der anonymisierten Datei gibt Excel möglicherweise eine Warnung aus, da sie nicht von einer Excel bekannten Quelle stammt.</p>
+      <p>
+        <input
+          class="readerButton anonymize hvr-grow"
+          type="button"
+          v-on:click="anonymize()"
+          value="Anonymisieren"
+        />
+      </p>
+    </div>
     <div id="app">
       <Spinner v-if="loading" class="spinner"></Spinner>
       <div v-else class="container-responsive">
@@ -38,11 +63,19 @@
 <script>
 import { Question, Line } from "../Reader";
 import Spinner from "../../third_party/Spinner.vue";
+import XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 export default {
   data() {
     return {
-      loading: false
+      loadError: false,
+      processError: false,
+      loading: false,
+      lineArray: [],
+      type: "",
+      legend: "",
+      isSelfTest: false
     };
   },
   components: {
@@ -56,11 +89,9 @@ export default {
       this.loading = true;
       var files = e.dataTransfer.files,
         f = files[0],
-        type = f.name.split(".").pop(),
         csv;
-
+      this.type = f.name.split(".").pop();
       var reader = new FileReader();
-      //name = f.name;
 
       reader.onload = e => {
         // 1. Getting file
@@ -68,58 +99,117 @@ export default {
         var toAnalyze;
 
         // 2. Stripping off and storing Legende if necessary
-        if (type == "xls") {
+        if (this.type == "xls") {
           toAnalyze = data.split("\nLegende");
+          if (toAnalyze.length != 2) {
+            this.handleLoadError();
+            return;
+          }
           csv = toAnalyze[0];
         } else {
           // 3. Parsing File into csv if necessary
           var fileData = getXLSX(data);
           if (fileData == "loadError") {
-            this.$emit("errorRead", "loadError");
-            this.loading = false;
+            this.handleLoadError();
             return;
           }
           csv = XLSX.utils.sheet_to_csv(fileData);
         }
 
         // 4. Parsing csv into array of arrays of items
-        var csvArray;
-        if (type == "xls") {
-          csvArray = parseCSV(csv, "\t");
+        if (this.type == "xls") {
+          this.lineArray = parseCSV(csv, "\t");
+          this.legend = toAnalyze[1];
         } else {
-          csvArray = parseCSV(csv, ",");
+          this.lineArray = parseCSV(csv, ",");
         }
-        if (csvArray == "loadError") {
-          this.$emit("errorRead", "loadError");
-          this.loading = false;
+        if (this.lineArray == "loadError") {
+          this.handleLoadError();
           return;
         }
 
         // 5. table2test
-        var test = table2Test(csvArray, type);
+        var test = table2Test(this.lineArray, this.type);
+        this.isSelfTest = test.isSelfTest;
         if (test == "processError") {
-          this.$emit("errorRead", "processError");
-          this.loading = false;
+          this.handleProcessError();
           return;
         }
-        test.system = "OLAT_" + type;
-        if (type == "xls") {
-          addMaxScores(test.questions, toAnalyze[1]);
+        test.system = "OLAT_" + this.type;
+        if (this.type == "xls") {
+          if (addMaxScores(test.questions, this.legend) == "processError") {
+            this.handleProcessError();
+            return;
+          }
         }
         //  6. Emit signal (or modify Test object's parts?)
         this.$emit("testRead", test);
         this.loading = false;
       };
-      if (type == "xlsx") {
+      if (this.type == "xlsx") {
         reader.readAsArrayBuffer(f);
       } else {
         reader.readAsText(f);
       }
+    },
+
+    // Anonymize and save
+    anonymize: function() {
+      let regex = /^\d+$/;
+      let firstRows = new Object(),
+        selfTest = this.isSelfTest;
+      for (let lineNr = 2; lineNr < this.lineArray.length; lineNr++) {
+        let line = this.lineArray[lineNr];
+        if (line[0].match(regex)) {
+          let pii = selfTest ? line[1] : line[1] + " " + line[2];
+          if (!firstRows.hasOwnProperty(pii)) firstRows[pii] = lineNr;
+          let ns = firstRows[pii].toString();
+          if (selfTest) {
+            line[1] = "Name_" + ns;
+          } else {
+            line[1] = "Vorname_" + ns;
+            line[2] = "Name_" + ns;
+            line[3] = "k.A.";
+            line[4] = "k.A.";
+            line[5] = "k.A.";
+            line[8] = "k.A.";
+          }
+        }
+      }
+
+      if (this.type == "xls") {
+        let outLines = this.lineArray.map(line => line.join("\t"));
+        let outData = outLines.join("\n") + "\nLegende" + this.legend;
+        let blob = new Blob([outData], {
+          type:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8"
+        });
+        saveAs(blob, "olat_anonymous.xls");
+        this.processError = false;
+        return;
+      }
+      writeXLS(this.lineArray);
+      this.processError = false;
+    },
+
+    handleProcessError: function() {
+      {
+        this.$emit("errorRead", "processError");
+        this.processError = true;
+        this.loading = false;
+        return;
+      }
+    },
+
+    handleLoadError: function() {
+      {
+        this.$emit("errorRead", "loadError");
+        this.loading = false;
+        return;
+      }
     }
   }
 };
-
-import XLSX from "xlsx";
 
 function fixdata(data) {
   var o = "",
@@ -150,7 +240,8 @@ function table2Test(table, type) {
       isSelfTest: false
     };
     var qPkt = getQuestions();
-    if (table[1][1].length == 0) {
+    if (Test.questionsNr == 0) throw "processError";
+    if (table[1][2] != "Nachname") {
       Test.isSelfTest = true;
     }
     var rowNr = 3,
@@ -178,10 +269,11 @@ function table2Test(table, type) {
             break;
           }
           default: {
-            // in xls-Dateien erkennt man unversuchte Aufgaben an einem "n/a" in der auf die Punktspalte folgenden Spalte für die Startzeit
+            // in xls-Dateien erkennt man unversuchte Aufgaben an einem "n/a" in der auf die Punktspalte folgenden Spalte für die Startzeit oder 0 für die Dauer
+            let regex = /^n\/a$|^0$/;
             rowAnswer = {
               score: Number(line[qPkt[q1]]),
-              attempted: line[qPkt[q1] + 1].length >= 4
+              attempted: line[qPkt[q1] + 1].match(regex) ? false : true
             };
           }
         }
@@ -217,16 +309,21 @@ function table2Test(table, type) {
 }
 
 function addMaxScores(myQuestions, legend) {
-  const regex = /maxValue\s*([\d.]+)/g;
-  var i = 0;
-  var match = true;
-  do {
-    match = regex.exec(legend);
-    if (match) {
-      myQuestions[i].maxScore = Number(match[1]);
-      i++;
-    }
-  } while (match);
+  try {
+    const regex = /maxValue\s*([\d.]+)/g;
+    var i = 0;
+    var match = true;
+    do {
+      match = regex.exec(legend);
+      if (match) {
+        myQuestions[i].maxScore = Number(match[1]);
+        i++;
+      }
+    } while (match);
+    return "ok";
+  } catch {
+    return "processError";
+  }
 }
 
 function getXLSX(data) {
@@ -243,15 +340,44 @@ function getXLSX(data) {
 function parseCSV(csv, del = ",") {
   try {
     var parse = require("csv-parse/lib/sync");
-    var csvArray = parse(csv, {
+    var lineArray = parse(csv, {
       delimiter: del,
       trim: true,
       relax_column_count: true
     });
-    return csvArray;
+    return lineArray;
   } catch {
     return "loadError";
   }
+}
+
+// See https://redstapler.co/sheetjs-tutorial-create-xlsx/
+function writeXLS(lineArray) {
+  var wb = XLSX.utils.book_new();
+  wb.Props = {
+    Title: "Open OLAT Spreadsheet",
+    Subject: "Error",
+    Author: "Testanalyzer",
+    CreatedDate: new Date()
+  };
+  wb.SheetNames.push("olat_results");
+  var ws = XLSX.utils.aoa_to_sheet(lineArray);
+  wb.Sheets["olat_results"] = ws;
+  var wbout = XLSX.write(wb, { bookType: "xlsx", type: "binary" });
+  saveAs(
+    //new Blob([s2ab(wbout)], { type: "application/octet-stream" }),
+    new Blob([s2ab(wbout)], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    }),
+    "olat_anonymous.xlsx"
+  );
+}
+
+function s2ab(s) {
+  var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+  var view = new Uint8Array(buf); //create uint8array as viewer
+  for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xff; //convert to octet
+  return buf;
 }
 </script>
 
@@ -275,7 +401,7 @@ function parseCSV(csv, del = ",") {
 }
 
 .custom-file-upload,
-.demoData {
+.readerButton {
   border: 1px solid #ccc;
   display: inline-block;
   padding: 6px 12px;
@@ -283,6 +409,10 @@ function parseCSV(csv, del = ",") {
   background-color: hsl(198, 65%, 40%);
   color: white;
   border-radius: 10px;
+}
+
+.readerButton.anonymize {
+  background-color: green;
 }
 .realData {
   display: none;

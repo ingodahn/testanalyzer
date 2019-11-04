@@ -4,9 +4,9 @@
     <p>Hier fehlt noch eine Anleitung zur Erzeugung der xls-Datei in Opal</p>
     <p>
       <input
-        class="demoData hvr-grow"
+        class="readerButton hvr-grow"
         type="button"
-        onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOpal.xls'"
+        onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOlat.xlsx'"
         value="Demo-Daten"
       />
     </p>
@@ -28,7 +28,7 @@
       <p>Beim Öffnen der anonymisierten Datei gibt Excel möglicherweise eine Warnung aus, da sie nicht von einer Excel bekannten Quelle stammt.</p>
       <p>
         <input
-          class="demoData hvr-grow"
+          class="readerButton anonymize hvr-grow"
           type="button"
           v-on:click="anonymize()"
           value="Anonymisieren"
@@ -308,7 +308,7 @@ function s2ab(s) {
 }
 
 .custom-file-upload,
-.demoData {
+.readerButton {
   border: 1px solid #ccc;
   display: inline-block;
   padding: 6px 12px;
@@ -316,6 +316,10 @@ function s2ab(s) {
   background-color: hsl(198, 65%, 40%);
   color: white;
   border-radius: 10px;
+}
+
+.readerButton.anonymize {
+  background-color: green;
 }
 .realData {
   display: none;
