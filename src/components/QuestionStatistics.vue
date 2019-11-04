@@ -127,7 +127,7 @@ export default {
     ScoreAdjust: function() {
       var sMaxAdj = [];
       for (var qi = 0; qi < this.Questions.length; qi++) {
-        var si = 0;
+        var si = 5;
         if (this.QAvgs[qi] > 0) {
           si = Math.round(
             this.Questions[qi].getMaxScore() * (5 / this.QAvgs[qi])
