@@ -20,20 +20,42 @@
         >dahn@dahn-research.eu</a>.
       </p>
     </div>
-    <div v-if="processError">
+    <div v-if="processError == 'error'">
       <p>
-        Die Datei wurde geladen, konnte aber nicht verarbeitet werden. Wenn diese Datei wirklich von Open OLAT stammt, so speichern Sie sie bitte in anonymisierter Form und schicken Sie sie an
+        Die Datei wurde geladen, konnte aber nicht verarbeitet werden. Wenn diese Datei wirklich von ILIAS erzeugt wurde, so speichern Sie sie bitte in anonymisierter Form und schicken Sie sie an
         <a
           href="mailto:dahn@dahn-research.eu"
         >dahn@dahn-research.eu</a>.
       </p>
-      <p>Beim Öffnen der anonymisierten Datei gibt Excel möglicherweise eine Warnung aus, da sie nicht von einer Excel bekannten Quelle stammt.</p>
       <p>
+        <input
+          class="readerButton hvr-grow"
+          type="button"
+          v-on:click="cancelProcessError()"
+          value="Abbrechen"
+        />
         <input
           class="readerButton anonymize hvr-grow"
           type="button"
           v-on:click="anonymize()"
           value="Anonymisieren"
+        />
+      </p>
+    </div>
+    <div v-if="processError == 'anonymized'">
+      <p>Bitte prüfen Sie die Anonymisierung mit einem Texteditor oder einer Tabellenverarbeitung. Eine Tabellenverarbeitung gibt beim Öffnen der anonymisierten Datei möglicherweise eine Warnung aus, da die Datei aus einer unbekannten Quelle stammt. Diese Warnung können Sie ignorieren.</p>
+      <p>
+        <input
+          class="readerButton hvr-grow"
+          type="button"
+          v-on:click="cancelProcessError()"
+          value="Abbrechen"
+        />
+        <input
+          class="readerButton anonymize hvr-grow"
+          type="button"
+          v-on:click="mailFile('Ilias')"
+          value="Abschicken"
         />
       </p>
     </div>
@@ -56,19 +78,17 @@
 </template>
 
 <script>
-import { Question, Line } from "../Reader";
+import { Question, Line, ReaderErrors, CSV } from "../Reader";
 import Spinner from "../../third_party/Spinner.vue";
-import { saveAs } from "file-saver";
 
 export default {
   data() {
     return {
       loading: false,
-      loadError: false,
-      processError: false,
       lineArray: []
     };
   },
+  mixins: [ReaderErrors, CSV],
   components: {
     Spinner
   },
@@ -90,7 +110,7 @@ export default {
         // 3. Parsing File into csv if necessary
 
         // 4. Parsing csv into array of arrays of items
-        this.lineArray = parseCSV(csv, ";");
+        this.lineArray = this.parseCSV(csv, ";");
         if (this.lineArray == "loadError") {
           this.handleLoadError();
           return;
@@ -122,31 +142,9 @@ export default {
         line[1] = "k.A.";
         if (shuffled) lineNr++;
       }
-
-      let outLines = this.lineArray.map(line => line.join(";"));
-      let outData = outLines.join("\n");
-      let blob = new Blob([outData], {
-        type: "text/plain; charset=utf-8"
-      });
-      saveAs(blob, "ilias_anonymous.csv");
+      this.writeCSV(this.lineArray, ";", "ilias_anonymous.csv");
       this.processError = false;
       return;
-    },
-    handleProcessError: function() {
-      {
-        this.$emit("errorRead", "processError");
-        this.processError = true;
-        this.loading = false;
-        return;
-      }
-    },
-
-    handleLoadError: function() {
-      {
-        this.$emit("errorRead", "loadError");
-        this.loading = false;
-        return;
-      }
     }
   }
 };
@@ -181,7 +179,6 @@ function table2Test(table) {
       default: {
         var headings = table[0].slice(19, table[0].length);
         var questionsNr = headings.length;
-        //throw "processError";
         Test.questionsNr = questionsNr;
         Test.setMaxScore = table[1][3];
         for (let q = 0; q < questionsNr; q++) {
@@ -271,6 +268,7 @@ function table2TestShuffled(table, Test) {
       let questionsNr = qTitles.length;
       // Initializing Test.questions
       Test.questionsNr = questionsNr;
+      if (!Test.questionsNr) throw "processError";
       let qTitlePos = new Object();
       for (let q = 0; q < questionsNr; q++) {
         let qq = new Question(qTitles[q]);
@@ -283,7 +281,7 @@ function table2TestShuffled(table, Test) {
     }
   }
 }
-
+/*
 function parseCSV(csv, del = ",") {
   try {
     var parse = require("csv-parse/lib/sync");
@@ -297,6 +295,7 @@ function parseCSV(csv, del = ",") {
     return "loadError";
   }
 }
+*/
 </script>
 
 <style scoped>

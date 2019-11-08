@@ -10,12 +10,59 @@
     <p>Ziehen Sie die so erstellte csv-Datei mit der Maus in diese Webseite auf die Fläche unten.</p>
     <p>
       <input
-        class="demoData hvr-grow"
+        class="readerButton hvr-grow"
         type="button"
         onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenIMathAS.csv'"
         value="Demo-Daten"
       />
     </p>
+    <div v-if="loadError">
+      <p>
+        Die Datei konnte nicht geladen werden. Wenn diese Datei wirklich von IMathAS stammt, so schicken Sie bitte eine anonymisierte Version davon an
+        <a
+          href="mailto:dahn@dahn-research.eu"
+        >dahn@dahn-research.eu</a>.
+      </p>
+    </div>
+    <div v-if="processError == 'error'">
+      <p>
+        Die Datei wurde geladen, konnte aber nicht verarbeitet werden. Wenn diese Datei wirklich von IMathAS mit den angegebenen Einstellungen erzeugt wurde, so speichern Sie sie bitte in anonymisierter Form und schicken Sie sie an
+        <a
+          href="mailto:dahn@dahn-research.eu"
+        >dahn@dahn-research.eu</a>.
+      </p>
+      <p>
+        <input
+          class="readerButton hvr-grow"
+          type="button"
+          v-on:click="cancelProcessError()"
+          value="Abbrechen"
+        />
+        <input
+          class="readerButton anonymize hvr-grow"
+          type="button"
+          v-on:click="anonymize()"
+          value="Anonymisieren"
+        />
+      </p>
+    </div>
+    <div v-if="processError == 'anonymized'">
+      <p>Bitte prüfen Sie die Anonymisierung mit einem Texteditor oder einer Tabellenverarbeitung. Eine Tabellenverarbeitung gibt beim Öffnen der anonymisierten Datei möglicherweise eine Warnung aus, da die Datei aus einer unbekannten Quelle stammt. Diese Warnung können Sie ignorieren.</p>
+      <p>
+        <input
+          class="readerButton hvr-grow"
+          type="button"
+          v-on:click="cancelProcessError()"
+          value="Abbrechen"
+        />
+        <input
+          class="readerButton anonymize hvr-grow"
+          type="button"
+          v-on:click="mailFile('IMathAS')"
+          value="Abschicken"
+        />
+      </p>
+    </div>
     <div id="app">
       <Spinner v-if="loading" class="spinner"></Spinner>
       <div class="container-responsive">
@@ -35,14 +82,17 @@
 </template>
 
 <script>
-import { Question, Line } from "../Reader";
+import { Question, Line, ReaderErrors, CSV } from "../Reader";
 import Spinner from "../../third_party/Spinner.vue";
+
 export default {
   data() {
     return {
-      loading: false
+      loading: false,
+      lineArray: []
     };
   },
+  mixins: [ReaderErrors, CSV],
   components: {
     Spinner
   },
@@ -57,7 +107,6 @@ export default {
         csv;
 
       var reader = new FileReader();
-      //name = f.name;
 
       reader.onload = e => {
         // 1. Getting file
@@ -67,16 +116,38 @@ export default {
         // 3. Parsing File into csv if necessary
 
         // 4. Parsing csv into array of arrays of items
-        var csvArray = parseCSV(csv, ",");
+        this.lineArray = this.parseCSV(csv, ",");
+        if (this.lineArray == "loadError") {
+          this.handleLoadError();
+          return;
+        }
 
         // 5. table2test
-        var test = table2Test(csvArray);
+        var test = table2Test(this.lineArray);
+        if (test == "processError") {
+          this.handleProcessError();
+          return;
+        }
 
         //  6. Emit signal (or modify Test object's parts?)
         this.$emit("testRead", test);
         this.loading = false;
       };
       reader.readAsText(f);
+    },
+    // Anonymize and save
+    anonymize: function() {
+      let firstRows = new Object();
+      for (let lineNr = 2; lineNr < this.lineArray.length; lineNr++) {
+        let line = this.lineArray[lineNr];
+        let pii = line[0];
+        if (!firstRows.hasOwnProperty(pii)) firstRows[pii] = lineNr;
+        let ns = firstRows[pii].toString();
+        line[0] = "Name_" + ns;
+      }
+      this.writeCSV(this.lineArray, ",", "imathas_anonymous.csv");
+      this.processError = "anonymized";
+      return;
     }
   }
 };
@@ -88,54 +159,90 @@ function handleDragover(e) {
 }
 
 function table2Test(table) {
-  var Test = {
-    system: "IMathAS",
-    info: "",
-    questionsNr: 0,
-    studentsNr: 0,
-    setMaxScore: "none",
-    questions: [],
-    studentNameLines: []
-  };
-  var headings = table[0];
-  var questionsNr = (headings.length - 2) / 2;
-  Test.questionsNr = questionsNr;
-  var regex = /Points \((\d+) possible\)/;
-  for (let q = 0; q < questionsNr; q++) {
-    let qq = new Question(table[0][2 * q + 2]);
-    var ms = regex.exec(table[1][2 * q + 2])[1];
-    qq.maxScore = parseInt(ms);
-    Test.questions[q] = qq;
-  }
-  Test.studentsNr = table.length - 2;
-
-  for (let i = 2; i < table.length; i++) {
-    let line = table[i];
-    let lineItems = new Line();
-    lineItems.lineName = line[0];
-    lineItems.lineNr = i;
-    for (let q = 0; q < questionsNr; q++) {
-      let qq = Test.questions[q];
-      let rowAnswer = {
-        name: qq.name,
-        attempted: line[3 + 2 * q] !== "",
-        score: Number(line[2 + 2 * q])
-      };
-      lineItems.lineAnswers.push(rowAnswer);
+  try {
+    var Test = {
+      system: "IMathAS",
+      info: "",
+      questionsNr: 0,
+      studentsNr: 0,
+      setMaxScore: "none",
+      questions: [],
+      studentNameLines: []
+    };
+    var headings = table[0];
+    let qCols = getQuestions();
+    if (qCols == "processError") this.handleProcessError();
+    Test.setMaxScore = getMaxScore();
+    Test.studentsNr = table.length - 2;
+    for (let i = 2; i < table.length; i++) {
+      let line = table[i];
+      let lineItems = new Line();
+      lineItems.lineName = line[0];
+      lineItems.lineNr = i;
+      for (let qNr = 0; qNr < Test.questionsNr; qNr++) {
+        let rowAnswer = {
+          name: Test.questions[qNr].name,
+          attempted: line[qCols[qNr] + 1] != "",
+          score: Number(line[qCols[qNr]])
+        };
+        lineItems.lineAnswers.push(rowAnswer);
+      }
+      Test.studentNameLines.push(lineItems);
     }
-    Test.studentNameLines.push(lineItems);
+    return Test;
+  } catch {
+    return "processError";
   }
-  return Test;
-}
+  // getQuestions returns the array of column nrs for the questionscores
+  function getQuestions() {
+    try {
+      let qPkt = new Array(),
+        questionsNr = 0,
+        cNr = 0,
+        regex = /Points \((\d+) possible\)/;
+      while (cNr < headings.length) {
+        if (headings[cNr].match(/^Question/)) {
+          let qq = new Question(headings[cNr]);
+          var ms = regex.exec(table[1][cNr])[1];
+          qq.maxScore = parseInt(ms);
+          qPkt.push(cNr);
+          Test.questions.push(qq);
+          questionsNr++;
+          cNr = cNr + 2;
+        } else {
+          cNr++;
+        }
+      }
+      Test.questionsNr = questionsNr;
+      return qPkt;
+    } catch {
+      return "processError";
+    }
+  }
 
-function parseCSV(csv, del = ",") {
-  var parse = require("csv-parse/lib/sync");
-  var csvArray = parse(csv, {
-    delimiter: del,
-    trim: true,
-    relax_column_count: true
-  });
-  return csvArray;
+  function getMaxScore() {
+    let maxScore = 0,
+      rex = /(Question\s\d+)-/,
+      root = "",
+      ssq = 0;
+    Test.questions.forEach(q => {
+      let qnParts = rex.exec(q.name);
+      if (qnParts) {
+        if (qnParts[1] != root) {
+          maxScore += ssq;
+          root = qnParts[1];
+          ssq = q.maxScore;
+        } else {
+          ssq = Math.max(ssq, q.maxScore);
+        }
+      } else {
+        maxScore += ssq;
+        maxScore += q.maxScore;
+      }
+    });
+    maxScore += ssq;
+    return maxScore;
+  }
 }
 </script>
 
@@ -158,7 +265,7 @@ function parseCSV(csv, del = ",") {
   transform: scale(1.1);
 }
 .custom-file-upload,
-.demoData {
+.readerButton {
   border: 1px solid #ccc;
   display: inline-block;
   padding: 6px 12px;
@@ -166,6 +273,10 @@ function parseCSV(csv, del = ",") {
   background-color: hsl(198, 65%, 40%);
   color: white;
   border-radius: 10px;
+}
+
+.readerButton.anonymize {
+  background-color: green;
 }
 .realData {
   display: none;

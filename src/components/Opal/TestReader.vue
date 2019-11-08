@@ -12,21 +12,26 @@
     </p>
     <div v-if="loadError">
       <p>
-        Die Datei konnte nicht geladen werden. Wenn diese Datei wirklich von OPAL erzeugt wurde, so schicken Sie bitte eine anonymisierte Version davon an
+        Die Datei konnte nicht geladen werden. Wenn diese Datei wirklich von OPAL stammt, so schicken Sie bitte eine anonymisierte Version davon an
         <a
           href="mailto:dahn@dahn-research.eu"
         >dahn@dahn-research.eu</a>.
       </p>
     </div>
-    <div v-if="processError">
+    <div v-if="processError == 'error'">
       <p>
-        Die Datei wurde geladen, konnte aber nicht verarbeitet werden. Wenn diese Datei wirklich von OPAL stammt, so speichern Sie sie bitte in anonymisierter Form und schicken Sie sie an
+        Die Datei wurde geladen, konnte aber nicht verarbeitet werden. Wenn diese Datei wirklich von OPAL erzeugt wurde, so speichern Sie sie bitte in anonymisierter Form und schicken Sie sie an
         <a
           href="mailto:dahn@dahn-research.eu"
         >dahn@dahn-research.eu</a>.
       </p>
-      <p>Beim Öffnen der anonymisierten Datei gibt Excel möglicherweise eine Warnung aus, da sie nicht von einer Excel bekannten Quelle stammt.</p>
       <p>
+        <input
+          class="readerButton hvr-grow"
+          type="button"
+          v-on:click="cancelProcessError()"
+          value="Abbrechen"
+        />
         <input
           class="readerButton anonymize hvr-grow"
           type="button"
@@ -34,6 +39,23 @@
           value="Anonymisieren"
         />
       </p>
+      <div v-if="processError == 'anonymized'">
+        <p>Bitte prüfen Sie die Anonymisierung mit einem Texteditor oder einer Tabellenverarbeitung. Eine Tabellenverarbeitung gibt beim Öffnen der anonymisierten Datei möglicherweise eine Warnung aus, da die Datei aus einer unbekannten Quelle stammt. Diese Warnung können Sie ignorieren.</p>
+        <p>
+          <input
+            class="readerButton hvr-grow"
+            type="button"
+            v-on:click="cancelProcessError()"
+            value="Abbrechen"
+          />
+          <input
+            class="readerButton anonymize hvr-grow"
+            type="button"
+            v-on:click="mailFile('Opal')"
+            value="Abschicken"
+          />
+        </p>
+      </div>
     </div>
     <div id="app">
       <Spinner v-if="loading" class="spinner"></Spinner>
@@ -54,7 +76,7 @@
 </template>
 
 <script>
-import { Question, Line } from "../Reader";
+import { Question, Line, ReaderErrors } from "../Reader";
 import Spinner from "../../third_party/Spinner.vue";
 import { saveAs } from "file-saver";
 
@@ -62,12 +84,13 @@ export default {
   name: "OPAL-Reader",
   data() {
     return {
-      loadError: false,
-      processError: false,
+      //loadError: false,
+      //processError: "none",
       loading: false,
       lineArray: []
     };
   },
+  mixins: [ReaderErrors],
   components: {
     Spinner
   },
@@ -89,10 +112,15 @@ export default {
         var data = e.target.result;
         let jsn = getXLS(data);
         if (jsn == "loadError") {
+          this.handleLoadError();
+          return;
+        }
+        /*{
           this.$emit("errorRead", "loadError");
           this.loading = false;
           return;
         }
+        */
 
         // 2. Stripping off and storing Legende if necessary
 
@@ -101,19 +129,29 @@ export default {
         // 4. Getting array of arrays of items
         this.lineArray = Object.values(jsn)[0];
         if (this.lineArray === undefined) {
+          this.handleLoadError();
+          return;
+        }
+        /*{
           this.loading = false;
           this.loadError = true;
           return;
         }
+        */
 
         // 5. table2test
         var test = table2Test(this.lineArray);
         if (test == "processError") {
+          this.handleProcessError();
+          return;
+        }
+        /*{
           //this.$emit("errorRead", "processError");
           this.loading = false;
           this.processError = true;
           return;
         }
+        */
         //  6. Emit signal (or modify Test object's parts?)
         this.$emit("testRead", test);
         this.loading = false;
@@ -267,7 +305,7 @@ function writeXLS(lineArray) {
     Title: "OPAL Spreadsheet",
     Subject: "Error",
     Author: "Testanalyzer",
-    CreatedDate: new Date(2017, 12, 19)
+    CreatedDate: new Date()
   };
   wb.SheetNames.push("onyx_results");
   var ws = XLSX.utils.aoa_to_sheet(lineArray);

@@ -1,3 +1,74 @@
+export const ReaderErrors = {
+  data() {
+    return {
+      loadError: false,
+      processError: "none"
+    };
+  },
+  methods: {
+    handleProcessError: function() {
+      {
+        this.$emit("errorRead", "processError");
+        this.processError = "error";
+        this.loading = false;
+        return;
+      }
+    },
+    cancelProcessError: function() {
+      this.processError = "none";
+    },
+    mailFile: function(system) {
+      var mail = document.createElement("a");
+      mail.href =
+        "mailto:dahn@dahn-research.eu?subject=Testanalyzer: Anonymisierte%20Datei%20von%20" +
+        system;
+      mail.click();
+      this.processError = "none";
+    },
+    handleLoadError: function() {
+      {
+        this.$emit("errorRead", "loadError");
+        this.loadError = true;
+        this.loading = false;
+        return;
+      }
+    }
+  }
+};
+
+import { saveAs } from "file-saver";
+
+export const CSV = {
+  data() {
+    return {};
+  },
+  methods: {
+    parseCSV: function(csv, del = ",") {
+      try {
+        let parse = require("csv-parse/lib/sync");
+        let lineArray = parse(csv, {
+          delimiter: del,
+          trim: true,
+          relax_column_count: true
+        });
+        return lineArray;
+      } catch {
+        return "loadError";
+      }
+    },
+
+    writeCSV: function(lineArray, del, fileName) {
+      let outLines = lineArray.map(line =>
+        line.map(entry => entry.replace(del, "")).join(del)
+      );
+      let outData = outLines.join("\n");
+      let blob = new Blob([outData], {
+        type: "text/plain; charset=utf-8"
+      });
+      saveAs(blob, fileName);
+    }
+  }
+};
 export class Question {
   constructor(name) {
     this.name = name;

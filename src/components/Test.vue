@@ -230,7 +230,6 @@ export default {
         this.setMaxScore = test.setMaxScore;
       else this.setMaxScore = "none";
       this.questions = test.questions;
-
       let qIndex = new Object();
       this.questions.forEach(function(v, a) {
         qIndex[v.name] = a;
@@ -285,6 +284,7 @@ export default {
           );
         });
         this.mode.multiLine = true;
+        this.mode.questionScore = "voluntary";
         this.mode.multiLineScore = "maxQuestion";
       }
 
@@ -392,7 +392,7 @@ export default {
     pSystem: function() {
       var pS = this.$route.path;
       if (pS.match(/imathas/g)) return "IMathAS";
-      if (pS.match(/ilias/)) return "Ilias";
+      if (pS.match(/ilias/)) return "ILIAS";
       if (pS.match(/olat/)) return "Open OLAT";
       if (pS.match(/opal/)) return "OPAL";
       return "";
