@@ -341,7 +341,7 @@ export default {
       if (isNaN(this.setMaxScore)) return this.totalScore;
       return this.setMaxScore;
     },
-    studentScores: function() {
+    testStudentScores: function() {
       let studentScores = [];
       let nameArray = Object.keys(this.students);
 
@@ -382,7 +382,7 @@ export default {
       return studentScores;
     },
     scoredSorted: function() {
-      var ss = this.studentScores.slice(0);
+      var ss = this.testStudentScores.slice(0);
       var scoredSorted = ss.sort(function(a, b) {
         return a.totalScore - b.totalScore;
       });

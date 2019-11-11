@@ -10,8 +10,8 @@ Vue.config.errorHandler = function(err, vm, info) {
   // info: Vue specific error information such as lifecycle hooks, events etc.
 
   // TODO: Perform any custom logic or log to server
-  //console.log(`Error: ${err.toString()}\nInfo: ${info}`);
-  //console.log(vm);
+  console.log(`Error: ${err.toString()}\nInfo: ${info}`);
+  console.log(vm);
   alert("Interner Fehler");
 };
 
