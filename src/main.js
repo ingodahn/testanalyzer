@@ -3,7 +3,7 @@ import App from "./App.vue";
 import router from "./router";
 
 Vue.config.productionTip = false;
-
+/*
 Vue.config.errorHandler = function(err, vm, info) {
   // err: error trace
   // vm: component in which error occured
@@ -14,6 +14,7 @@ Vue.config.errorHandler = function(err, vm, info) {
   console.log(vm);
   alert("Interner Fehler");
 };
+*/
 
 new Vue({
   router,

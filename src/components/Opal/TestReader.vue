@@ -1,12 +1,30 @@
 <template>
   <div>
     <h2>Daten</h2>
-    <p>Hier fehlt noch eine Anleitung zur Erzeugung der xls-Datei in Opal</p>
+    <p>
+      Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OPAL in eine
+      <i>.xls-Datei</i>.
+      <input
+        class="readerButton hvr-grow"
+        type="button"
+        v-on:click="showExport= ! showExport"
+        :value="exportButtonText()"
+      />
+      <Export v-if="showExport"></Export>
+      <input
+        v-if="showExport"
+        class="readerButton hvr-grow"
+        type="button"
+        v-on:click="showExport=false"
+        :value="exportButtonText()"
+      />
+    </p>
+    <p>Ziehen Sie diese .xls-Datei mit der Maus in diese Webseite auf die Fläche unten.</p>
     <p>
       <input
         class="readerButton hvr-grow"
         type="button"
-        onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOlat.xlsx'"
+        onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOpal.xls'"
         value="Demo-Daten"
       />
     </p>
@@ -77,6 +95,7 @@
 
 <script>
 import { Question, Line, ReaderErrors } from "../Reader";
+import Export from "./Export.vue";
 import Spinner from "../../third_party/Spinner.vue";
 import { saveAs } from "file-saver";
 
@@ -84,14 +103,14 @@ export default {
   name: "OPAL-Reader",
   data() {
     return {
-      //loadError: false,
-      //processError: "none",
+      showExport: false,
       loading: false,
       lineArray: []
     };
   },
   mixins: [ReaderErrors],
   components: {
+    Export,
     Spinner
   },
   methods: {
@@ -179,6 +198,9 @@ export default {
       }
       writeXLS(this.lineArray);
       this.processError = false;
+    },
+    exportButtonText: function() {
+      return this.showExport ? "Anleitung ausblenden" : "Anleitung anzeigen";
     }
   }
 };
