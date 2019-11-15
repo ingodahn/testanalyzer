@@ -91,6 +91,7 @@
         <Attempts
           id="attempts"
           :Questions="questions"
+          :Mode="mode"
           :ComponentStatus="componentStatus"
           :Layout="layout"
         ></Attempts>

@@ -37,7 +37,7 @@
 import LineChart from "./Graphics/LineChart.vue";
 export default {
   name: "Attempts",
-  props: ["Questions", "ComponentStatus", "Layout"],
+  props: ["Questions", "Mode", "ComponentStatus", "Layout"],
   data() {
     return {
       curGroup: 0
@@ -67,6 +67,23 @@ export default {
       };
 
       chart.datasets[0] = attemptData;
+      if (this.Mode.multiLine) {
+        let lineAttemptData = {
+          label: "% der Versuche, bei denen die Frage bearbeitet wurde",
+          data: this.Questions.slice(start, end).map(q => {
+            let la = 0;
+            //console.log(Object.values(q.studentScores));
+            Object.values(q.studentScores).forEach(s => {
+              la += s.attempted / s.presented;
+            });
+            //console.log(la);
+            return (100 * la) / Object.keys(q.studentScores).length;
+          }),
+          borderColor: "red"
+        };
+        //console.log(lineAttemptData);
+        chart.datasets[1] = lineAttemptData;
+      }
       return chart;
     },
     ResetCurGroup: function() {

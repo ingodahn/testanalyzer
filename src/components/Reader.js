@@ -205,6 +205,7 @@ export class Question {
 
   // Adds student answers to question, returns, how often the student has asnwered this question in this line
   addStudentLineAnswer(studentName, lineNr, att, sco) {
+    if (studentName == "G") console.log(att);
     if (!this.answers.hasOwnProperty(studentName)) {
       this.answers[studentName] = new Object();
       this.studentScores[studentName] = new StudentScores();
