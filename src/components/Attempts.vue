@@ -67,6 +67,7 @@ export default {
       };
 
       chart.datasets[0] = attemptData;
+      /*
       if (this.Mode.multiLine) {
         let lineAttemptData = {
           label: "% der Versuche, bei denen die Frage bearbeitet wurde",
@@ -84,6 +85,7 @@ export default {
         //console.log(lineAttemptData);
         chart.datasets[1] = lineAttemptData;
       }
+      */
       return chart;
     },
     ResetCurGroup: function() {
