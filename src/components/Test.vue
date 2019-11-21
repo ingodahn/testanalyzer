@@ -25,36 +25,43 @@
             >ausdrücklich erwünscht</a>.
           </p>
         </div>
+        <!--
         <div id="system" v-if="showUpload">
           <router-view v-on:load="reset" v-on:testRead="testread" v-on:errorRead="errorRead" />
         </div>
-
-        <div id="basics" v-if="questionsNr != 0">
+        -->
+        <div id="basics">
           <p>
             <input
-              v-if="! showUpload"
+              v-if="(! showUpload) && questionsNr != 0"
               class="testButton hvr-grow"
               type="button"
               v-on:click="showUpload = true; reset();"
               value="Neue Datei laden"
             />
             <input
-              v-if="layout == 'all' && hasHint()"
+              v-if="layout == 'all' && questionsNr != 0 && hasHint()"
               class="testButton hintLayout hvr-grow"
               type="button"
               v-on:click="layout = 'hints'"
               value="Nur Hinweise anzeigen"
             />
             <input
-              v-if="layout == 'hints'"
+              v-if="questionsNr != 0 && layout == 'hints'"
               class="testButton hvr-grow"
               type="button"
               v-on:click="layout = 'all'"
               value="Alles anzeigen"
             />
           </p>
+          <router-view
+            v-on:load="reset"
+            v-on:testRead="testread"
+            v-on:errorRead="errorRead"
+            :ShowUpload="showUpload"
+          />
           <hr />
-          <div v-if="layout == 'all'">
+          <div v-if="layout == 'all' && questionsNr != 0">
             <h2>Daten</h2>
             <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor. Maximal können {{ calcMaxScore }} Punkte erreicht werden.</p>
 
@@ -201,24 +208,7 @@ export default {
       this.setMaxScore = "none";
       this.loading = false;
     },
-    errorRead: function(error) {
-      let send =
-        " Falls dies wirklich eine Datei von " +
-        this.pSystem +
-        " ist, so wäre es hilfreich,wenn Sie sie anonymisiert an dahn@dahn-research.eu einschicken würden.";
-      switch (error) {
-        case "loadError":
-          alert("Fehler beim Lesen der Datei.  " + send);
-          break;
-        case "processError":
-          alert("Fehler beim Verarbeiten der Datei." + send);
-          break;
-        default:
-          alert(
-            "Beim Verarbeiten der Datei ist ein unbekannter Fehler aufgetreten. " +
-              send
-          );
-      }
+    errorRead: function() {
       this.reset();
     },
     testread: function(test) {

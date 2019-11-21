@@ -1,70 +1,37 @@
 <template>
   <div>
-    <h2>Daten</h2>
-    <p>
-      Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OLAT. Sie finden das Werkzeug zur Datenarchivierung in Ihrem OLAT-Kurs im Menü
-      <i>Administration</i>. Ändern Sie die voreingestellten Download-Optionen nicht.
-    </p>
-    <p>
-      Sie erhalten ein zip-Archiv, in dem Sie nach dem Entpacken u.a. eine Datei mit der Endung .xls oder ,xlsx vorfinden. Überschreiben Sie diese Datei
-      <u>nicht</u> mit einem anderen Programm, wie etwa einer Tabellenkalkulation! Ziehen Sie diese xls- oder xlsx-Datei mit der Maus in diese Webseite auf die Fläche unten.
-    </p>
-    <p>
-      <input
-        class="readerButton hvr-grow"
-        type="button"
-        onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOlat.xlsx'"
-        value="Demo-Daten"
-      />
-    </p>
-    <div v-if="loadError">
-      <p>
-        Die Datei konnte nicht geladen werden. Wenn diese Datei wirklich von Open OLAT stammt, so schicken Sie bitte eine anonymisierte Version davon an
-        <a
-          href="mailto:dahn@dahn-research.eu"
-        >dahn@dahn-research.eu</a>.
-      </p>
-    </div>
-    <div v-if="processError == 'error'">
-      <p>
-        Die Datei wurde geladen, konnte aber nicht verarbeitet werden. Wenn diese Datei wirklich von Open OLAT erzeugt wurde, so speichern Sie sie bitte in anonymisierter Form und schicken Sie sie an
-        <a
-          href="mailto:dahn@dahn-research.eu"
-        >dahn@dahn-research.eu</a>.
-      </p>
-      <p>
+    <div v-if="ShowUpload">
+      <h2>
+        Daten
         <input
           class="readerButton hvr-grow"
           type="button"
-          v-on:click="cancelProcessError()"
-          value="Abbrechen"
+          onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOlat.xlsx'"
+          value="Demo-Daten"
         />
-        <input
-          class="readerButton anonymize hvr-grow"
-          type="button"
-          v-on:click="anonymize()"
-          value="Anonymisieren"
-        />
-      </p>
-    </div>
-    <div v-if="processError == 'anonymized'">
-      <p>Bitte prüfen Sie die Anonymisierung mit einem Texteditor oder einer Tabellenverarbeitung. Eine Tabellenverarbeitung gibt beim Öffnen der anonymisierten Datei möglicherweise eine Warnung aus, da die Datei aus einer unbekannten Quelle stammt. Diese Warnung können Sie ignorieren.</p>
+      </h2>
       <p>
-        <input
-          class="readerButton hvr-grow"
-          type="button"
-          v-on:click="cancelProcessError()"
-          value="Abbrechen"
-        />
-        <input
-          class="readerButton anonymize hvr-grow"
-          type="button"
-          v-on:click="mailFile()"
-          value="Abschicken"
-        />
+        Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OLAT. Sie finden das Werkzeug zur Datenarchivierung in Ihrem OLAT-Kurs im Menü
+        <i>Administration</i>. Ändern Sie die voreingestellten Download-Optionen nicht.
+      </p>
+      <p>
+        Sie erhalten ein zip-Archiv, in dem Sie nach dem Entpacken u.a. eine Datei mit der Endung .xls oder ,xlsx vorfinden. Überschreiben Sie diese Datei
+        <u>nicht</u> mit einem anderen Programm, wie etwa einer Tabellenkalkulation! Ziehen Sie diese xls- oder xlsx-Datei mit der Maus in diese Webseite auf die Fläche unten.
       </p>
     </div>
-    <div id="app">
+
+    <Problemizer
+      v-if="error != 'empty'"
+      :Error="error"
+      :System="system"
+      v-on:anonymize="anonymize()"
+      v-on:sendMail="sendMail()"
+      v-on:cancelError="cancelError()"
+    ></Problemizer>
+
+    <br />
+
+    <div id="app" v-if="ShowUpload">
       <Spinner v-if="loading" class="spinner"></Spinner>
       <div v-else class="container-responsive">
         <div class="row">
@@ -85,12 +52,15 @@
 <script>
 import { Question, Line, ReaderErrors, CSV } from "../Reader";
 import Spinner from "../../third_party/Spinner.vue";
+import Problemizer from "../Problemizer";
 import XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 export default {
+  props: ["ShowUpload"],
   data() {
     return {
+      system: "Open OLAT",
       loading: false,
       lineArray: [],
       type: "",
@@ -99,6 +69,7 @@ export default {
   },
   mixins: [ReaderErrors, CSV],
   components: {
+    Problemizer,
     Spinner
   },
   methods: {
@@ -106,7 +77,9 @@ export default {
     handleDrop: function(e) {
       e.stopPropagation();
       e.preventDefault();
+      let component = this;
       this.loading = true;
+      this.cancelError();
       var files = e.dataTransfer.files,
         f = files[0],
         csv;
@@ -114,56 +87,43 @@ export default {
       var reader = new FileReader();
 
       reader.onload = e => {
-        // 1. Getting file
-        var data = e.target.result;
-        var toAnalyze;
+        try {
+          // 1. Getting file
+          var data = e.target.result;
+          var toAnalyze;
 
-        // 2. Stripping off and storing Legende if necessary
-        if (this.type == "xls") {
-          toAnalyze = data.split("\nLegende");
-          if (toAnalyze.length != 2) {
-            this.handleLoadError();
-            return;
+          // 2. Stripping off and storing Legende if necessary
+          if (this.type == "xls") {
+            toAnalyze = data.split("\nLegende");
+            if (toAnalyze.length != 2) throw "loadError";
+            csv = toAnalyze[0];
+          } else {
+            // 3. Parsing File into csv if necessary
+            var fileData = getXLSX(data);
+            csv = XLSX.utils.sheet_to_csv(fileData);
           }
-          csv = toAnalyze[0];
-        } else {
-          // 3. Parsing File into csv if necessary
-          var fileData = getXLSX(data);
-          if (fileData == "loadError") {
-            this.handleLoadError();
-            return;
-          }
-          csv = XLSX.utils.sheet_to_csv(fileData);
-        }
 
-        // 4. Parsing csv into array of arrays of items
-        if (this.type == "xls") {
-          this.lineArray = this.parseCSV(csv, "\t");
-          this.legend = toAnalyze[1];
-        } else {
-          this.lineArray = this.parseCSV(csv, ",");
-        }
-        if (this.lineArray == "loadError") {
-          this.handleLoadError();
-          return;
-        }
-
-        // 5. table2test
-        var test = table2Test(this.lineArray, this.type);
-        if (test == "processError") {
-          this.handleProcessError();
-          return;
-        }
-        test.system = "OLAT_" + this.type;
-        if (this.type == "xls") {
-          if (addMaxScores(test.questions, this.legend) == "processError") {
-            this.handleProcessError();
-            return;
+          // 4. Parsing csv into array of arrays of items
+          if (this.type == "xls") {
+            this.lineArray = this.parseCSV(csv, "\t");
+            this.legend = toAnalyze[1];
+          } else {
+            this.lineArray = this.parseCSV(csv, ",");
           }
+
+          // 5. table2test
+          var test = table2Test(this.lineArray, this.type);
+          test.system = "OLAT_" + this.type;
+          if (this.type == "xls") {
+            addMaxScores(test.questions, this.legend);
+          }
+          //  6. Emit signal (or modify Test object's parts?)
+          this.$emit("testRead", test);
+          this.loading = false;
+        } catch (er) {
+          if (er == "loadError") component.handleLoadError();
+          if (er == "processError") component.handleProcessError();
         }
-        //  6. Emit signal (or modify Test object's parts?)
-        this.$emit("testRead", test);
-        this.loading = false;
       };
       if (this.type == "xlsx") {
         reader.readAsArrayBuffer(f);
@@ -204,11 +164,9 @@ export default {
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8"
         });
         saveAs(blob, "olat_anonymous.xls");
-        this.processError = "none";
         return;
       }
       writeXLS(this.lineArray);
-      this.processError = "anonymized";
     }
   },
   computed: {
@@ -242,7 +200,6 @@ function handleDragover(e) {
 
 function table2Test(table, type) {
   try {
-    //throw "processError";
     var Test = {
       system: "Olat",
       questionsNr: 0,
@@ -295,7 +252,7 @@ function table2Test(table, type) {
 
     return Test;
   } catch {
-    return "processError";
+    throw "processError";
   }
   //getQuestions collects all questions in Test.questions and returns in qPkt for each question number the nr of the column with its score
   function getQuestions() {
@@ -331,7 +288,7 @@ function addMaxScores(myQuestions, legend) {
     } while (match);
     return "ok";
   } catch {
-    return "processError";
+    throw "processError";
   }
 }
 
@@ -342,24 +299,10 @@ function getXLSX(data) {
       firstSheetName = workbook.SheetNames[0];
     return workbook.Sheets[firstSheetName];
   } catch {
-    return "loadError";
+    throw "loadError";
   }
 }
-/*
-function parseCSV(csv, del = ",") {
-  try {
-    var parse = require("csv-parse/lib/sync");
-    var lineArray = parse(csv, {
-      delimiter: del,
-      trim: true,
-      relax_column_count: true
-    });
-    return lineArray;
-  } catch {
-    return "loadError";
-  }
-}
-*/
+
 // See https://redstapler.co/sheetjs-tutorial-create-xlsx/
 function writeXLS(lineArray) {
   var wb = XLSX.utils.book_new();
@@ -390,7 +333,7 @@ function s2ab(s) {
 }
 </script>
 
-<style scoped>
+<style>
 /* Grow */
 .hvr-grow {
   display: inline-block;
@@ -414,6 +357,7 @@ function s2ab(s) {
   border: 1px solid #ccc;
   display: inline-block;
   padding: 6px 12px;
+  margin-right: 6px;
   cursor: pointer;
   background-color: hsl(198, 65%, 40%);
   color: white;

@@ -1,35 +1,36 @@
 export const ReaderErrors = {
   data() {
     return {
-      loadError: false,
-      processError: "none"
+      error: "empty",
+      errorMessage: ""
     };
   },
   methods: {
     handleProcessError: function() {
       {
         this.$emit("errorRead", "processError");
-        this.processError = "error";
+        this.error = "processError";
         this.loading = false;
         return;
       }
     },
-    cancelProcessError: function() {
-      this.processError = "none";
+    cancelError: function() {
+      this.error = "none";
+      this.errorMessage = "";
     },
-    mailFile: function(system) {
+    sendMail: function() {
       var mail = document.createElement("a");
       mail.href =
-        "mailto:dahn@dahn-research.eu?subject=Testanalyzer: Anonymisierte%20Datei%20von%20" +
-        system;
+        "mailto:dahn@dahn-research.eu?subject=Testanalyzer:%20Problem%20mit%20" +
+        this.system;
       mail.click();
-      this.processError = "none";
+      this.error = "none";
     },
     handleLoadError: function() {
       {
         this.$emit("errorRead", "loadError");
-        this.loadError = true;
         this.loading = false;
+        this.error = "loadError";
         return;
       }
     }
@@ -44,17 +45,18 @@ export const CSV = {
   },
   methods: {
     parseCSV: function(csv, del = ",") {
+      let parse = require("csv-parse/lib/sync");
+      let lineArray = [];
       try {
-        let parse = require("csv-parse/lib/sync");
-        let lineArray = parse(csv, {
+        lineArray = parse(csv, {
           delimiter: del,
           trim: true,
           relax_column_count: true
         });
-        return lineArray;
       } catch {
-        return "loadError";
+        throw "loadError";
       }
+      return lineArray;
     },
 
     writeCSV: function(lineArray, del, fileName) {

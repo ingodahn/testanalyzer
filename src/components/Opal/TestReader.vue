@@ -1,81 +1,47 @@
 <template>
   <div>
-    <h2>Daten</h2>
-    <p>
-      Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OPAL in eine
-      <i>.xls-Datei</i>.
-      <input
-        class="readerButton hvr-grow"
-        type="button"
-        v-on:click="showExport= ! showExport"
-        :value="exportButtonText()"
-      />
-      <Export v-if="showExport"></Export>
-      <input
-        v-if="showExport"
-        class="readerButton hvr-grow"
-        type="button"
-        v-on:click="showExport=false"
-        :value="exportButtonText()"
-      />
-    </p>
-    <p>Ziehen Sie diese .xls-Datei mit der Maus in diese Webseite auf die Fläche unten.</p>
-    <p>
-      <input
-        class="readerButton hvr-grow"
-        type="button"
-        onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOpal.xls'"
-        value="Demo-Daten"
-      />
-    </p>
-    <div v-if="loadError">
-      <p>
-        Die Datei konnte nicht geladen werden. Wenn diese Datei wirklich von OPAL stammt, so schicken Sie bitte eine anonymisierte Version davon an
-        <a
-          href="mailto:dahn@dahn-research.eu"
-        >dahn@dahn-research.eu</a>.
-      </p>
-    </div>
-    <div v-if="processError == 'error'">
-      <p>
-        Die Datei wurde geladen, konnte aber nicht verarbeitet werden. Wenn diese Datei wirklich von OPAL erzeugt wurde, so speichern Sie sie bitte in anonymisierter Form und schicken Sie sie an
-        <a
-          href="mailto:dahn@dahn-research.eu"
-        >dahn@dahn-research.eu</a>.
-      </p>
-      <p>
+    <div v-if="ShowUpload">
+      <h2>
+        Daten
         <input
           class="readerButton hvr-grow"
           type="button"
-          v-on:click="cancelProcessError()"
-          value="Abbrechen"
+          onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOpal.xls'"
+          value="Demo-Daten"
         />
+      </h2>
+      <p>
+        Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OPAL in eine
+        <i>.xls-Datei</i> oder
+        <i>.csv-Datei</i>.
         <input
-          class="readerButton anonymize hvr-grow"
+          class="readerButton hvr-grow"
           type="button"
-          v-on:click="anonymize()"
-          value="Anonymisieren"
+          v-on:click="showExport= ! showExport"
+          :value="exportButtonText()"
+        />
+        <Export v-if="showExport"></Export>
+        <input
+          v-if="showExport"
+          class="readerButton hvr-grow"
+          type="button"
+          v-on:click="showExport=false"
+          :value="exportButtonText()"
         />
       </p>
-      <div v-if="processError == 'anonymized'">
-        <p>Bitte prüfen Sie die Anonymisierung mit einem Texteditor oder einer Tabellenverarbeitung. Eine Tabellenverarbeitung gibt beim Öffnen der anonymisierten Datei möglicherweise eine Warnung aus, da die Datei aus einer unbekannten Quelle stammt. Diese Warnung können Sie ignorieren.</p>
-        <p>
-          <input
-            class="readerButton hvr-grow"
-            type="button"
-            v-on:click="cancelProcessError()"
-            value="Abbrechen"
-          />
-          <input
-            class="readerButton anonymize hvr-grow"
-            type="button"
-            v-on:click="mailFile('Opal')"
-            value="Abschicken"
-          />
-        </p>
-      </div>
+      <p>Ziehen Sie diese Datei mit der Maus in diese Webseite auf die Fläche unten.</p>
     </div>
-    <div id="app">
+
+    <Problemizer
+      v-if="error != 'empty'"
+      :Error="error"
+      :System="system"
+      v-on:anonymize="anonymize()"
+      v-on:sendMail="sendMail()"
+      v-on:cancelError="cancelError()"
+    ></Problemizer>
+    <br />
+    <div id="app" v-if="ShowUpload">
       <Spinner v-if="loading" class="spinner"></Spinner>
       <div v-else class="container-responsive">
         <div class="row">
@@ -85,7 +51,7 @@
               @drop="handleDrop"
               @dragover="handleDragover"
               @dragenter="handleDragover"
-            >xls-Datei mit der Maus hier ablegen</div>
+            >xls- oder csv-Datei mit der Maus hier ablegen</div>
           </div>
         </div>
       </div>
@@ -94,23 +60,28 @@
 </template>
 
 <script>
-import { Question, Line, ReaderErrors } from "../Reader";
+import { Question, Line, ReaderErrors, CSV } from "../Reader";
 import Export from "./Export.vue";
 import Spinner from "../../third_party/Spinner.vue";
+import Problemizer from "../Problemizer";
 import { saveAs } from "file-saver";
 
 export default {
   name: "OPAL-Reader",
+  props: ["ShowUpload"],
   data() {
     return {
       showExport: false,
+      system: "OPAL",
       loading: false,
-      lineArray: []
+      lineArray: [],
+      type: ""
     };
   },
-  mixins: [ReaderErrors],
+  mixins: [ReaderErrors, CSV],
   components: {
     Export,
+    Problemizer,
     Spinner
   },
   methods: {
@@ -118,64 +89,59 @@ export default {
     handleDrop: function(e) {
       e.stopPropagation();
       e.preventDefault();
+      let component = this;
       this.loading = true;
-      this.loadError = false;
-      this.processError = false;
+      this.cancelError();
       var files = e.dataTransfer.files,
         f = files[0];
+      let type = f.name.split(".").pop();
+      if (type.match(/xls/i)) {
+        this.type = "xls";
+      } else if (type.match(/csv/i)) {
+        this.type = "csv";
+      } else throw "loadError";
       var reader = new FileReader();
       //name = f.name;
 
       reader.onload = e => {
-        // 1. Getting file
-        var data = e.target.result;
-        let jsn = getXLS(data);
-        if (jsn == "loadError") {
-          this.handleLoadError();
-          return;
-        }
-        /*{
-          this.$emit("errorRead", "loadError");
+        try {
+          // 1. Getting file
+          var data = e.target.result;
+          if (this.type == "xls") {
+            let jsn = getXLS(data);
+
+            // 2. Stripping off and storing Legende if necessary
+
+            // 3. Parsing File into json
+
+            // 4. Getting array of arrays of items
+            this.lineArray = Object.values(jsn)[0];
+          } else if (this.type == "csv") {
+            this.lineArray = this.parseCSV(data, "\t");
+          }
+
+          if (!this.lineArray.length) throw "loadError";
+
+          // 5. table2test
+          var test = table2Test(this.lineArray);
+          if (test == "processError") {
+            this.handleProcessError();
+            return;
+          }
+
+          //  6. Emit signal (or modify Test object's parts?)
+          this.$emit("testRead", test);
           this.loading = false;
-          return;
+        } catch (er) {
+          if (er == "loadError") component.handleLoadError();
+          if (er == "processError") component.handleProcessError();
         }
-        */
-
-        // 2. Stripping off and storing Legende if necessary
-
-        // 3. Parsing File into json
-
-        // 4. Getting array of arrays of items
-        this.lineArray = Object.values(jsn)[0];
-        if (this.lineArray === undefined) {
-          this.handleLoadError();
-          return;
-        }
-        /*{
-          this.loading = false;
-          this.loadError = true;
-          return;
-        }
-        */
-
-        // 5. table2test
-        var test = table2Test(this.lineArray);
-        if (test == "processError") {
-          this.handleProcessError();
-          return;
-        }
-        /*{
-          //this.$emit("errorRead", "processError");
-          this.loading = false;
-          this.processError = true;
-          return;
-        }
-        */
-        //  6. Emit signal (or modify Test object's parts?)
-        this.$emit("testRead", test);
-        this.loading = false;
       };
-      reader.readAsArrayBuffer(f);
+      if (this.type == "xls") {
+        reader.readAsArrayBuffer(f);
+      } else {
+        reader.readAsText(f);
+      }
     },
     // Anonymize and save
     anonymize: function() {
@@ -196,7 +162,11 @@ export default {
         this.lineArray[lineNr][2] = names[pii].given;
         this.lineArray[lineNr][3] = names[pii].matrikel;
       }
-      writeXLS(this.lineArray);
+      if (this.type == "xls") {
+        writeXLS(this.lineArray);
+      } else {
+        this.writeCSV(this.lineArray, "\t", "opal_anonymous.csv");
+      }
       this.processError = false;
     },
     exportButtonText: function() {
@@ -245,12 +215,10 @@ function table2Test(table) {
         let qq = Test.questions[q1];
         let rowAnswer = new Object();
         let s = line[qPkt[q1].scoreCol];
-        //let at = s !== undefined;
         let at = false;
         qPkt[q1].responseCols.forEach(cc => {
           if (line[cc]) at = true;
         });
-        //let at = s !== "";
         if (at) s = s.replace(",", ".");
         rowAnswer = {
           name: qq.name,
@@ -264,7 +232,7 @@ function table2Test(table) {
     }
     return Test;
   } catch {
-    return "processError";
+    throw "processError";
   }
   //getQuestions collects all questions in Test.questions and returns in qPkt for each question number the nr of the column with its score
   function getQuestions() {
@@ -335,7 +303,7 @@ function getXLS(data) {
     let jsn = process_wb(XLSX.read(data, { type: "array" }));
     return jsn;
   } catch {
-    return "loadError";
+    throw "loadError";
   }
 }
 
@@ -367,7 +335,7 @@ function s2ab(s) {
 }
 </script>
 
-<style scoped>
+<style>
 /* Grow */
 .hvr-grow {
   display: inline-block;
@@ -397,9 +365,6 @@ function s2ab(s) {
   border-radius: 10px;
 }
 
-.readerButton.anonymize {
-  background-color: green;
-}
 .realData {
   display: none;
 }

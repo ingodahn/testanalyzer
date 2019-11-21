@@ -65,8 +65,9 @@
             Ist die Archivierung abgeschlossen, erscheint schließlich ein
             weiteres Pop-Up-Fenster
             <b>Archivierung beendet</b>, bei dem Sie, wenn Sie auf
-            <b>Datei anzeigen</b> klicken, die Möglichkeit haben, die gewünschte
-            <i>.xls-Datei</i> abzuspeichern.
+            <b>Datei anzeigen</b> klicken, die Möglichkeit haben, die Testergebnisse als
+            <i>.xls-Datei</i> oder
+            <i>.csv-Datei</i> abzuspeichern.
           </p>
         </div>
         <div class="exportImg">

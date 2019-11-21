@@ -1,69 +1,34 @@
 <template>
   <div>
-    <h2>Daten</h2>
-    <p>
-      Testergebnisse finden Sie im Gradebook von IMathAS. Sie erreichen das Gradebook, wenn Sie auf das Zahnrad neben dem Test klicken und dann
-      <i>Noten</i> auswählen. Auf der dann erscheinenden Seite gibt es unten den Link
-      <i>Export Student Answer Details</i>. Klicken Sie darauf und nehmen Sie die Einstellungen genau so vor, wie auf diesem Bild gezeigt.
-    </p>
-    <img class="center" src="./assets/csvEinstellung.png" />
-    <p>Ziehen Sie die so erstellte csv-Datei mit der Maus in diese Webseite auf die Fläche unten.</p>
-    <p>
-      <input
-        class="readerButton hvr-grow"
-        type="button"
-        onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenIMathAS.csv'"
-        value="Demo-Daten"
-      />
-    </p>
-    <div v-if="loadError">
-      <p>
-        Die Datei konnte nicht geladen werden. Wenn diese Datei wirklich von IMathAS stammt, so schicken Sie bitte eine anonymisierte Version davon an
-        <a
-          href="mailto:dahn@dahn-research.eu"
-        >dahn@dahn-research.eu</a>.
-      </p>
-    </div>
-    <div v-if="processError == 'error'">
-      <p>
-        Die Datei wurde geladen, konnte aber nicht verarbeitet werden. Wenn diese Datei wirklich von IMathAS mit den angegebenen Einstellungen erzeugt wurde, so speichern Sie sie bitte in anonymisierter Form und schicken Sie sie an
-        <a
-          href="mailto:dahn@dahn-research.eu"
-        >dahn@dahn-research.eu</a>.
-      </p>
-      <p>
+    <div v-if="ShowUpload">
+      <h2>
+        Daten
         <input
           class="readerButton hvr-grow"
           type="button"
-          v-on:click="cancelProcessError()"
-          value="Abbrechen"
+          onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenIMathAS.csv'"
+          value="Demo-Daten"
         />
-        <input
-          class="readerButton anonymize hvr-grow"
-          type="button"
-          v-on:click="anonymize()"
-          value="Anonymisieren"
-        />
-      </p>
-    </div>
-    <div v-if="processError == 'anonymized'">
-      <p>Bitte prüfen Sie die Anonymisierung mit einem Texteditor oder einer Tabellenverarbeitung. Eine Tabellenverarbeitung gibt beim Öffnen der anonymisierten Datei möglicherweise eine Warnung aus, da die Datei aus einer unbekannten Quelle stammt. Diese Warnung können Sie ignorieren.</p>
+      </h2>
       <p>
-        <input
-          class="readerButton hvr-grow"
-          type="button"
-          v-on:click="cancelProcessError()"
-          value="Abbrechen"
-        />
-        <input
-          class="readerButton anonymize hvr-grow"
-          type="button"
-          v-on:click="mailFile('IMathAS')"
-          value="Abschicken"
-        />
+        Testergebnisse finden Sie im Gradebook von IMathAS. Sie erreichen das Gradebook, wenn Sie auf das Zahnrad neben dem Test klicken und dann
+        <i>Noten</i> auswählen. Auf der dann erscheinenden Seite gibt es unten den Link
+        <i>Export Student Answer Details</i>. Klicken Sie darauf und nehmen Sie die Einstellungen genau so vor, wie auf diesem Bild gezeigt.
       </p>
+      <img class="center" src="./assets/csvEinstellung.png" />
+      <p>Ziehen Sie die so erstellte csv-Datei mit der Maus in diese Webseite auf die Fläche unten.</p>
     </div>
-    <div id="app">
+
+    <Problemizer
+      v-if="error != 'empty'"
+      :Error="error"
+      :System="system"
+      v-on:anonymize="anonymize()"
+      v-on:sendMail="sendMail()"
+      v-on:cancelError="cancelError()"
+    ></Problemizer>
+    <br />
+    <div id="app" v-if="ShowUpload">
       <Spinner v-if="loading" class="spinner"></Spinner>
       <div class="container-responsive">
         <div class="row">
@@ -84,16 +49,20 @@
 <script>
 import { Question, Line, ReaderErrors, CSV } from "../Reader";
 import Spinner from "../../third_party/Spinner.vue";
+import Problemizer from "../Problemizer";
 
 export default {
+  props: ["ShowUpload"],
   data() {
     return {
+      system: "IMathAS",
       loading: false,
       lineArray: []
     };
   },
   mixins: [ReaderErrors, CSV],
   components: {
+    Problemizer,
     Spinner
   },
   methods: {
@@ -101,7 +70,9 @@ export default {
     handleDrop: function(e) {
       e.stopPropagation();
       e.preventDefault();
+      let component = this;
       this.loading = true;
+      this.cancelError();
       var files = e.dataTransfer.files,
         f = files[0],
         csv;
@@ -109,29 +80,26 @@ export default {
       var reader = new FileReader();
 
       reader.onload = e => {
-        // 1. Getting file
-        csv = e.target.result;
+        try {
+          // 1. Getting file
+          csv = e.target.result;
 
-        // 2. Stripping off and storing Legende if necessary
-        // 3. Parsing File into csv if necessary
+          // 2. Stripping off and storing Legende if necessary
+          // 3. Parsing File into csv if necessary
 
-        // 4. Parsing csv into array of arrays of items
-        this.lineArray = this.parseCSV(csv, ",");
-        if (this.lineArray == "loadError") {
-          this.handleLoadError();
-          return;
+          // 4. Parsing csv into array of arrays of items
+          this.lineArray = this.parseCSV(csv, ",");
+
+          // 5. table2test
+          var test = table2Test(this.lineArray);
+
+          //  6. Emit signal (or modify Test object's parts?)
+          this.$emit("testRead", test);
+          this.loading = false;
+        } catch (er) {
+          if (er == "loadError") component.handleLoadError();
+          if (er == "processError") component.handleProcessError();
         }
-
-        // 5. table2test
-        var test = table2Test(this.lineArray);
-        if (test == "processError") {
-          this.handleProcessError();
-          return;
-        }
-
-        //  6. Emit signal (or modify Test object's parts?)
-        this.$emit("testRead", test);
-        this.loading = false;
       };
       reader.readAsText(f);
     },
@@ -171,7 +139,6 @@ function table2Test(table) {
     };
     var headings = table[0];
     let qCols = getQuestions();
-    if (qCols == "processError") this.handleProcessError();
     Test.setMaxScore = getMaxScore();
     Test.studentsNr = table.length - 2;
     for (let i = 2; i < table.length; i++) {
@@ -191,7 +158,7 @@ function table2Test(table) {
     }
     return Test;
   } catch {
-    return "processError";
+    throw "processError";
   }
   // getQuestions returns the array of column nrs for the questionscores
   function getQuestions() {
@@ -216,7 +183,7 @@ function table2Test(table) {
       Test.questionsNr = questionsNr;
       return qPkt;
     } catch {
-      return "processError";
+      throw "processError";
     }
   }
 
@@ -246,7 +213,7 @@ function table2Test(table) {
 }
 </script>
 
-<style scoped>
+<style>
 /* Grow */
 .hvr-grow {
   display: inline-block;
@@ -269,6 +236,7 @@ function table2Test(table) {
   border: 1px solid #ccc;
   display: inline-block;
   padding: 6px 12px;
+  margin-right: 6px;
   cursor: pointer;
   background-color: hsl(198, 65%, 40%);
   color: white;
