@@ -25,11 +25,7 @@
             >ausdrücklich erwünscht</a>.
           </p>
         </div>
-        <!--
-        <div id="system" v-if="showUpload">
-          <router-view v-on:load="reset" v-on:testRead="testread" v-on:errorRead="errorRead" />
-        </div>
-        -->
+
         <div id="basics">
           <p>
             <input
@@ -53,12 +49,20 @@
               v-on:click="layout = 'all'"
               value="Alles anzeigen"
             />
+            <input
+              v-if="error.type =='loaded' && error.status=='start'"
+              v-on:click="reportProblem()"
+              class="testButton hvr-grow"
+              type="button"
+              value="Problem melden"
+            />
           </p>
           <router-view
+            ref="reader"
             v-on:load="reset"
             v-on:testRead="testread"
-            v-on:errorRead="errorRead"
             :ShowUpload="showUpload"
+            :Error="error"
           />
           <hr />
           <div v-if="layout == 'all' && questionsNr != 0">
@@ -145,6 +149,7 @@ export default {
     return {
       system: "",
       type: "compulsory",
+      reportingProblem: false,
       questionsNr: 0,
       studentsDataNr: 0,
       setMaxScore: "none",
@@ -159,6 +164,10 @@ export default {
         multiQuestion: false,
         //mode.multiLineScore is false if each student has a single line. Otherwise it is one of 'maxQuestion', 'maxLine' or 'single'
         multiLineScore: false
+      },
+      error: {
+        type: "empty",
+        status: "start"
       },
       componentStatus: {
         scoreDistribution: "warn_0",
@@ -190,6 +199,7 @@ export default {
     },
     reset: function() {
       this.system = "";
+      this.reportingProblem = false;
       this.questionsNr = 0;
       this.studentsDataNr = 0;
       this.questions = [];
@@ -201,6 +211,10 @@ export default {
         multiQuestion: false,
         multiLineScore: false
       };
+      this.error = {
+        type: "none",
+        status: "start"
+      };
       this.studentLinesNr = 0;
       this.showContext = true;
       this.showUpload = true;
@@ -211,10 +225,10 @@ export default {
     errorRead: function() {
       this.reset();
     },
+    reportProblem: function() {
+      this.error.status = "started";
+    },
     testread: function(test) {
-      if (test == "error") {
-        this.reset();
-      }
       this.system = test.system;
       this.questionsNr = test.questions.length;
       if (test.hasOwnProperty("setMaxScore"))

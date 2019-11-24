@@ -20,12 +20,10 @@
     </div>
 
     <Problemizer
-      v-if="error != 'empty'"
-      :Error="error"
+      :Error="Error"
       :System="system"
       v-on:anonymize="anonymize()"
       v-on:sendMail="sendMail()"
-      v-on:cancelError="cancelError()"
     ></Problemizer>
     <br />
     <div id="app" v-if="ShowUpload">
@@ -52,7 +50,7 @@ import Spinner from "../../third_party/Spinner.vue";
 import Problemizer from "../Problemizer";
 
 export default {
-  props: ["ShowUpload"],
+  props: ["ShowUpload", "Error"],
   data() {
     return {
       system: "IMathAS",
@@ -68,40 +66,46 @@ export default {
   methods: {
     handleDragover: handleDragover,
     handleDrop: function(e) {
-      e.stopPropagation();
-      e.preventDefault();
       let component = this;
-      this.loading = true;
-      this.cancelError();
-      var files = e.dataTransfer.files,
-        f = files[0],
-        csv;
+      try {
+        e.stopPropagation();
+        e.preventDefault();
+        this.loading = true;
+        this.cancelError();
+        var files = e.dataTransfer.files,
+          f = files[0],
+          csv;
+        let type = f.name.split(".").pop();
+        if (!type.match(/csv/i)) throw "loadError";
+        var reader = new FileReader();
+        reader.onload = e => {
+          try {
+            // 1. Getting file
+            csv = e.target.result;
 
-      var reader = new FileReader();
+            // 2. Stripping off and storing Legende if necessary
+            // 3. Parsing File into csv if necessary
 
-      reader.onload = e => {
-        try {
-          // 1. Getting file
-          csv = e.target.result;
+            // 4. Parsing csv into array of arrays of items
+            this.lineArray = this.parseCSV(csv, ",");
 
-          // 2. Stripping off and storing Legende if necessary
-          // 3. Parsing File into csv if necessary
+            // 5. table2test
+            var test = table2Test(this.lineArray);
 
-          // 4. Parsing csv into array of arrays of items
-          this.lineArray = this.parseCSV(csv, ",");
-
-          // 5. table2test
-          var test = table2Test(this.lineArray);
-
-          //  6. Emit signal (or modify Test object's parts?)
-          this.$emit("testRead", test);
-          this.loading = false;
-        } catch (er) {
-          if (er == "loadError") component.handleLoadError();
-          if (er == "processError") component.handleProcessError();
-        }
-      };
-      reader.readAsText(f);
+            //  6. Emit signal (or modify Test object's parts?)
+            this.$emit("testRead", test);
+            this.loading = false;
+            this.Error.type = "loaded";
+          } catch (er) {
+            if (er == "loadError") component.handleLoadError();
+            if (er == "processError") component.handleProcessError();
+          }
+        };
+        reader.readAsText(f);
+      } catch (er) {
+        if (er == "loadError") component.handleLoadError();
+        if (er == "processError") component.handleProcessError();
+      }
     },
     // Anonymize and save
     anonymize: function() {

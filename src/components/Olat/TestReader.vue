@@ -21,12 +21,10 @@
     </div>
 
     <Problemizer
-      v-if="error != 'empty'"
-      :Error="error"
+      :Error="Error"
       :System="system"
       v-on:anonymize="anonymize()"
       v-on:sendMail="sendMail()"
-      v-on:cancelError="cancelError()"
     ></Problemizer>
 
     <br />
@@ -57,7 +55,7 @@ import XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
 export default {
-  props: ["ShowUpload"],
+  props: ["ShowUpload", "Error"],
   data() {
     return {
       system: "Open OLAT",
@@ -75,60 +73,67 @@ export default {
   methods: {
     handleDragover: handleDragover,
     handleDrop: function(e) {
-      e.stopPropagation();
-      e.preventDefault();
       let component = this;
-      this.loading = true;
-      this.cancelError();
-      var files = e.dataTransfer.files,
-        f = files[0],
-        csv;
-      this.type = f.name.split(".").pop();
-      var reader = new FileReader();
+      try {
+        e.stopPropagation();
+        e.preventDefault();
+        let component = this;
+        this.loading = true;
+        this.cancelError();
+        var files = e.dataTransfer.files,
+          f = files[0],
+          csv;
+        this.type = f.name.split(".").pop();
+        var reader = new FileReader();
 
-      reader.onload = e => {
-        try {
-          // 1. Getting file
-          var data = e.target.result;
-          var toAnalyze;
+        reader.onload = e => {
+          try {
+            // 1. Getting file
+            var data = e.target.result;
+            var toAnalyze;
 
-          // 2. Stripping off and storing Legende if necessary
-          if (this.type == "xls") {
-            toAnalyze = data.split("\nLegende");
-            if (toAnalyze.length != 2) throw "loadError";
-            csv = toAnalyze[0];
-          } else {
-            // 3. Parsing File into csv if necessary
-            var fileData = getXLSX(data);
-            csv = XLSX.utils.sheet_to_csv(fileData);
+            // 2. Stripping off and storing Legende if necessary
+            if (this.type == "xls") {
+              toAnalyze = data.split("\nLegende");
+              if (toAnalyze.length != 2) throw "loadError";
+              csv = toAnalyze[0];
+            } else {
+              // 3. Parsing File into csv if necessary
+              var fileData = getXLSX(data);
+              csv = XLSX.utils.sheet_to_csv(fileData);
+            }
+
+            // 4. Parsing csv into array of arrays of items
+            if (this.type == "xls") {
+              this.lineArray = this.parseCSV(csv, "\t");
+              this.legend = toAnalyze[1];
+            } else {
+              this.lineArray = this.parseCSV(csv, ",");
+            }
+
+            // 5. table2test
+            var test = table2Test(this.lineArray, this.type);
+            test.system = "OLAT_" + this.type;
+            if (this.type == "xls") {
+              addMaxScores(test.questions, this.legend);
+            }
+            //  6. Emit signal (or modify Test object's parts?)
+            this.$emit("testRead", test);
+            this.loading = false;
+            this.Error.type = "loaded";
+          } catch (er) {
+            if (er == "loadError") component.handleLoadError();
+            if (er == "processError") component.handleProcessError();
           }
-
-          // 4. Parsing csv into array of arrays of items
-          if (this.type == "xls") {
-            this.lineArray = this.parseCSV(csv, "\t");
-            this.legend = toAnalyze[1];
-          } else {
-            this.lineArray = this.parseCSV(csv, ",");
-          }
-
-          // 5. table2test
-          var test = table2Test(this.lineArray, this.type);
-          test.system = "OLAT_" + this.type;
-          if (this.type == "xls") {
-            addMaxScores(test.questions, this.legend);
-          }
-          //  6. Emit signal (or modify Test object's parts?)
-          this.$emit("testRead", test);
-          this.loading = false;
-        } catch (er) {
-          if (er == "loadError") component.handleLoadError();
-          if (er == "processError") component.handleProcessError();
+        };
+        if (this.type == "xlsx") {
+          reader.readAsArrayBuffer(f);
+        } else {
+          reader.readAsText(f);
         }
-      };
-      if (this.type == "xlsx") {
-        reader.readAsArrayBuffer(f);
-      } else {
-        reader.readAsText(f);
+      } catch (er) {
+        if (er == "loadError") component.handleLoadError();
+        if (er == "processError") component.handleProcessError();
       }
     },
 

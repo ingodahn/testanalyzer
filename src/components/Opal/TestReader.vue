@@ -33,12 +33,10 @@
     </div>
 
     <Problemizer
-      v-if="error != 'empty'"
-      :Error="error"
+      :Error="Error"
       :System="system"
       v-on:anonymize="anonymize()"
       v-on:sendMail="sendMail()"
-      v-on:cancelError="cancelError()"
     ></Problemizer>
     <br />
     <div id="app" v-if="ShowUpload">
@@ -68,7 +66,7 @@ import { saveAs } from "file-saver";
 
 export default {
   name: "OPAL-Reader",
-  props: ["ShowUpload"],
+  props: ["ShowUpload", "Error"],
   data() {
     return {
       showExport: false,
@@ -87,60 +85,66 @@ export default {
   methods: {
     handleDragover: handleDragover,
     handleDrop: function(e) {
-      e.stopPropagation();
-      e.preventDefault();
       let component = this;
-      this.loading = true;
-      this.cancelError();
-      var files = e.dataTransfer.files,
-        f = files[0];
-      let type = f.name.split(".").pop();
-      if (type.match(/xls/i)) {
-        this.type = "xls";
-      } else if (type.match(/csv/i)) {
-        this.type = "csv";
-      } else throw "loadError";
-      var reader = new FileReader();
-      //name = f.name;
+      try {
+        e.stopPropagation();
+        e.preventDefault();
+        this.loading = true;
+        this.cancelError();
+        var files = e.dataTransfer.files,
+          f = files[0];
+        let type = f.name.split(".").pop();
+        if (type.match(/xls/i)) {
+          this.type = "xls";
+        } else if (type.match(/csv/i)) {
+          this.type = "csv";
+        } else throw "loadError";
+        var reader = new FileReader();
+        //name = f.name;
 
-      reader.onload = e => {
-        try {
-          // 1. Getting file
-          var data = e.target.result;
-          if (this.type == "xls") {
-            let jsn = getXLS(data);
+        reader.onload = e => {
+          try {
+            // 1. Getting file
+            var data = e.target.result;
+            if (this.type == "xls") {
+              let jsn = getXLS(data);
 
-            // 2. Stripping off and storing Legende if necessary
+              // 2. Stripping off and storing Legende if necessary
 
-            // 3. Parsing File into json
+              // 3. Parsing File into json
 
-            // 4. Getting array of arrays of items
-            this.lineArray = Object.values(jsn)[0];
-          } else if (this.type == "csv") {
-            this.lineArray = this.parseCSV(data, "\t");
+              // 4. Getting array of arrays of items
+              this.lineArray = Object.values(jsn)[0];
+            } else if (this.type == "csv") {
+              this.lineArray = this.parseCSV(data, "\t");
+            }
+
+            if (!this.lineArray.length) throw "loadError";
+
+            // 5. table2test
+            var test = table2Test(this.lineArray);
+            if (test == "processError") {
+              this.handleProcessError();
+              return;
+            }
+
+            //  6. Emit signal (or modify Test object's parts?)
+            this.$emit("testRead", test);
+            this.loading = false;
+            this.Error.type = "loaded";
+          } catch (er) {
+            if (er == "loadError") component.handleLoadError();
+            if (er == "processError") component.handleProcessError();
           }
-
-          if (!this.lineArray.length) throw "loadError";
-
-          // 5. table2test
-          var test = table2Test(this.lineArray);
-          if (test == "processError") {
-            this.handleProcessError();
-            return;
-          }
-
-          //  6. Emit signal (or modify Test object's parts?)
-          this.$emit("testRead", test);
-          this.loading = false;
-        } catch (er) {
-          if (er == "loadError") component.handleLoadError();
-          if (er == "processError") component.handleProcessError();
+        };
+        if (this.type == "xls") {
+          reader.readAsArrayBuffer(f);
+        } else {
+          reader.readAsText(f);
         }
-      };
-      if (this.type == "xls") {
-        reader.readAsArrayBuffer(f);
-      } else {
-        reader.readAsText(f);
+      } catch (er) {
+        if (er == "loadError") component.handleLoadError();
+        if (er == "processError") component.handleProcessError();
       }
     },
     // Anonymize and save

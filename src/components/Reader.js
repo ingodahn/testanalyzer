@@ -1,21 +1,19 @@
 export const ReaderErrors = {
   data() {
     return {
-      error: "empty",
       errorMessage: ""
     };
   },
   methods: {
     handleProcessError: function() {
       {
-        this.$emit("errorRead", "processError");
-        this.error = "processError";
+        this.Error.type = "processError";
         this.loading = false;
         return;
       }
     },
     cancelError: function() {
-      this.error = "none";
+      this.Error.type = this.lineArray.length ? "loaded" : "empty";
       this.errorMessage = "";
     },
     sendMail: function() {
@@ -28,9 +26,8 @@ export const ReaderErrors = {
     },
     handleLoadError: function() {
       {
-        this.$emit("errorRead", "loadError");
         this.loading = false;
-        this.error = "loadError";
+        this.Error.type = "loadError";
         return;
       }
     }
@@ -207,7 +204,6 @@ export class Question {
 
   // Adds student answers to question, returns, how often the student has asnwered this question in this line
   addStudentLineAnswer(studentName, lineNr, att, sco) {
-    if (studentName == "G") console.log(att);
     if (!this.answers.hasOwnProperty(studentName)) {
       this.answers[studentName] = new Object();
       this.studentScores[studentName] = new StudentScores();

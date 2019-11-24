@@ -16,12 +16,10 @@
     </div>
 
     <Problemizer
-      v-if="error != 'empty'"
-      :Error="error"
       :System="system"
+      :Error="Error"
       v-on:anonymize="anonymize()"
       v-on:sendMail="sendMail()"
-      v-on:cancelError="cancelError()"
     ></Problemizer>
 
     <br />
@@ -36,7 +34,7 @@
               @drop="handleDrop"
               @dragover="handleDragover"
               @dragenter="handleDragover"
-            >csv-Datei hier ablegen</div>
+            >csv-Datei mit der Maus hier ablegen</div>
           </div>
         </div>
       </div>
@@ -50,7 +48,7 @@ import Spinner from "../../third_party/Spinner.vue";
 import Problemizer from "../Problemizer";
 
 export default {
-  props: ["ShowUpload"],
+  props: ["ShowUpload", "Error"],
   data() {
     return {
       system: "ILIAS",
@@ -66,37 +64,45 @@ export default {
   methods: {
     handleDragover: handleDragover,
     handleDrop: function(e) {
-      e.stopPropagation();
-      e.preventDefault();
       let component = this;
-      this.loading = true;
-      this.cancelError();
-      var files = e.dataTransfer.files,
-        f = files[0],
-        csv;
-      var reader = new FileReader();
-      reader.onload = e => {
-        try {
-          // 1. Getting file
-          csv = e.target.result;
+      try {
+        e.stopPropagation();
+        e.preventDefault();
+        this.loading = true;
+        this.cancelError();
+        var files = e.dataTransfer.files,
+          f = files[0],
+          csv;
+        let type = f.name.split(".").pop();
+        if (!type.match(/csv/i)) throw "loadError";
+        var reader = new FileReader();
+        reader.onload = e => {
+          try {
+            // 1. Getting file
+            csv = e.target.result;
 
-          // 2. Stripping off and storing Legende if necessary
-          // 3. Parsing File into csv if necessary
+            // 2. Stripping off and storing Legende if necessary
+            // 3. Parsing File into csv if necessary
 
-          // 4. Parsing csv into array of arrays of items
-          this.lineArray = this.parseCSV(csv, ";");
-          // 5. table2test
-          var test = table2Test(this.lineArray);
+            // 4. Parsing csv into array of arrays of items
+            this.lineArray = this.parseCSV(csv, ";");
+            // 5. table2test
+            var test = table2Test(this.lineArray);
 
-          //  6. Emit signal (or modify Test object's parts?)
-          this.$emit("testRead", test);
-          this.loading = false;
-        } catch (er) {
-          if (er == "loadError") component.handleLoadError();
-          if (er == "processError") component.handleProcessError();
-        }
-      };
-      reader.readAsText(f);
+            //  6. Emit signal (or modify Test object's parts?)
+            this.$emit("testRead", test);
+            this.loading = false;
+            this.Error.type = "loaded";
+          } catch (er) {
+            if (er == "loadError") component.handleLoadError();
+            if (er == "processError") component.handleProcessError();
+          }
+        };
+        reader.readAsText(f);
+      } catch (er) {
+        if (er == "loadError") component.handleLoadError();
+        if (er == "processError") component.handleProcessError();
+      }
     },
 
     // Anonymize and save
@@ -125,60 +131,64 @@ function handleDragover(e) {
 }
 
 function table2Test(table) {
-  var Test = {
-    system: "Ilias",
-    questionsNr: 0,
-    questions: [],
-    studentsNr: 0,
-    studentNameLines: [],
-    setMaxScore: "none"
-  };
-  var iliasType = "normal";
-  if (table[0][0] == table[2][0]) {
-    iliasType = "shuffled";
-  }
+  try {
+    var Test = {
+      system: "Ilias",
+      questionsNr: 0,
+      questions: [],
+      studentsNr: 0,
+      studentNameLines: [],
+      setMaxScore: "none"
+    };
+    var iliasType = "normal";
+    if (table[0][0] == table[2][0]) {
+      iliasType = "shuffled";
+    }
 
-  switch (iliasType) {
-    case "shuffled": {
-      table2TestShuffled(table, Test);
-      break;
-    }
-    default: {
-      var headings = table[0].slice(19, table[0].length);
-      var questionsNr = headings.length;
-      Test.questionsNr = questionsNr;
-      Test.setMaxScore = table[1][3];
-      for (let q = 0; q < questionsNr; q++) {
-        let qq = new Question(headings[q]);
-        Test.questions[q] = qq;
+    switch (iliasType) {
+      case "shuffled": {
+        table2TestShuffled(table, Test);
+        break;
       }
-      Test.studentsNr = table.length - 2;
-      for (let rowNr = 1; rowNr < table.length - 1; rowNr++) {
-        let line = table[rowNr],
-          lineItems = new Line(),
-          rowName = line[0];
-        lineItems.lineName = rowName;
-        lineItems.lineNr = rowNr;
-        for (let q1 = 0; q1 < questionsNr; q1++) {
-          let qq = Test.questions[q1];
-          let rowAnswer = new Object();
-          rowAnswer.name = qq.name;
-          rowAnswer.attempted = score !== "";
-          let score = line[19 + q1];
-          if (score !== "") {
-            score = score.replace(",", ".");
-            var scoreVal = Number(score);
-            rowAnswer.score = scoreVal;
-          } else {
-            rowAnswer.score = 0;
-          }
-          lineItems.lineAnswers.push(rowAnswer);
+      default: {
+        var headings = table[0].slice(19, table[0].length);
+        var questionsNr = headings.length;
+        Test.questionsNr = questionsNr;
+        Test.setMaxScore = table[1][3];
+        for (let q = 0; q < questionsNr; q++) {
+          let qq = new Question(headings[q]);
+          Test.questions[q] = qq;
         }
-        Test.studentNameLines.push(lineItems);
+        Test.studentsNr = table.length - 2;
+        for (let rowNr = 1; rowNr < table.length - 1; rowNr++) {
+          let line = table[rowNr],
+            lineItems = new Line(),
+            rowName = line[0];
+          lineItems.lineName = rowName;
+          lineItems.lineNr = rowNr;
+          for (let q1 = 0; q1 < questionsNr; q1++) {
+            let qq = Test.questions[q1];
+            let rowAnswer = new Object();
+            rowAnswer.name = qq.name;
+            rowAnswer.attempted = score !== "";
+            let score = line[19 + q1];
+            if (score !== "") {
+              score = score.replace(",", ".");
+              var scoreVal = Number(score);
+              rowAnswer.score = scoreVal;
+            } else {
+              rowAnswer.score = 0;
+            }
+            lineItems.lineAnswers.push(rowAnswer);
+          }
+          Test.studentNameLines.push(lineItems);
+        }
       }
     }
+    return Test;
+  } catch {
+    throw "processError";
   }
-  return Test;
 }
 
 // In selected tests an random choice of all questions is presented
