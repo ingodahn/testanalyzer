@@ -106,7 +106,7 @@ export default {
         (this.Error.type == "loaded" || this.Error.type == "processError") &&
         this.Error.status == "anonymized"
       )
-        return "<p>Bitte prüfen Sie die Anonymisierung mit einem Texteditor oder einer Tabellenverarbeitung. Eine Tabellenverarbeitung gibt beim Öffnen der anonymisierten Datei möglicherweise eine Warnung aus, da die Datei aus einer unbekannten Quelle stammt. Diese Warnung können Sie ignorieren.</p>";
+        return "<p>Bitte prüfen Sie die Anonymisierung mit einem Texteditor oder einer Tabellenverarbeitung. Eine Tabellenverarbeitung gibt beim Öffnen der anonymisierten Datei möglicherweise eine Warnung aus, da die Datei aus einer unbekannten Quelle stammt. Diese Warnung können Sie ignorieren.</p><p><i>Absenden</i> verschickt die Daten noch nicht; dies erledigen Sie mit Ihrem eMail-Programm. Bitte fügen Sie dabei die anonymisierte Datei als Anlage an</p>";
       return "";
     },
     buttonText: function() {
