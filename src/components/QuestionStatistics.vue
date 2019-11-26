@@ -41,7 +41,14 @@
         Bei schwierigen Fragen ist der mittlere Punktwert niedrig, verglichen mit dem Maximalpunktwert.
         Derartige Fragen kann man mit einem entsprechend höheren Maximalpunktwert belohnen.
       </div>
-      <p>Eine angepasste Punkteverteilung wäre z.B.:</p>
+      <p>
+        Eine angepasste Punkteverteilung wäre z.B.:
+        <img
+          src="../../public/info.png"
+          width="20"
+          title="Zur Ermittlung der unten vorgeschlagenen Punktzahlen wurde ein Standardwert von 5 Punkten mit einem Schwierigkeitsfaktor multipliziert. Dabei wird der Schwierigkeitsfaktor als Quotient aus der bisherigen Maximalpunktzahl und der im Mittel erreichten Punktzahl der jeweiligen Frage berechnet."
+        />
+      </p>
 
       <ul>
         <li v-for="item in ScoreAdjust" :key="item">{{ item }}</li>
