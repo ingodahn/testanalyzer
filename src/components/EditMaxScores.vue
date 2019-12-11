@@ -14,7 +14,7 @@
       <tr v-for="(question, index) in Questions" :key="index">
         <td>{{question.name}}</td>
         <td class="scoreCol">
-          <input type="number" min="0" v-model="question.maxScore" />
+          <input type="number" min="0" step="0.1" v-model="question.maxScore" />
         </td>
       </tr>
     </table>

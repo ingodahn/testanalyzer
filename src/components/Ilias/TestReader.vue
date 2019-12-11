@@ -144,7 +144,8 @@ function table2Test(table) {
     if (table[0][0] == table[2][0]) {
       iliasType = "shuffled";
     }
-
+    let rowName = "",
+      lastNameUsed = "";
     switch (iliasType) {
       case "shuffled": {
         table2TestShuffled(table, Test);
@@ -162,8 +163,13 @@ function table2Test(table) {
         Test.studentsNr = table.length - 2;
         for (let rowNr = 1; rowNr < table.length - 1; rowNr++) {
           let line = table[rowNr],
-            lineItems = new Line(),
+            lineItems = new Line();
+          if (line[2] == "") {
+            rowName = lastNameUsed;
+          } else {
             rowName = line[0];
+            lastNameUsed = rowName;
+          }
           lineItems.lineName = rowName;
           lineItems.lineNr = rowNr;
           for (let q1 = 0; q1 < questionsNr; q1++) {
@@ -197,13 +203,20 @@ function table2TestShuffled(table, Test) {
   // Getting question titles sorted
   let qTitlePos = getQuestions();
   Test.studentsNr = table.length / 2;
+  let rowName = "",
+    lastNameUsed = "";
   for (let i = 0; i < Test.studentsNr; i++) {
     let lineArrayTitle = table[2 * i];
     let rowNr = 2 * i + 1;
     var line = table[2 * i + 1],
       lineItems = new Line();
     if (Test.setMaxScore < table[1][3]) Test.setMaxScore = table[1][3];
-    let rowName = line[0];
+    if (line[2] == "") {
+      rowName = lastNameUsed;
+    } else {
+      rowName = line[0];
+      lastNameUsed = rowName;
+    }
     lineItems.lineName = rowName;
     lineItems.lineNr = rowNr;
     for (let q1 = 19; q1 < lineArrayTitle.length; q1++) {

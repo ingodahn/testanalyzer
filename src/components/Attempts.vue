@@ -57,7 +57,9 @@ export default {
           data: [chart]
         };
       }
-      chart.labels = this.QNames.slice(start, end);
+      chart.labels = this.QNames.slice(start, end).map(t =>
+        t.length < 40 ? t : t.substring(0, 40) + "..."
+      );
       var attemptData = {
         label: "% der Studierenden, die die Frage bearbeitet haben",
         data: this.Questions.slice(start, end).map(
