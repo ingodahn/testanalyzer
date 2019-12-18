@@ -90,6 +90,8 @@ export class Question {
         0
       );
     }
+    // If no student has score > 0 we assume maxScore=1
+    if (this.maxScore === 0) this.maxScore = 1;
     // maxScore can be string if modified by input
     return Number(this.maxScore);
   }

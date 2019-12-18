@@ -135,13 +135,14 @@ export default {
     },
     ScoreAdjust: function() {
       var sMaxAdj = [];
+      let sMax = Math.round(6 / Math.min(...this.QAvgs.filter(a => a > 0)));
       for (var qi = 0; qi < this.Questions.length; qi++) {
         var si = 5;
         if (this.QAvgs[qi] > 0) {
           si = Math.round(
             this.Questions[qi].getMaxScore() * (5 / this.QAvgs[qi])
           );
-        }
+        } else si = sMax; // no student knows the answer
         sMaxAdj[qi] = this.QNames[qi] + ": " + si + " Punkte";
       }
       return sMaxAdj;
