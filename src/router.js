@@ -5,7 +5,6 @@ const IMathAS = () => import("./components/IMathAS/TestReader.vue");
 const Ilias = () => import("./components/Ilias/TestReader.vue");
 const Olat = () => import("./components/Olat/TestReader.vue");
 const Opal = () => import("./components/Opal/TestReader.vue");
-const AutoReader = () => import("./components/AutoReader.vue");
 
 Vue.use(Router);
 
@@ -30,11 +29,6 @@ export default new Router({
       path: "/opal",
       name: "opal",
       component: Opal
-    },
-    {
-      path: "/auto",
-      name: "auto",
-      component: AutoReader
     },
     {
       path: "*",

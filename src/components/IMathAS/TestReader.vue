@@ -45,15 +45,17 @@
 </template>
 
 <script>
+import axios from "axios";
 import { Question, Line, ReaderErrors, CSV } from "../Reader";
 import Spinner from "../../third_party/Spinner.vue";
 import Problemizer from "../Problemizer";
 
 export default {
-  props: ["ShowUpload", "Error"],
+  props: ["ShowUpload", "Error", "Data"],
   data() {
     return {
       system: "IMathAS",
+      autoMode: false,
       loading: false,
       lineArray: []
     };
@@ -62,6 +64,29 @@ export default {
   components: {
     Problemizer,
     Spinner
+  },
+  created: function() {
+    let q = this.$route.query;
+    if (q.hasOwnProperty("cid") & q.hasOwnProperty("aid")) {
+      //eslint-disable-next-line
+      console.log("Lade Test");
+      this.autoMode = { cid: q.cid, aid: q.aid };
+      axios({
+        method: "GET",
+        url: "../TestdatenIMathAS.csv"
+      }).then(
+        result => {
+          this.autoMode.data = result.data; // Speicherung später rausnehmen
+          //eslint-disable-next-line
+          console.log("Daten geladen");
+          this.handleData(this.autoMode.data);
+        },
+        error => {
+          //eslint-disable-next-line
+          console.error(error);
+        }
+      );
+    }
   },
   methods: {
     handleDragover: handleDragover,
@@ -82,20 +107,7 @@ export default {
           try {
             // 1. Getting file
             csv = e.target.result;
-
-            // 2. Stripping off and storing Legende if necessary
-            // 3. Parsing File into csv if necessary
-
-            // 4. Parsing csv into array of arrays of items
-            this.lineArray = this.parseCSV(csv, ",");
-
-            // 5. table2test
-            var test = table2Test(this.lineArray);
-
-            //  6. Emit signal (or modify Test object's parts?)
-            this.$emit("testRead", test);
-            this.loading = false;
-            this.Error.type = "loaded";
+            this.handleData(csv);
           } catch (er) {
             if (er == "loadError") component.handleLoadError();
             if (er == "processError") component.handleProcessError();
@@ -106,6 +118,21 @@ export default {
         if (er == "loadError") component.handleLoadError();
         if (er == "processError") component.handleProcessError();
       }
+    },
+    handleData: function(csv) {
+      // 2. Stripping off and storing Legende if necessary
+      // 3. Parsing File into csv if necessary
+
+      // 4. Parsing csv into array of arrays of items
+      this.lineArray = this.parseCSV(csv, ",");
+
+      // 5. table2test
+      var test = table2Test(this.lineArray);
+
+      //  6. Emit signal (or modify Test object's parts?)
+      this.$emit("testRead", test);
+      this.loading = false;
+      this.Error.type = "loaded";
     },
     // Anonymize and save
     anonymize: function() {
