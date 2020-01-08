@@ -67,7 +67,11 @@ export default {
   },
   created: function() {
     let q = this.$route.query,
-      component = this;
+      component = this,
+      callPath = document.referrer.substring(
+        0,
+        document.referrer.indexOf("course")
+      );
     if (q.hasOwnProperty("cid") & q.hasOwnProperty("aid")) {
       this.autoMode = { cid: q.cid, aid: q.aid };
       var params = new URLSearchParams();
@@ -76,13 +80,12 @@ export default {
       params.append("ba", "1");
       axios
         .post(
-          "/IMathAS5/course/gb-aidexport.php?aid=" + q.aid + "&cid=" + q.cid,
+          callPath + "course/gb-aidexport.php?aid=" + q.aid + "&cid=" + q.cid,
           params
         )
         .then(
           result => {
-            this.autoMode.data = result.data; // Speicherung später rausnehmen
-            this.handleData(this.autoMode.data);
+            this.handleData(result.data);
           },
           () => {
             component.handleLoadError();
