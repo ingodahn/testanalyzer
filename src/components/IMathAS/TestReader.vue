@@ -66,26 +66,28 @@ export default {
     Spinner
   },
   created: function() {
-    let q = this.$route.query;
+    let q = this.$route.query,
+      component = this;
     if (q.hasOwnProperty("cid") & q.hasOwnProperty("aid")) {
-      //eslint-disable-next-line
-      console.log("Lade Test");
       this.autoMode = { cid: q.cid, aid: q.aid };
-      axios({
-        method: "GET",
-        url: "../TestdatenIMathAS.csv"
-      }).then(
-        result => {
-          this.autoMode.data = result.data; // Speicherung später rausnehmen
-          //eslint-disable-next-line
-          console.log("Daten geladen");
-          this.handleData(this.autoMode.data);
-        },
-        error => {
-          //eslint-disable-next-line
-          console.error(error);
-        }
-      );
+      var params = new URLSearchParams();
+      params.append("options", "Export");
+      params.append("pts", "1");
+      params.append("ba", "1");
+      axios
+        .post(
+          "/IMathAS5/course/gb-aidexport.php?aid=" + q.aid + "&cid=" + q.cid,
+          params
+        )
+        .then(
+          result => {
+            this.autoMode.data = result.data; // Speicherung später rausnehmen
+            this.handleData(this.autoMode.data);
+          },
+          () => {
+            component.handleLoadError();
+          }
+        );
     }
   },
   methods: {
@@ -120,19 +122,25 @@ export default {
       }
     },
     handleData: function(csv) {
-      // 2. Stripping off and storing Legende if necessary
-      // 3. Parsing File into csv if necessary
+      let component = this;
+      try {
+        // 2. Stripping off and storing Legende if necessary
+        // 3. Parsing File into csv if necessary
 
-      // 4. Parsing csv into array of arrays of items
-      this.lineArray = this.parseCSV(csv, ",");
+        // 4. Parsing csv into array of arrays of items
+        this.lineArray = this.parseCSV(csv, ",");
 
-      // 5. table2test
-      var test = table2Test(this.lineArray);
+        // 5. table2test
+        var test = table2Test(this.lineArray);
 
-      //  6. Emit signal (or modify Test object's parts?)
-      this.$emit("testRead", test);
-      this.loading = false;
-      this.Error.type = "loaded";
+        //  6. Emit signal (or modify Test object's parts?)
+        this.$emit("testRead", test);
+        this.loading = false;
+        this.Error.type = "loaded";
+      } catch (er) {
+        if (er == "loadError") component.handleLoadError();
+        if (er == "processError") component.handleProcessError();
+      }
     },
     // Anonymize and save
     anonymize: function() {
@@ -170,6 +178,7 @@ function table2Test(table) {
     };
     var headings = table[0];
     let qCols = getQuestions();
+    if (qCols.length == 0) throw "processError";
     Test.setMaxScore = getMaxScore();
     Test.studentsNr = table.length - 2;
     for (let i = 2; i < table.length; i++) {
