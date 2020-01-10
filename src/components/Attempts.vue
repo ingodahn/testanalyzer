@@ -4,7 +4,7 @@
     <div style="text-align: center;" v-if="Layout == 'all'">
       <div
         class="chart-container"
-        style="width:50%;display: inline-block;"
+        style="display: inline-block; max-width: 50%;"
         v-if="Questions.length > 0"
       >
         <h3>
@@ -202,3 +202,22 @@ export default {
   }
 };
 </script>
+
+<style>
+#line-chart {
+  border: 1px solid hsl(198, 65%, 40%);
+  border-radius: 10px;
+  box-shadow: -10px 19px 15px silver;
+}
+.player {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  margin: 3px;
+  cursor: pointer;
+  background-color: hsl(198, 65%, 40%);
+  color: white;
+  border-radius: 10px;
+  font-weight: bold;
+}
+</style>

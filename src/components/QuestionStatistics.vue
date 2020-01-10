@@ -4,7 +4,7 @@
     <div style="text-align: center;">
       <div
         class="chart-container"
-        style="width:50%;display: inline-block;"
+        style="display: inline-block; max-width: 50%;"
         v-if="Questions.length > 0"
       >
         <h3>

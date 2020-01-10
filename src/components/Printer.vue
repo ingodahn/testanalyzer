@@ -1,26 +1,22 @@
 <template>
-  <div>
-    <!-- SOURCE -->
-    <div id="printMe">
-      <h1>Print me!</h1>
-    </div>
-    <!-- OUTPUT -->
-    <button @click="print"></button>
-  </div>
+  <input class="testButton hvr-grow" type="button" value="Seite drucken" v-print />
 </template>
 
 <script>
 export default {
   data() {
     return {
-      output: null
+      /*
+      printObj: {
+        id: "printArea"
+
+              popTitle: 'good print',
+              extraCss: 'https://www.google.com,https://www.google.com',
+              extraHead: '<meta http-equiv="Content-Language"content="zh-cn"/>'
+
+      }
+      */
     };
-  },
-  methods: {
-    print() {
-      // Pass the element id here
-      this.$htmlToPaper("mainDiv");
-    }
   }
 };
 </script>

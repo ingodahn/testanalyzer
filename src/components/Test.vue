@@ -8,7 +8,6 @@
         <Navigation :QuestionsNr="questionsNr" :ComponentStatus="componentStatus" :Layout="layout"></Navigation>
       </div>
       <div class="main" id="mainDiv">
-
         <div id="context" v-if="showContext">
           <p>Diese Webseite kann die Ergebnisse Ihrer Tests analysieren. Sie kann Ihnen dabei helfen, die Qualität Ihrer Testfragen einzuschätzen.</p>
           <p>Die Qualität einer Testfrage ist auch abhängig von der Zielstellung des jeweiligen Tests. So wird man bei einem Test zur Motivierung der Studierenden oder bei einem Test zum Üben eine höhere Erfolgsquote erwarten, als bei einem Diagnose-Test, der die Grenzen von Wissen, Können und Kompetenzen der Studierenden ausloten soll.</p>
@@ -57,6 +56,9 @@
               type="button"
               value="Problem melden"
             />
+            <scan v-if="questionsNr != 0">
+              <Printer></Printer>
+            </scan>
           </p>
           <router-view
             ref="reader"
@@ -84,42 +86,44 @@
             ></ControlCenter>
           </div>
         </div>
-        <ScoreDistribution
-          id="scoreDistribution"
-          :ScoredSorted="scoredSorted"
-          :TotalScore="calcMaxScore"
-          :Questions="questions"
-          :ComponentStatus="componentStatus"
-          :Layout="layout"
-        ></ScoreDistribution>
-        <Less
-          id="less"
-          :Score="score"
-          :Mode="mode"
-          :ComponentStatus="componentStatus"
-          :Layout="layout"
-        ></Less>
-        <More id="more" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></More>
-        <Attempts
-          id="attempts"
-          :Questions="questions"
-          :Mode="mode"
-          :ComponentStatus="componentStatus"
-          :Layout="layout"
-        ></Attempts>
-        <BestStudents
-          id="best"
-          :ScoredSorted="scoredSorted"
-          :Questions="questions"
-          :ComponentStatus="componentStatus"
-          :Layout="layout"
-        ></BestStudents>
-        <QuestionStatistics
-          id="questionStatistics"
-          :Questions="questions"
-          :Mode="mode"
-          v-if="layout == 'all'"
-        ></QuestionStatistics>
+        <div id="printArea">
+          <ScoreDistribution
+            id="scoreDistribution"
+            :ScoredSorted="scoredSorted"
+            :TotalScore="calcMaxScore"
+            :Questions="questions"
+            :ComponentStatus="componentStatus"
+            :Layout="layout"
+          ></ScoreDistribution>
+          <Less
+            id="less"
+            :Score="score"
+            :Mode="mode"
+            :ComponentStatus="componentStatus"
+            :Layout="layout"
+          ></Less>
+          <More id="more" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></More>
+          <Attempts
+            id="attempts"
+            :Questions="questions"
+            :Mode="mode"
+            :ComponentStatus="componentStatus"
+            :Layout="layout"
+          ></Attempts>
+          <BestStudents
+            id="best"
+            :ScoredSorted="scoredSorted"
+            :Questions="questions"
+            :ComponentStatus="componentStatus"
+            :Layout="layout"
+          ></BestStudents>
+          <QuestionStatistics
+            id="questionStatistics"
+            :Questions="questions"
+            :Mode="mode"
+            v-if="layout == 'all'"
+          ></QuestionStatistics>
+        </div>
       </div>
       <div class="footer">
         <p>
@@ -143,6 +147,7 @@ import BestStudents from "./BestStudents.vue";
 import EditMaxScores from "./EditMaxScores.vue";
 import ScoreDistribution from "./ScoreDistribution.vue";
 import QuestionStatistics from "./QuestionStatistics.vue";
+import Printer from "./Printer.vue";
 import { Student } from "./Scoring.js";
 export default {
   name: "Test",
@@ -184,6 +189,7 @@ export default {
     };
   },
   components: {
+    Printer,
     Navigation,
     ControlCenter,
     Less,
