@@ -56,9 +56,9 @@
               type="button"
               value="Problem melden"
             />
-            <scan v-if="questionsNr != 0">
+            <span v-if="questionsNr != 0">
               <Printer></Printer>
-            </scan>
+            </span>
           </p>
           <router-view
             ref="reader"
