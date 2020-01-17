@@ -189,7 +189,7 @@ function table2Test(table) {
       for (let qNr = 0; qNr < Test.questionsNr; qNr++) {
         let rowAnswer = {
           name: Test.questions[qNr].name,
-          attempted: line[qCols[qNr] + 1] != "",
+          attempted: line[qCols[qNr] + 1].replace(/NA|&|\|/g, "") != "",
           score: Number(line[qCols[qNr]])
         };
         lineItems.lineAnswers.push(rowAnswer);
