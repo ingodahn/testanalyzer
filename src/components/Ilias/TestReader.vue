@@ -144,6 +144,8 @@ function table2Test(table) {
     if (table[0][0] == table[2][0]) {
       iliasType = "shuffled";
     }
+    /* Anonymous test */
+    if (table[0][0] != "Name") addNameLogin(table);
     let rowName = "",
       lastNameUsed = "";
     switch (iliasType) {
@@ -194,6 +196,18 @@ function table2Test(table) {
     return Test;
   } catch {
     throw "processError";
+  }
+}
+
+function addNameLogin(table) {
+  if (table[0][0] == "Zähler") {
+    table[0][0] = "Benutzername";
+  } else {
+    table[0][0] = "Login";
+  }
+  table[0].unshift("Name");
+  for (let i=1; i<table.length; i++) {
+    table[i].unshift("Name_"+table[i][0]);
   }
 }
 
