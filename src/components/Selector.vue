@@ -1,6 +1,7 @@
 <template>
   <div class="select">
     <h2>Bitte wählen Sie Ihr System</h2>
+
     <nav>
       <router-link to="/imathas" class="hvr-grow">IMathAS</router-link>
       <router-link to="/ilias" class="hvr-grow">ILIAS</router-link>

@@ -3,12 +3,7 @@
     <div v-if="ShowUpload">
       <h2>
         Daten
-        <input
-          class="readerButton hvr-grow"
-          type="button"
-          onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenIMathAS.csv'"
-          value="Demo-Daten"
-        />
+        <v-btn color="primary" onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenIMathAS.csv'">Demo-Daten</v-btn>
       </h2>
       <p>
         Testergebnisse finden Sie im Gradebook von IMathAS. Sie erreichen das Gradebook, wenn Sie auf das Zahnrad neben dem Test klicken und dann

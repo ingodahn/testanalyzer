@@ -1,144 +1,230 @@
 <template>
   <div id="Test">
     <div class="container">
-      <div id="home" class="page-title">
-        <h1>{{ pSystem }} Test-Analyse</h1>
-      </div>
-      <div class="navigation">
-        <Navigation :QuestionsNr="questionsNr" :ComponentStatus="componentStatus" :Layout="layout"></Navigation>
-      </div>
-      <div class="main" id="mainDiv">
-        <div id="context" v-if="showContext">
-          <p>Diese Webseite kann die Ergebnisse Ihrer Tests analysieren. Sie kann Ihnen dabei helfen, die Qualität Ihrer Testfragen einzuschätzen.</p>
-          <p>Die Qualität einer Testfrage ist auch abhängig von der Zielstellung des jeweiligen Tests. So wird man bei einem Test zur Motivierung der Studierenden oder bei einem Test zum Üben eine höhere Erfolgsquote erwarten, als bei einem Diagnose-Test, der die Grenzen von Wissen, Können und Kompetenzen der Studierenden ausloten soll.</p>
-          <p>
-            <b>Datenschutzhinweis:</b> Diese Webseite überträgt nach ihrem Aufruf keine Daten an andere Systeme. Alle Berechnungen erfolgen ausschließlich in Ihrem Browser. (
-            <a
-              href="https://de.wikipedia.org/wiki/Edge_Computing"
-              target="_blank"
-            >Edge Computing</a>)
-          </p>
-          <p>
-            <b>Bitte bachten Sie:</b> Es wird keinerlei Garantie übernommen. Hinweise auf Probleme und Wünsche zur Verbesserung der Seite sind jedoch
-            <a
-              href="mailto:dahn@dahn-research.eu"
-            >ausdrücklich erwünscht</a>.
-          </p>
-        </div>
+      <v-navigation-drawer v-model="drawer" app v-if="questionsNr > 0">
+        <v-list dense>
+          <v-list-item link v-if="layout == 'all'">
+            <v-list-item-action>
+              <v-icon>mdi-database-export</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title><a href="#home">Daten</a></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item link v-if="layout == 'all' || componentStatus['scoreDistribution'] == 'warn_1'">
+            <v-list-item-action>
+              <v-icon :color="warnColor('scoreDistribution')">mdi-chart-bar</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title><a href="#scoreDistribution" :class="warnLevel('scoreDistribution')">Punkteverteilung</a></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item link v-if="layout == 'all' || componentStatus['less'] == 'warn_1'">
+            <v-list-item-action>
+              <v-icon :color="warnColor('more')">mdi-emoticon-happy-outline</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title><a href="#more" :class="warnLevel('more')">Viele Punkte</a></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item link v-if="layout == 'all' || componentStatus['less'] == 'warn_1'">
+            <v-list-item-action>
+              <v-icon :color="warnColor('less')">mdi-emoticon-sad-outline</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title><a href="#less" :class="warnLevel('less')">Wenige Punkte</a></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item link v-if="layout == 'all' || componentStatus['attempts'] == 'warn_1'">
+            <v-list-item-action>
+              <v-icon :color="warnColor('attempts')">mdi-account-question-outline</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title><a href="#attempts" :class="warnLevel('attempts')">Ungenutzt</a></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item link v-if="layout == 'all' || componentStatus['best'] == 'warn_1'">
+            <v-list-item-action>
+              <v-icon :color="warnColor('best')">mdi-flag-checkered</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title><a href="#best" :class="warnLevel('attempts')">Die Besten</a></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item link v-if="layout == 'all'">
+            <v-list-item-action>
+              <v-icon :color="warnColor('attempts')">mdi-chart-line</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title><a href="#questionStatistics" :class="warnLevel('questionStatistics')">Fragen-Statistik</a></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-navigation-drawer>
+      <v-container
+        class="scroll-y"
+      >
+        <v-layout
+          align-center
+          justify-center
+        >
+        <v-flex xs12>
+          <v-app-bar app color="#2481a8" absolute dark id="scroll-target">
+            <v-app-bar-nav-icon @click.stop="drawer = !drawer" v-if="questionsNr>0"></v-app-bar-nav-icon>
+            <v-toolbar-title>{{ pSystem }} Test-Analyse</v-toolbar-title>
+          </v-app-bar>
+          <v-btn
+            v-scroll="onScroll"
+            v-show="fab"
+            fab
+            dark
+            fixed
+            bottom
+            right
+            color="primary"
+            @click="toTop"
+          >
+            <v-icon>mdi-arrow-up-bold-outline</v-icon>
+          </v-btn>
+          <v-main>
+            <v-container class="fill-height" fluid>
+            <div class="main" id="mainDiv">
+              <div id="context" v-if="showContext">
+                <p>Diese Webseite kann die Ergebnisse Ihrer Tests analysieren. Sie kann Ihnen dabei helfen, die Qualität Ihrer Testfragen einzuschätzen.</p>
+                <p>Die Qualität einer Testfrage ist auch abhängig von der Zielstellung des jeweiligen Tests. So wird man bei einem Test zur Motivierung der Studierenden oder bei einem Test zum Üben eine höhere Erfolgsquote erwarten, als bei einem Diagnose-Test, der die Grenzen von Wissen, Können und Kompetenzen der Studierenden ausloten soll.</p>
+                <p>
+                  <b>Datenschutzhinweis:</b> Diese Webseite überträgt nach ihrem Aufruf keine Daten an andere Systeme. Alle Berechnungen erfolgen ausschließlich in Ihrem Browser. (
+                  <a
+                    href="https://de.wikipedia.org/wiki/Edge_Computing"
+                    target="_blank"
+                  >Edge Computing</a>)
+                </p>
+                <p>
+                  <b>Bitte bachten Sie:</b> Es wird keinerlei Garantie übernommen. Hinweise auf Probleme und Wünsche zur Verbesserung der Seite sind jedoch
+                  <a
+                    href="mailto:dahn@dahn-research.eu"
+                  >ausdrücklich erwünscht</a>.
+                </p>
+              </div>
 
-        <div id="basics">
-          <p>
-            <input
-              v-if="(! showUpload) && questionsNr != 0"
-              class="testButton hvr-grow"
-              type="button"
-              v-on:click="showUpload = true; reset();"
-              value="Neue Datei laden"
-            />
-            <input
-              v-if="layout == 'all' && questionsNr != 0 && hasHint()"
-              class="testButton hintLayout hvr-grow"
-              type="button"
-              v-on:click="layout = 'hints'"
-              value="Nur Hinweise anzeigen"
-            />
-            <input
-              v-if="questionsNr != 0 && layout == 'hints'"
-              class="testButton hvr-grow"
-              type="button"
-              v-on:click="layout = 'all'"
-              value="Alles anzeigen"
-            />
-            <input
-              v-if="error.type =='loaded' && error.status=='start'"
-              v-on:click="reportProblem()"
-              class="testButton hvr-grow"
-              type="button"
-              value="Problem melden"
-            />
-            <span v-if="questionsNr != 0">
-              <Printer></Printer>
-            </span>
-          </p>
-          <router-view
-            ref="reader"
-            v-on:load="reset"
-            v-on:testRead="testread"
-            :ShowUpload="showUpload"
-            :Error="error"
-          />
-          <hr />
-          <div v-if="layout == 'all' && questionsNr != 0">
-            <h2>Daten</h2>
-            <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor. Maximal können {{ calcMaxScore }} Punkte erreicht werden.</p>
+              <div id="basics">
+                <p>
+                  <input
+                    v-if="(! showUpload) && questionsNr != 0"
+                    class="testButton hvr-grow"
+                    type="button"
+                    v-on:click="showUpload = true; reset();"
+                    value="Neue Datei laden"
+                  />
+                  <input
+                    v-if="layout == 'all' && questionsNr != 0 && hasHint()"
+                    class="testButton hintLayout hvr-grow"
+                    type="button"
+                    v-on:click="layout = 'hints'"
+                    value="Nur Hinweise anzeigen"
+                  />
+                  <input
+                    v-if="questionsNr != 0 && layout == 'hints'"
+                    class="testButton hvr-grow"
+                    type="button"
+                    v-on:click="layout = 'all'"
+                    value="Alles anzeigen"
+                  />
+                  <input
+                    v-if="error.type =='loaded' && error.status=='start'"
+                    v-on:click="reportProblem()"
+                    class="testButton hvr-grow"
+                    type="button"
+                    value="Problem melden"
+                  />
+                  <span v-if="questionsNr != 0">
+                    <Printer></Printer>
+                  </span>
+                </p>
+                <router-view
+                  ref="reader"
+                  v-on:load="reset"
+                  v-on:testRead="testread"
+                  :ShowUpload="showUpload"
+                  :Error="error"
+                />
+                <hr />
+                <div v-if="layout == 'all' && questionsNr != 0">
+                  <h2>Daten</h2>
+                  <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor. Maximal können {{ calcMaxScore }} Punkte erreicht werden.</p>
 
-            <EditMaxScores
-              v-if="layout == 'all' && (system == 'Ilias' || system == 'OLAT_xlsx')"
-              :Questions="questions"
-              :CalcMaxScore="calcMaxScore"
-              :TotalScore="totalScore"
-            ></EditMaxScores>
-            <ControlCenter
-              v-if="layout == 'all'"
-              id="controlCenter"
-              :Mode="mode"
-              v-on:typeselected="setMode"
-            ></ControlCenter>
-          </div>
-        </div>
-        <div id="printArea">
-          <ScoreDistribution
-            id="scoreDistribution"
-            :ScoredSorted="scoredSorted"
-            :TotalScore="calcMaxScore"
-            :Questions="questions"
-            :ComponentStatus="componentStatus"
-            :Layout="layout"
-          ></ScoreDistribution>
-          <Less
-            id="less"
-            :Score="score"
-            :Mode="mode"
-            :ComponentStatus="componentStatus"
-            :Layout="layout"
-          ></Less>
-          <More id="more" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></More>
-          <Attempts
-            id="attempts"
-            :Questions="questions"
-            :Mode="mode"
-            :ComponentStatus="componentStatus"
-            :Layout="layout"
-          ></Attempts>
-          <BestStudents
-            id="best"
-            :ScoredSorted="scoredSorted"
-            :Questions="questions"
-            :ComponentStatus="componentStatus"
-            :Layout="layout"
-          ></BestStudents>
-          <QuestionStatistics
-            id="questionStatistics"
-            :Questions="questions"
-            :Mode="mode"
-            v-if="layout == 'all'"
-          ></QuestionStatistics>
-        </div>
-      </div>
-      <div class="footer">
-        <p>
+                  <EditMaxScores
+                    v-if="layout == 'all' && (system == 'Ilias' || system == 'OLAT_xlsx')"
+                    :Questions="questions"
+                    :CalcMaxScore="calcMaxScore"
+                    :TotalScore="totalScore"
+                  ></EditMaxScores>
+                  <ControlCenter
+                    v-if="layout == 'all'"
+                    id="controlCenter"
+                    :Mode="mode"
+                    v-on:typeselected="setMode"
+                  ></ControlCenter>
+                </div>
+              </div>
+              <div id="printArea">
+                <ScoreDistribution
+                  id="scoreDistribution"
+                  :ScoredSorted="scoredSorted"
+                  :TotalScore="calcMaxScore"
+                  :Questions="questions"
+                  :ComponentStatus="componentStatus"
+                  :Layout="layout"
+                ></ScoreDistribution>
+                <More id="more" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></More>
+                <Less
+                  id="less"
+                  :Score="score"
+                  :Mode="mode"
+                  :ComponentStatus="componentStatus"
+                  :Layout="layout"
+                ></Less>
+                <Attempts
+                  id="attempts"
+                  :Questions="questions"
+                  :Mode="mode"
+                  :ComponentStatus="componentStatus"
+                  :Layout="layout"
+                ></Attempts>
+                <BestStudents
+                  id="best"
+                  :ScoredSorted="scoredSorted"
+                  :Questions="questions"
+                  :ComponentStatus="componentStatus"
+                  :Layout="layout"
+                ></BestStudents>
+                <QuestionStatistics
+                  id="questionStatistics"
+                  :Questions="questions"
+                  :Mode="mode"
+                  v-if="layout == 'all'"
+                ></QuestionStatistics>
+              </div>
+            </div>
+            </v-container>
+          </v-main>
+        </v-flex>
+        </v-layout>
+      </v-container>
+      <v-footer color="#2481a8" app>
+        <span class="white--text">
           &copy;Ingo Dahn (Dahn-Research), Lizenz:
-          <a
-            href="https://creativecommons.org/licenses/by-sa/3.0/de/"
-          >CC-BY-SA 3.0</a>
-        </p>
-      </div>
+            <a style="color: white;"
+              href="https://creativecommons.org/licenses/by-sa/3.0/de/"
+              target="_blank"
+            >CC-BY-SA 3.0</a>
+        </span>
+      </v-footer>
     </div>
   </div>
 </template>
 
 <script>
-import Navigation from "./Navigation.vue";
 import ControlCenter from "./ControlCenter.vue";
 import Less from "./Less.vue";
 import More from "./More.vue";
@@ -153,6 +239,8 @@ export default {
   name: "Test",
   data() {
     return {
+      fab: false,
+      drawer: null,
       system: "",
       type: "compulsory",
       reportingProblem: false,
@@ -190,7 +278,6 @@ export default {
   },
   components: {
     Printer,
-    Navigation,
     ControlCenter,
     Less,
     More,
@@ -305,6 +392,20 @@ export default {
     },
     hasHint: function() {
       return Object.values(this.componentStatus).find(x => x == "warn_1");
+    },
+    warnLevel: function(c) {
+      return this.componentStatus[c];
+    },
+    warnColor: function(c) {
+      return (this.warnLevel(c) == "warn_1")?"error":"none";
+    },
+    onScroll (e) {
+      if (typeof window === 'undefined') return
+      const top = window.pageYOffset ||   e.target.scrollTop || 0
+      this.fab = top > 20
+    },
+    toTop () {
+      this.$vuetify.goTo(0)
     }
   },
 
@@ -462,6 +563,7 @@ export default {
   color: white;
   text-align: center;
 }
+
 .push {
   height: 50px;
 }
