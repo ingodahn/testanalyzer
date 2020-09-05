@@ -109,6 +109,41 @@
 
               <div id="basics">
                 <p>
+                  <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+                      <v-btn color="primary"
+                      v-if="(! showUpload) && questionsNr != 0" v-on:click="showUpload = true; reset();" :elevation="hover ? 16 : 2"
+                      >
+                        Neue Datei laden
+                      </v-btn>
+                  </v-hover>
+                  <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+                      <v-btn color="warning"
+                      outlined v-if="layout == 'all' && questionsNr != 0 && hasHint()"
+                      v-on:click="layout = 'hints'"
+                      :elevation="hover ? 16 : 2"
+                      >
+                      Nur Hinweise anzeigen
+                      </v-btn>
+                  </v-hover>
+                  <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+                      <v-btn color="primary"
+                      v-if="questionsNr != 0 && layout == 'hints'"
+                      v-on:click="layout = 'all'"
+                      :elevation="hover ? 16 : 2"
+                      >
+                      Alles anzeigen
+                      </v-btn>
+                  </v-hover>
+                  <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+                    <v-btn color="primary"
+                    v-if="error.type =='loaded' && error.status=='start'"
+                    v-on:click="reportProblem()"
+                    :elevation="hover ? 16 : 2"
+                    >
+                    Problem melden
+                    </v-btn>
+                  </v-hover>
+                  <!--
                   <input
                     v-if="(! showUpload) && questionsNr != 0"
                     class="testButton hvr-grow"
@@ -137,6 +172,7 @@
                     type="button"
                     value="Problem melden"
                   />
+                  -->
                   <span v-if="questionsNr != 0">
                     <Printer></Printer>
                   </span>
@@ -397,7 +433,7 @@ export default {
       return this.componentStatus[c];
     },
     warnColor: function(c) {
-      return (this.warnLevel(c) == "warn_1")?"error":"none";
+      return (this.warnLevel(c) == "warn_1")?"warning":"none";
     },
     onScroll (e) {
       if (typeof window === 'undefined') return

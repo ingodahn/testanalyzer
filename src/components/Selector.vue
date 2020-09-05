@@ -3,10 +3,48 @@
     <h2>Bitte wählen Sie Ihr System</h2>
 
     <nav>
+      <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+        <v-btn color="primary"
+        large
+        to="/imathas"
+        :elevation="hover ? 16 : 2"
+        >
+        IMathAS
+        </v-btn>
+      </v-hover>
+      <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+        <v-btn color="primary"
+        large
+        to="/ilias"
+        :elevation="hover ? 16 : 2"
+        >
+        ILIAS
+        </v-btn>
+      </v-hover>
+      <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+        <v-btn color="primary"
+        large
+        to="/olat"
+        :elevation="hover ? 16 : 2"
+        >
+        Open OLAT
+        </v-btn>
+      </v-hover>
+      <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+        <v-btn color="primary"
+        large
+        to="/opal"
+        :elevation="hover ? 16 : 2"
+        >
+        OPAL
+        </v-btn>
+      </v-hover>
+      <!--
       <router-link to="/imathas" class="hvr-grow">IMathAS</router-link>
       <router-link to="/ilias" class="hvr-grow">ILIAS</router-link>
       <router-link to="/olat" class="hvr-grow">Open OLAT</router-link>
       <router-link to="/opal" class="hvr-grow">OPAL</router-link>
+      -->
     </nav>
   </div>
 </template>

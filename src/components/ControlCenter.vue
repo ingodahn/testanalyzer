@@ -4,6 +4,7 @@
     <p></p>
     <div v-html="modeText"></div>
     <p>
+      <!--
       <input
         v-if="showControls"
         class="testButton hvr-grow"
@@ -18,83 +19,57 @@
         v-on:click="showControls=true"
         value="Einstellungen ändern"
       />
+      -->
+      <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+          <v-btn color="primary"
+          v-if="showControls"
+          v-on:click="showControls=false"
+          :elevation="hover ? 16 : 2"
+          >
+          Auswahl ausblenden
+          </v-btn>
+      </v-hover>
+      <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+        <v-btn color="primary"
+        v-if="!showControls"
+        v-on:click="showControls=true"
+        :elevation="hover ? 16 : 2"
+        >
+        Einstellungen ändern
+        </v-btn>
+      </v-hover>
     </p>
     <div v-if="showControls">
       <h4>Auswahl</h4>
-      <form>
-        <fieldset>
-          <legend>Der Test ist...</legend>
-          <input
-            type="radio"
-            id="compulsory"
-            name="questionScore"
-            value="compulsory"
-            v-model="Mode.questionScore"
-            @click="typeSelected(['questionScore','compulsory'])"
-          />
-          <label for="compulsory">
-            ... verpflichtend. Es wird erwartet, dass alle Studierenden alle Fragen bearbeiten. Eine nicht beantwortete Frage wird genauso bewertet, wie eine falsch beantwortete Frage.
-            <br />
-          </label>
-          <input
-            type="radio"
-            id="voluntary"
-            name="questionScore"
-            value="voluntary"
-            v-model="Mode.questionScore"
-            @click="typeSelected(['questionScore','voluntary'])"
-          />
-          <label for="voluntary">
-            ... freiwillig. Die Studierenden können wählen, welche Fragen sie bearbeiten. Fragen, die nicht beantwortet wurden, werden bei der Leistungsbewertung nicht berücksichtigt.
-            <br />
-          </label>
-        </fieldset>
-      </form>
-      <form v-if="Mode.multiLine">
+      <v-form>
+        <v-radio-group v-model="Mode.questionScore">
+          <template v-slot:label>
+            <div>Der Test ist...</div>
+          </template>
+          <v-radio value="compulsory" @click="typeSelected(['questionScore','compulsory'])">
+            <template v-slot:label>
+              <div>... verpflichtend. Es wird erwartet, dass alle Studierenden alle Fragen bearbeiten. Eine nicht beantwortete Frage wird genauso bewertet, wie eine falsch beantwortete Frage.</div>
+            </template>
+          </v-radio>
+          <v-radio value="voluntary" @click="typeSelected(['questionScore','voluntary'])">
+            <template v-slot:label>
+              <div>... freiwillig. Die Studierenden können wählen, welche Fragen sie bearbeiten. Fragen, die nicht beantwortet wurden, werden bei der Leistungsbewertung nicht berücksichtigt.</div>
+            </template>
+          </v-radio>
+        </v-radio-group>
+      </v-form>
+
+      <v-form v-if="Mode.multiLine">
         <p>Studierende haben den Test mehrfach aufgerufen:</p>
-        <fieldset>
-          <legend>Welcher Versuch zählt für die Gesamtleistung?</legend>
-          <input
-            type="radio"
-            id="maxQuestion"
-            name="multiLineScore"
-            v-model="Mode.multiLineScore"
-            value="maxQuestion"
-            @click="typeSelected(['multiLineScore','maxQuestion'])"
-          />
-          <label for="maxQuestion">Für jede Frage wird immer die beste Antwort gewertet.</label>
-          <br />
-          <input
-            type="radio"
-            id="maxLine"
-            name="multiLineScore"
-            v-model="Mode.multiLineScore"
-            value="maxLine"
-            @click="typeSelected(['multiLineScore','maxLine'])"
-          />
-          <label for="maxLine">Es wird der Versuchs mit der höchsten Gesamtpunktzahl gewertet.</label>
-          <br />
-          <input
-            type="radio"
-            id="avgLine"
-            name="multiLineScore"
-            v-model="Mode.multiLineScore"
-            value="avgLine"
-            @click="typeSelected(['multiLineScore','avgLine'])"
-          />
-          <label for="average">Es wird der Durchschnitt aller Versuche gewertet.</label>
-          <br />
-          <input
-            type="radio"
-            id="single"
-            name="multiLineScore"
-            v-model="Mode.multiLineScore"
-            value="single"
-            @click="typeSelected(['multiLineScore','single'])"
-          />
-          <label for="single">Jeder Versuch wird separat gewertet.</label>
-        </fieldset>
-      </form>
+        <v-radio-group v-model="Mode.multiLineScore" label="Welcher Versuch zählt für die Gesamtleistung?">
+          <v-radio value="maxQuestion" @click="typeSelected(['multiLineScore','maxQuestion'])" label="Für jede Frage wird immer die beste Antwort gewertet.">
+          </v-radio>
+          <v-radio value="maxLine" @click="typeSelected(['multiLineScore','maxLine'])" label="Es wird der Versuch mit der höchsten Gesamtpunktzahl gewertet.">
+          </v-radio>
+          <v-radio value="avgLine" @click="typeSelected(['multiLineScore','avgLine'])" label="Es wird der Durchschnitt aller Versuche gewertet."></v-radio>
+          <v-radio value="single" @click="typeSelected(['multiLineScore','single'])" label="Jeder Versuch wird separat gewertet."></v-radio>
+        </v-radio-group>
+      </v-form>
     </div>
   </div>
 </template>

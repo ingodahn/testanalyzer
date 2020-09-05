@@ -3,12 +3,14 @@
     <div v-if="ShowUpload">
       <h2>
         Daten
-        <input
-          class="readerButton hvr-grow"
-          type="button"
+        <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+          <v-btn color="primary"
           onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOlat.xlsx'"
-          value="Demo-Daten"
-        />
+          :elevation="hover ? 16 : 2"
+          >
+          Demo-Daten
+          </v-btn>
+        </v-hover>
       </h2>
       <p>
         Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OLAT. Sie finden das Werkzeug zur Datenarchivierung in Ihrem OLAT-Kurs im Menü

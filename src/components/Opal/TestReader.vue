@@ -3,24 +3,47 @@
     <div v-if="ShowUpload">
       <h2>
         Daten
-        <input
-          class="readerButton hvr-grow"
-          type="button"
+        <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+          <v-btn color="primary"
           onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenOpal.xls'"
-          value="Demo-Daten"
-        />
+          :elevation="hover ? 16 : 2"
+          >
+          Demo-Daten
+          </v-btn>
+        </v-hover>
       </h2>
       <p>
         Zur Auswertung der Testergebnisse archivieren Sie zunächst den Test in Open OPAL in eine
         <i>.xls-Datei</i> oder
         <i>.csv-Datei</i>.
+        <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+          <v-btn color="primary"
+        v-on:click="showExport= ! showExport"
+        :elevation="hover ? 16 : 2"
+        >
+        {{ exportButtonText() }}
+        </v-btn>
+        </v-hover>
+
+        <!--
         <input
           class="readerButton hvr-grow"
           type="button"
           v-on:click="showExport= ! showExport"
           :value="exportButtonText()"
         />
+        -->
         <Export v-if="showExport"></Export>
+        <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+        <v-btn color="primary"
+        v-if="showExport"
+        v-on:click="showExport=false"
+        :elevation="hover ? 16 : 2"
+        >
+        {{ exportButtonText() }}
+        </v-btn>
+        </v-hover>
+        <!--
         <input
           v-if="showExport"
           class="readerButton hvr-grow"
@@ -28,6 +51,7 @@
           v-on:click="showExport=false"
           :value="exportButtonText()"
         />
+        -->
       </p>
       <p>Ziehen Sie diese Datei mit der Maus in diese Webseite auf die Fläche unten.</p>
     </div>
