@@ -34,9 +34,8 @@
         />
         -->
         <Export v-if="showExport"></Export>
-        <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+        <v-hover v-if="showExport" v-slot:default="{ hover }" open-delay="200" class="ma-1">
         <v-btn color="primary"
-        v-if="showExport"
         v-on:click="showExport=false"
         :elevation="hover ? 16 : 2"
         >

@@ -109,34 +109,32 @@
 
               <div id="basics">
                 <p>
-                  <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+                  <v-hover v-if="(! showUpload) && questionsNr != 0" v-on:click="showUpload = true; reset();" v-slot:default="{ hover }" open-delay="200" class="ma-1">
                       <v-btn color="primary"
-                      v-if="(! showUpload) && questionsNr != 0" v-on:click="showUpload = true; reset();" :elevation="hover ? 16 : 2"
+                      :elevation="hover ? 16 : 2"
                       >
                         Neue Datei laden
                       </v-btn>
                   </v-hover>
-                  <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+                  <v-hover v-if="layout == 'all' && questionsNr != 0 && hasHint()" v-slot:default="{ hover }" open-delay="200" class="ma-1">
                       <v-btn color="warning"
-                      outlined v-if="layout == 'all' && questionsNr != 0 && hasHint()"
+                      outlined
                       v-on:click="layout = 'hints'"
                       :elevation="hover ? 16 : 2"
                       >
                       Nur Hinweise anzeigen
                       </v-btn>
                   </v-hover>
-                  <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+                  <v-hover v-if="questionsNr != 0 && layout == 'hints'" v-slot:default="{ hover }" open-delay="200" class="ma-1">
                       <v-btn color="primary"
-                      v-if="questionsNr != 0 && layout == 'hints'"
                       v-on:click="layout = 'all'"
                       :elevation="hover ? 16 : 2"
                       >
                       Alles anzeigen
                       </v-btn>
                   </v-hover>
-                  <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+                  <v-hover v-if="error.type =='loaded' && error.status=='start'" v-slot:default="{ hover }" open-delay="200" class="ma-1">
                     <v-btn color="primary"
-                    v-if="error.type =='loaded' && error.status=='start'"
                     v-on:click="reportProblem()"
                     :elevation="hover ? 16 : 2"
                     >

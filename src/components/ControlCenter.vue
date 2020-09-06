@@ -20,18 +20,16 @@
         value="Einstellungen ändern"
       />
       -->
-      <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+      <v-hover v-if="showControls" v-slot:default="{ hover }" open-delay="200" class="ma-1">
           <v-btn color="primary"
-          v-if="showControls"
           v-on:click="showControls=false"
           :elevation="hover ? 16 : 2"
           >
           Auswahl ausblenden
           </v-btn>
       </v-hover>
-      <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+      <v-hover v-if="!showControls" v-slot:default="{ hover }" open-delay="200" class="ma-1">
         <v-btn color="primary"
-        v-if="!showControls"
         v-on:click="showControls=true"
         :elevation="hover ? 16 : 2"
         >

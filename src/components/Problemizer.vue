@@ -2,9 +2,8 @@
   <div>
     <div :class="Error.type">{{ errorMessage }}</div>
     <div v-html="problemMessage"></div>
-    <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+    <v-hover v-if="showButton" v-slot:default="{ hover }" open-delay="200" class="ma-1">
     <v-btn color="primary"
-    v-if="showButton"
     v-on:click="nextStep()"
     :elevation="hover ? 16 : 2"
     >
@@ -12,9 +11,8 @@
     </v-btn>
     </v-hover>
 
-    <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
+    <v-hover v-if="showButton" v-slot:default="{ hover }" open-delay="200" class="ma-1">
     <v-btn color="primary"
-    v-if="showButton"
     v-on:click="cancelProblem()"
     :elevation="hover ? 16 : 2"
     >
