@@ -28,9 +28,9 @@ export default {
   color: #2c3e50;
 }
 .warn_1 {
-  color: hsl(198, 65%, 40%);
-  background-color: hsla(60, 82%, 63%, 0.3);
-  padding: 5px;
+  border-style: none solid none solid;
+  border-color: #FFC107;
+  padding: 1em;
 }
 #testType {
   margin: 10px;

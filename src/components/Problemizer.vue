@@ -19,22 +19,6 @@
     Abbrechen
     </v-btn>
     </v-hover>
-    <!--
-    <input
-      v-if="showButton"
-      class="readerButton hvr-grow"
-      type="button"
-      v-on:click="nextStep()"
-      :value="buttonText"
-    />
-    <input
-      v-if="showButton"
-      class="readerButton hvr-grow"
-      type="button"
-      v-on:click="cancelProblem()"
-      value="Abbrechen"
-    />
-    -->
   </div>
 </template>
 

@@ -4,22 +4,6 @@
     <p></p>
     <div v-html="modeText"></div>
     <p>
-      <!--
-      <input
-        v-if="showControls"
-        class="testButton hvr-grow"
-        type="button"
-        v-on:click="showControls = false"
-        value="Auswahl ausblenden"
-      />
-      <input
-        v-if="!showControls"
-        class="testButton hvr-grow"
-        type="button"
-        v-on:click="showControls=true"
-        value="Einstellungen ändern"
-      />
-      -->
       <v-hover v-if="showControls" v-slot:default="{ hover }" open-delay="200" class="ma-1">
           <v-btn color="primary"
           v-on:click="showControls=false"
@@ -37,13 +21,11 @@
         </v-btn>
       </v-hover>
     </p>
-    <div v-if="showControls">
-      <h4>Auswahl</h4>
-      <v-form>
-        <v-radio-group v-model="Mode.questionScore">
-          <template v-slot:label>
-            <div>Der Test ist...</div>
-          </template>
+    <v-card v-if="showControls" class="ma-auto" raised elevation=12>
+      <v-card-title>Auswahl</v-card-title>
+      <v-card-subtitle>Der Test ist...</v-card-subtitle>
+      <v-card-text class="ma-auto">
+        <v-radio-group v-model="Mode.questionScore" class="ma-auto">
           <v-radio value="compulsory" @click="typeSelected(['questionScore','compulsory'])">
             <template v-slot:label>
               <div>... verpflichtend. Es wird erwartet, dass alle Studierenden alle Fragen bearbeiten. Eine nicht beantwortete Frage wird genauso bewertet, wie eine falsch beantwortete Frage.</div>
@@ -55,11 +37,12 @@
             </template>
           </v-radio>
         </v-radio-group>
-      </v-form>
+      </v-card-text>
 
-      <v-form v-if="Mode.multiLine">
-        <p>Studierende haben den Test mehrfach aufgerufen:</p>
-        <v-radio-group v-model="Mode.multiLineScore" label="Welcher Versuch zählt für die Gesamtleistung?">
+      <v-card-text class="ma-auto" v-if="Mode.multiLine">
+        <v-card-title>Studierende haben den Test mehrfach aufgerufen:</v-card-title>
+        <v-card-subtitle>Welcher Versuch zählt für die Gesamtleistung?</v-card-subtitle>
+        <v-radio-group v-model="Mode.multiLineScore" class="ma-auto">
           <v-radio value="maxQuestion" @click="typeSelected(['multiLineScore','maxQuestion'])" label="Für jede Frage wird immer die beste Antwort gewertet.">
           </v-radio>
           <v-radio value="maxLine" @click="typeSelected(['multiLineScore','maxLine'])" label="Es wird der Versuch mit der höchsten Gesamtpunktzahl gewertet.">
@@ -67,8 +50,8 @@
           <v-radio value="avgLine" @click="typeSelected(['multiLineScore','avgLine'])" label="Es wird der Durchschnitt aller Versuche gewertet."></v-radio>
           <v-radio value="single" @click="typeSelected(['multiLineScore','single'])" label="Jeder Versuch wird separat gewertet."></v-radio>
         </v-radio-group>
-      </v-form>
-    </div>
+      </v-card-text>
+    </v-card>
   </div>
 </template>
 
@@ -109,7 +92,7 @@ export default {
               " Es wird der Versuchs mit der höchsten Gesamtpunktzahl gewertet.";
             break;
           }
-          case "average": {
+          case "avgLine": {
             text += " Es wird der Durchschnitt aller Versuche gewertet.";
             break;
           }

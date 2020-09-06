@@ -25,14 +25,6 @@
         </v-btn>
         </v-hover>
 
-        <!--
-        <input
-          class="readerButton hvr-grow"
-          type="button"
-          v-on:click="showExport= ! showExport"
-          :value="exportButtonText()"
-        />
-        -->
         <Export v-if="showExport"></Export>
         <v-hover v-if="showExport" v-slot:default="{ hover }" open-delay="200" class="ma-1">
         <v-btn color="primary"
@@ -42,15 +34,6 @@
         {{ exportButtonText() }}
         </v-btn>
         </v-hover>
-        <!--
-        <input
-          v-if="showExport"
-          class="readerButton hvr-grow"
-          type="button"
-          v-on:click="showExport=false"
-          :value="exportButtonText()"
-        />
-        -->
       </p>
       <p>Ziehen Sie diese Datei mit der Maus in diese Webseite auf die Fläche unten.</p>
     </div>

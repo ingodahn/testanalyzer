@@ -3,7 +3,7 @@
     <h2>Punkteverteilung</h2>
     <div v-if="ScoredSorted.length > 0">
       <div style="text-align: center;" v-if="Layout == 'all'">
-        <div class="chart-container" style="display: inline-block; max-width: 50%">
+        <div class="chart-container" style="display: inline-block; max-width: 50%; margin-bottom: 25px;">
           <BarChart :chartData="studentScoreChart"></BarChart>
         </div>
       </div>

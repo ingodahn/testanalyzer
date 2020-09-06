@@ -3,10 +3,6 @@
     <div v-if="ShowUpload">
       <h2>
         Daten
-
-        <!--
-        <v-btn color="primary" onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenIlias.csv'">Demo-Daten</v-btn>
-        -->
         <v-hover v-slot:default="{ hover }" open-delay="200" class="ma-1">
           <v-btn color="primary"
           onclick="location.href='https://dahn-research.eu/TestAnalyzerSampleData/TestdatenIlias.csv'"

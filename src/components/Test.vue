@@ -8,7 +8,7 @@
               <v-icon>mdi-database-export</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title><a href="#home">Daten</a></v-list-item-title>
+              <v-list-item-title><a href="#basics">Daten</a></v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-list-item link v-if="layout == 'all' || componentStatus['scoreDistribution'] == 'warn_1'">
@@ -16,15 +16,15 @@
               <v-icon :color="warnColor('scoreDistribution')">mdi-chart-bar</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title><a href="#scoreDistribution" :class="warnLevel('scoreDistribution')">Punkteverteilung</a></v-list-item-title>
+              <v-list-item-title><a href="#scoreDistribution">Punkteverteilung</a></v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <v-list-item link v-if="layout == 'all' || componentStatus['less'] == 'warn_1'">
+          <v-list-item link v-if="layout == 'all' || componentStatus['more'] == 'warn_1'">
             <v-list-item-action>
               <v-icon :color="warnColor('more')">mdi-emoticon-happy-outline</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title><a href="#more" :class="warnLevel('more')">Viele Punkte</a></v-list-item-title>
+              <v-list-item-title><a href="#more">Viele Punkte</a></v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-list-item link v-if="layout == 'all' || componentStatus['less'] == 'warn_1'">
@@ -32,7 +32,7 @@
               <v-icon :color="warnColor('less')">mdi-emoticon-sad-outline</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title><a href="#less" :class="warnLevel('less')">Wenige Punkte</a></v-list-item-title>
+              <v-list-item-title><a href="#less">Wenige Punkte</a></v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-list-item link v-if="layout == 'all' || componentStatus['attempts'] == 'warn_1'">
@@ -48,15 +48,15 @@
               <v-icon :color="warnColor('best')">mdi-flag-checkered</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title><a href="#best" :class="warnLevel('attempts')">Die Besten</a></v-list-item-title>
+              <v-list-item-title><a href="#best">Die Besten</a></v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-list-item link v-if="layout == 'all'">
             <v-list-item-action>
-              <v-icon :color="warnColor('attempts')">mdi-chart-line</v-icon>
+              <v-icon :color="warnColor('questionStatistics')">mdi-chart-line</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title><a href="#questionStatistics" :class="warnLevel('questionStatistics')">Fragen-Statistik</a></v-list-item-title>
+              <v-list-item-title><a href="#questionStatistics">Fragen-Statistik</a></v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -109,9 +109,10 @@
 
               <div id="basics">
                 <p>
-                  <v-hover v-if="(! showUpload) && questionsNr != 0" v-on:click="showUpload = true; reset();" v-slot:default="{ hover }" open-delay="200" class="ma-1">
+                  <v-hover v-if="(! showUpload) && questionsNr != 0" v-slot:default="{ hover }" open-delay="200" class="ma-1">
                       <v-btn color="primary"
                       :elevation="hover ? 16 : 2"
+                      v-on:click="showUpload = true; reset();"
                       >
                         Neue Datei laden
                       </v-btn>
@@ -141,36 +142,6 @@
                     Problem melden
                     </v-btn>
                   </v-hover>
-                  <!--
-                  <input
-                    v-if="(! showUpload) && questionsNr != 0"
-                    class="testButton hvr-grow"
-                    type="button"
-                    v-on:click="showUpload = true; reset();"
-                    value="Neue Datei laden"
-                  />
-                  <input
-                    v-if="layout == 'all' && questionsNr != 0 && hasHint()"
-                    class="testButton hintLayout hvr-grow"
-                    type="button"
-                    v-on:click="layout = 'hints'"
-                    value="Nur Hinweise anzeigen"
-                  />
-                  <input
-                    v-if="questionsNr != 0 && layout == 'hints'"
-                    class="testButton hvr-grow"
-                    type="button"
-                    v-on:click="layout = 'all'"
-                    value="Alles anzeigen"
-                  />
-                  <input
-                    v-if="error.type =='loaded' && error.status=='start'"
-                    v-on:click="reportProblem()"
-                    class="testButton hvr-grow"
-                    type="button"
-                    value="Problem melden"
-                  />
-                  -->
                   <span v-if="questionsNr != 0">
                     <Printer></Printer>
                   </span>
@@ -182,7 +153,6 @@
                   :ShowUpload="showUpload"
                   :Error="error"
                 />
-                <hr />
                 <div v-if="layout == 'all' && questionsNr != 0">
                   <h2>Daten</h2>
                   <p>Der Test hat {{questionsNr}} Fragen. Es liegen Daten von {{studentsNr}} Studierenden vor. Maximal können {{ calcMaxScore }} Punkte erreicht werden.</p>
@@ -201,7 +171,7 @@
                   ></ControlCenter>
                 </div>
               </div>
-              <div id="printArea">
+              <div id="printArea" :class="printClass()">
                 <ScoreDistribution
                   id="scoreDistribution"
                   :ScoredSorted="scoredSorted"
@@ -210,6 +180,7 @@
                   :ComponentStatus="componentStatus"
                   :Layout="layout"
                 ></ScoreDistribution>
+
                 <More id="more" :Score="score" :ComponentStatus="componentStatus" :Layout="layout"></More>
                 <Less
                   id="less"
@@ -433,6 +404,9 @@ export default {
     warnColor: function(c) {
       return (this.warnLevel(c) == "warn_1")?"warning":"none";
     },
+    printClass: function() {
+      return (this.questionsNr > 0)?"active":"passive";
+    },
     onScroll (e) {
       if (typeof window === 'undefined') return
       const top = window.pageYOffset ||   e.target.scrollTop || 0
@@ -609,9 +583,7 @@ export default {
   min-height: 100%;
   padding: 20px;
 }
-.main {
-  padding: 20px;
-}
+
 .testButton {
   border: 1px solid #ccc;
   display: inline-block;
@@ -625,6 +597,9 @@ export default {
 .hintLayout {
   color: hsl(198, 65%, 40%);
   background-color: hsla(60, 82%, 63%, 0.3);
+}
+.passive {
+  color: lightgrey;
 }
 body {
   background-color: #eeeeee;

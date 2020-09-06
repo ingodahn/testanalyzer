@@ -6,7 +6,7 @@
         v-if="ScoredSorted.length > 0"
         id="racetrack"
         :width="width"
-        :height="height"
+        :height="height+10"
         style="display: inline-block;"
       >
         <line
@@ -35,11 +35,11 @@
           stroke-width="1px"
         ></line>
         <linearGradient id="background" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="hsla(60,82%,63%,0.3)"></stop>
+          <stop offset="0%" stop-color="#FFC107"></stop>
           <stop offset="100%" stop-color="white"></stop>
         </linearGradient>
         <rect :x="0" :y="top" :width="width-left" :height="bottom-top" fill="url(#background)"></rect>
-        <image xlink:href="../../public/flag.svg" :x="width-60" y="100" width="70" height="70"></image>
+        <image xlink:href="../../public/flag.svg" :x="width-70" y="100" width="70" height="70"></image>
         <text :x="width-right+(right-left)*0.2-20" :y="bottom+15" fill="black">20 %</text>
         <text :x="width-right+(right-left)*0.4-20" :y="bottom+15" fill="black">40 %</text>
         <text :x="width-right+(right-left)*0.6-20" :y="bottom+15" fill="black">60 %</text>
@@ -111,6 +111,7 @@ export default {
 };
 </script>
 <style>
+
 #racetrack {
   border: 1px solid hsl(198, 65%, 40%);
   border-radius: 10px;

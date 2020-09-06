@@ -4,28 +4,48 @@
     <div style="text-align: center;" v-if="Layout == 'all'">
       <div
         class="chart-container"
-        style="display: inline-block; max-width: 50%;"
+        style="display: inline-block; max-width: 50%; margin-bottom: 25px;"
         v-if="Questions.length > 0"
       >
         <h3>
-          <span v-if="curGroup > 1">
-            <input type="button" class="player" @click="curGroup=0" value="|<" />
-          </span>
-          <span v-if="curGroup > 0">
-            <input type="button" class="player" @click="curGroup--" value="<" />
-          </span>
-          <span>Fragen {{curGroupStart+1}} - {{curGroupEnd}}</span>
-          <span v-if="curGroup < ChartGroups.length-1">
-            <input type="button" class="player" @click="curGroup++" value=">" />
-          </span>
-          <span v-if="curGroup < ChartGroups.length-2">
-            <input type="button" class="player" @click="curGroup=ChartGroups.length-1" value=">|" />
-          </span>
+            <v-hover v-if="curGroup > 1" v-slot:default="{ hover }" open-delay="200" class="ma-1">
+              <v-btn icon color="primary"
+              v-on:click="curGroup=0"
+              :elevation="hover ? 16 : 2"
+              >
+                <v-icon>mdi-skip-backward</v-icon>
+              </v-btn>
+            </v-hover>
+            <v-hover v-if="curGroup > 0" v-slot:default="{ hover }" open-delay="200" class="ma-1">
+              <v-btn icon color="primary"
+              v-on:click="curGroup--"
+              :elevation="hover ? 16 : 2"
+              >
+                <v-icon>mdi-step-backward</v-icon>
+              </v-btn>
+            </v-hover>
+            <span>Fragen {{curGroupStart+1}} - {{curGroupEnd}}</span>
+            <v-hover v-if="curGroup < ChartGroups.length-1" v-slot:default="{ hover }" open-delay="200" class="ma-1">
+              <v-btn icon color="primary"
+              v-on:click="curGroup++"
+              :elevation="hover ? 16 : 2"
+              >
+                <v-icon>mdi-step-forward</v-icon>
+              </v-btn>
+            </v-hover>
+            <v-hover v-if="curGroup < ChartGroups.length-2" v-slot:default="{ hover }" open-delay="200" class="ma-1">
+              <v-btn icon color="primary"
+              v-on:click="curGroup=ChartGroups.length-1"
+              :elevation="hover ? 16 : 2"
+              >
+                <v-icon>mdi-skip-forward</v-icon>
+              </v-btn>
+            </v-hover>
         </h3>
         <LineChart :chartData="AttemptChart(curGroupStart,curGroupEnd)"></LineChart>
       </div>
     </div>
-    <p>{{ msg }}</p>
+    <p v-if="Questions.length != 0">{{ msg }}</p>
     <div v-if="Questions.length != 0">
       <b>Hinweis:</b>
       {{ hint }}
@@ -69,25 +89,6 @@ export default {
       };
 
       chart.datasets[0] = attemptData;
-      /*
-      if (this.Mode.multiLine) {
-        let lineAttemptData = {
-          label: "% der Versuche, bei denen die Frage bearbeitet wurde",
-          data: this.Questions.slice(start, end).map(q => {
-            let la = 0;
-            //console.log(Object.values(q.studentScores));
-            Object.values(q.studentScores).forEach(s => {
-              la += s.attempted / s.presented;
-            });
-            //console.log(la);
-            return (100 * la) / Object.keys(q.studentScores).length;
-          }),
-          borderColor: "red"
-        };
-        //console.log(lineAttemptData);
-        chart.datasets[1] = lineAttemptData;
-      }
-      */
       return chart;
     },
     ResetCurGroup: function() {

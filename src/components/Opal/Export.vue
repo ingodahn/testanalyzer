@@ -1,6 +1,9 @@
 <template>
   <div id="showExport">
-    <ol>
+    <v-card outlined raised>
+      <v-card-title>Daten aus OPAL exportieren</v-card-title>
+      <v-card-text>
+        <ol>
       <li class="exportLi">
         <div class="exportTxt">
           Sie loggen sich beim OPAL Ihrer Hochschule (im Beispiel die HTWK
@@ -74,7 +77,9 @@
           <img src="./assets/DatenexportE.png" />
         </div>
       </li>
-    </ol>
+        </ol>
+      </v-card-text>
+    </v-card>
   </div>
 </template>
 <script>
