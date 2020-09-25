@@ -84,7 +84,7 @@ import LineChart from "./Graphics/LineChart.vue";
 export default {
   name: "questionStatistics",
   components: {
-    LineChart
+    LineChart,
   },
   props: ["Questions", "Mode"],
   data() {

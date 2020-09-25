@@ -59,6 +59,14 @@
               <v-list-item-title><a href="#questionStatistics">Fragen-Statistik</a></v-list-item-title>
             </v-list-item-content>
           </v-list-item>
+          <v-list-item link v-if="layout == 'all' || componentStatus['discriminator'] == 'warn_1'">
+            <v-list-item-action>
+              <v-icon :color="warnColor('discriminator')">mdi-scale-balance</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title><a href="#discriminator">Trennschärfe</a></v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
       <v-container
@@ -209,6 +217,13 @@
                   :Mode="mode"
                   v-if="layout == 'all'"
                 ></QuestionStatistics>
+                <Discriminator
+                  :ScoredSorted="scoredSorted"
+                  :Questions="questions"
+                  :Mode="mode"
+                  :ComponentStatus="componentStatus"
+                  :Layout="layout"
+                ></Discriminator>
               </div>
             </div>
             </v-container>
@@ -238,6 +253,7 @@ import BestStudents from "./BestStudents.vue";
 import EditMaxScores from "./EditMaxScores.vue";
 import ScoreDistribution from "./ScoreDistribution.vue";
 import QuestionStatistics from "./QuestionStatistics.vue";
+import Discriminator from "./Discriminator.vue";
 import Printer from "./Printer.vue";
 import { Student } from "./Scoring.js";
 export default {
@@ -273,7 +289,8 @@ export default {
         less: "warn_0",
         more: "warn_0",
         attempts: "warn_0",
-        best: "warn_0"
+        best: "warn_0",
+        discriminator: "warn_0"
       },
       showContext: true,
       showUpload: true,
@@ -290,7 +307,8 @@ export default {
     BestStudents,
     EditMaxScores,
     ScoreDistribution,
-    QuestionStatistics
+    QuestionStatistics,
+     Discriminator
   },
   methods: {
     setMode: function(typeval) {
@@ -504,6 +522,8 @@ export default {
     },
     scoredSorted: function() {
       var ss = this.testStudentScores.slice(0);
+      //eslint-disable-next-line
+      //console.log(ss);
       var scoredSorted = ss.sort(function(a, b) {
         return a.totalScore - b.totalScore;
       });

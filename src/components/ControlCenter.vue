@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="controlCenter">
     <h3>Art des Tests</h3>
     <p></p>
     <div v-html="modeText"></div>
