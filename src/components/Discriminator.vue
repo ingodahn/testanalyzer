@@ -2,52 +2,12 @@
   <div id="discriminator" v-if="Layout == 'all' || warnLevel == 'warn_1'" :class="warnLevel">
     <h2>Trennschärfe</h2>
       <div v-if="Questions.length > 0">
+
       <p>
         Die <a href="https://de.wikipedia.org/wiki/Trennsch%C3%A4rfe_eines_Items" target="_blank">Trennschärfe</a> einer Frage in einem Test misst, inwieweit die Verteilung der Punkte der Frage der Leistungsverteilung der Gesamtpunktzahl des Tests entspricht.
       </p>
       <div style="text-align: center;" v-if="showDiscriminator">
-        <div
-          class="chart-container"
-          style="display: inline-block; max-width: 50%;"
-          v-if="Questions.length > 0"
-        >
-          <h3>
-            <v-hover v-if="curGroup > 1" v-slot:default="{ hover }" open-delay="200" class="ma-1">
-                <v-btn icon color="primary"
-                v-on:click="curGroup=0"
-                :elevation="hover ? 16 : 2"
-                >
-                  <v-icon>mdi-skip-backward</v-icon>
-                </v-btn>
-              </v-hover>
-              <v-hover v-if="curGroup > 0" v-slot:default="{ hover }" open-delay="200" class="ma-1">
-                <v-btn icon color="primary"
-                v-on:click="curGroup--"
-                :elevation="hover ? 16 : 2"
-                >
-                  <v-icon>mdi-step-backward</v-icon>
-                </v-btn>
-              </v-hover>
-              <span>Fragen {{curGroupStart+1}} - {{curGroupEnd}}</span>
-              <v-hover v-if="curGroup < ChartGroups.length-1" v-slot:default="{ hover }" open-delay="200" class="ma-1">
-                <v-btn icon color="primary"
-                v-on:click="curGroup++"
-                :elevation="hover ? 16 : 2"
-                >
-                  <v-icon>mdi-step-forward</v-icon>
-                </v-btn>
-              </v-hover>
-              <v-hover v-if="curGroup < ChartGroups.length-2" v-slot:default="{ hover }" open-delay="200" class="ma-1">
-                <v-btn icon color="primary"
-                v-on:click="curGroup=ChartGroups.length-1"
-                :elevation="hover ? 16 : 2"
-                >
-                  <v-icon>mdi-skip-forward</v-icon>
-                </v-btn>
-              </v-hover>
-          </h3>
-          <LineChart :chartData="DiscriminatorChart(curGroupStart,curGroupEnd)"></LineChart>
-        </div>
+        <ChartPlayer :Chart="discriminatorChart"></ChartPlayer>
       </div>
 
       <p v-if="! showDiscriminator">
@@ -102,10 +62,10 @@
 </template>
 
 <script>
-import LineChart from "./Graphics/LineChart.vue";
+import ChartPlayer from "./ChartPlayer.vue";
 export default {
   components: {
-    LineChart,
+    ChartPlayer
   },
   props: ["ScoredSorted","Questions","Mode","ComponentStatus","Layout"],
   data() {
@@ -113,8 +73,9 @@ export default {
       curGroup: 0,
     }
   },
-  methods: {
-    DiscriminatorChart: function(start, end) {
+
+  computed: {
+    discriminatorChart: function() {
       var chart = {
         labels: [],
         datasets: []
@@ -125,22 +86,15 @@ export default {
         };
       }
 
-      chart.labels = this.QNames.slice(start, end).map(t =>
-        t.length < 40 ? t : t.substring(0, 40) + "..."
-      );
+      chart.labels = this.QNames;
       var discData = {
         label: "Trennschärfe",
-        data: this.Cors.slice(start,end),
+        data: this.Cors,
         borderColor: "green"
       };
       chart.datasets[0] = discData;
       return chart;
     },
-    ResetCurGroup: function() {
-      this.curGroup = 0;
-    }
-  },
-  computed: {
     QNames: function() {
       return this.Questions.map(x => x["name"]);
     },
@@ -218,39 +172,6 @@ export default {
     showDiscriminator: function() {
       return (this.Mode.questionScore!='compulsory' || this.Mode.multiLine)?false:true;
     },
-    ChartGroups: function() {
-      var ar1 = [];
-      var n = 20;
-      var start = 0;
-      var ln = this.Questions.length;
-      do {
-        if (start + 2 * n <= ln) {
-          ar1.push([start, start + n]);
-          start = start + n;
-        } else if (start + (3 * n) / 2 >= ln) {
-          if (start + n <= ln) {
-            ar1.push([start, start + n]);
-            if (start + n < ln) ar1.push([start + n, ln]);
-          } else {
-            ar1.push([start, ln]);
-          }
-          start = ln;
-        } else {
-          ar1.push([start, start + n / 2]);
-          ar1.push([start + n / 2, ln]);
-          start = ln;
-        }
-      } while (start < ln);
-      return ar1;
-    },
-    curGroupStart: function() {
-      if (this.curGroup >= this.ChartGroups.length) this.ResetCurGroup();
-      return this.ChartGroups.length ? this.ChartGroups[this.curGroup][0] : 0;
-    },
-    curGroupEnd: function() {
-      if (this.curGroup >= this.ChartGroups.length) this.ResetCurGroup();
-      return this.ChartGroups.length ? this.ChartGroups[this.curGroup][1] : 0;
-    }
   }
 }
 

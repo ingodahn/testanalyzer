@@ -2,51 +2,13 @@
   <div id="less" :class="warnLevel" v-if="Layout == 'all' || warnLevel == 'warn_1'">
     <h2>Ungenutzte Fragen?</h2>
     <div style="text-align: center;" v-if="Layout == 'all'">
-      <div
-        class="chart-container"
-        style="display: inline-block; max-width: 50%; margin-bottom: 25px;"
-        v-if="Questions.length > 0"
-      >
-        <h3>
-            <v-hover v-if="curGroup > 1" v-slot:default="{ hover }" open-delay="200" class="ma-1">
-              <v-btn icon color="primary"
-              v-on:click="curGroup=0"
-              :elevation="hover ? 16 : 2"
-              >
-                <v-icon>mdi-skip-backward</v-icon>
-              </v-btn>
-            </v-hover>
-            <v-hover v-if="curGroup > 0" v-slot:default="{ hover }" open-delay="200" class="ma-1">
-              <v-btn icon color="primary"
-              v-on:click="curGroup--"
-              :elevation="hover ? 16 : 2"
-              >
-                <v-icon>mdi-step-backward</v-icon>
-              </v-btn>
-            </v-hover>
-            <span>Fragen {{curGroupStart+1}} - {{curGroupEnd}}</span>
-            <v-hover v-if="curGroup < ChartGroups.length-1" v-slot:default="{ hover }" open-delay="200" class="ma-1">
-              <v-btn icon color="primary"
-              v-on:click="curGroup++"
-              :elevation="hover ? 16 : 2"
-              >
-                <v-icon>mdi-step-forward</v-icon>
-              </v-btn>
-            </v-hover>
-            <v-hover v-if="curGroup < ChartGroups.length-2" v-slot:default="{ hover }" open-delay="200" class="ma-1">
-              <v-btn icon color="primary"
-              v-on:click="curGroup=ChartGroups.length-1"
-              :elevation="hover ? 16 : 2"
-              >
-                <v-icon>mdi-skip-forward</v-icon>
-              </v-btn>
-            </v-hover>
-        </h3>
-        <LineChart :chartData="AttemptChart(curGroupStart,curGroupEnd)"></LineChart>
-      </div>
+      <ChartPlayer :Chart="attemptChart" v-if="Questions.length > 0"></ChartPlayer>
     </div>
-    <p v-if="Questions.length != 0">{{ msg }}</p>
     <div v-if="Questions.length != 0">
+      <p>{{ msg }}</p>
+      <ul>
+        <li v-for="item in attempts" :key="item">{{ item }}</li>
+      </ul>
       <b>Hinweis:</b>
       {{ hint }}
     </div>
@@ -54,7 +16,7 @@
 </template>
 
 <script>
-import LineChart from "./Graphics/LineChart.vue";
+import ChartPlayer from "./ChartPlayer.vue";
 export default {
   name: "Attempts",
   props: ["Questions", "Mode", "ComponentStatus", "Layout"],
@@ -64,38 +26,31 @@ export default {
     };
   },
   components: {
-    LineChart
+    ChartPlayer
   },
-  methods: {
-    AttemptChart: function(start, end) {
-      var chart = {
+
+  computed: {
+    attemptChart: function() {
+      let chart = {
         labels: [],
         datasets: []
       };
       if (this.Questions.length == 0) {
-        return {
-          data: [chart]
-        };
+        return chart;
       }
-      chart.labels = this.QNames.slice(start, end).map(t =>
-        t.length < 40 ? t : t.substring(0, 40) + "..."
-      );
-      var attemptData = {
+      chart.labels=this.QNames;
+      chart.datasets[0] = {
         label: "% der Studierenden, die die Frage bearbeitet haben",
-        data: this.Questions.slice(start, end).map(
+        data: this.Questions.map(
           x => (x.attempted / x.presented) * 100
         ),
         borderColor: "blue"
       };
-
-      chart.datasets[0] = attemptData;
       return chart;
     },
-    ResetCurGroup: function() {
-      this.curGroup = 0;
-    }
-  },
-  computed: {
+    QNames: function() {
+      return this.Questions.map(x => x.name);
+    },
     attempts: function() {
       var attempts = [];
       var threshold = 0.2;
@@ -119,16 +74,14 @@ export default {
 
       switch (this.attempts.length) {
         case 0: {
-          return "Alle Fragen wurden von mindestens " + tp;
+          return "Alle Aufgaben wurden von mindestens " + tp;
         }
         case 1: {
-          return this.attempts[0] + " wurde von weniger als " + tp;
+          return "Diese Aufgabe wurde von weniger als " + tp;
         }
         default: {
           return (
-            "Die Aufgaben " +
-            this.attempts.join() +
-            " wurden von weniger als " +
+            "Diese Aufgaben wurden von weniger als " +
             tp
           );
         }
@@ -156,7 +109,7 @@ export default {
         return (
           "Versuchen Sie, durch Gespräche mit den Studierenden, herauszubekommen, warum sie diese " +
           frage +
-          "Frage nicht versucht haben. Vielleicht war die Formulierung der Frage nicht verständlich? Falls dies die letzte Frage des Tests war könnte es auch daran liegen, dass die Zeit für den Test zu knapp bemessen war. Sie sollten diese " +
+          " nicht versucht haben. Vielleicht war die Formulierung nicht verständlich? Insbesondere bei den letzten Fragen des Tests könnte es auch daran liegen, dass die Zeit für den Test zu knapp bemessen war. Sie sollten diese " +
           frage +
           " modifizieren, sie durch andere Fragen ersetzen oder weglassen."
         );
@@ -164,61 +117,6 @@ export default {
         return "So sollte es sein. Ihre Aufgaben sind verständlich";
       }
     },
-    ChartGroups: function() {
-      var ar1 = [];
-      var n = 20;
-      var start = 0;
-      var ln = this.Questions.length;
-      do {
-        if (start + 2 * n <= ln) {
-          ar1.push([start, start + n]);
-          start = start + n;
-        } else if (start + (3 * n) / 2 >= ln) {
-          if (start + n <= ln) {
-            ar1.push([start, start + n]);
-            if (start + n < ln) ar1.push([start + n, ln]);
-          } else {
-            ar1.push([start, ln]);
-          }
-          start = ln;
-        } else {
-          ar1.push([start, start + n / 2]);
-          ar1.push([start + n / 2, ln]);
-          start = ln;
-        }
-      } while (start < ln);
-      return ar1;
-    },
-    curGroupStart: function() {
-      if (this.curGroup >= this.ChartGroups.length) this.ResetCurGroup();
-      return this.ChartGroups.length ? this.ChartGroups[this.curGroup][0] : 0;
-    },
-    curGroupEnd: function() {
-      if (this.curGroup >= this.ChartGroups.length) this.ResetCurGroup();
-      return this.ChartGroups.length ? this.ChartGroups[this.curGroup][1] : 0;
-    },
-    QNames: function() {
-      return this.Questions.map(x => x.name);
-    }
   }
 };
 </script>
-
-<style>
-#line-chart {
-  border: 1px solid hsl(198, 65%, 40%);
-  border-radius: 10px;
-  box-shadow: -10px 19px 15px silver;
-}
-.player {
-  border: 1px solid #ccc;
-  display: inline-block;
-  padding: 6px 12px;
-  margin: 3px;
-  cursor: pointer;
-  background-color: hsl(198, 65%, 40%);
-  color: white;
-  border-radius: 10px;
-  font-weight: bold;
-}
-</style>
