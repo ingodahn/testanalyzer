@@ -6,7 +6,7 @@
       <p>
         Die <a href="https://de.wikipedia.org/wiki/Trennsch%C3%A4rfe_eines_Items" target="_blank">Trennschärfe</a> einer Frage in einem Test misst, inwieweit die Verteilung der Punkte der Frage der Leistungsverteilung der Gesamtpunktzahl des Tests entspricht.
       </p>
-      <div style="text-align: center;" v-if="showDiscriminator">
+      <div style="text-align: center;" v-if="showDiscriminator && Layout=='all'">
         <ChartPlayer :Chart="discriminatorChart"></ChartPlayer>
       </div>
 
@@ -15,16 +15,19 @@
       </p>
       <div v-if="showDiscriminator">
         <h4>Ist das für Sie relevant?</h4>
-        <p> Die Trennschärfe ist nur für Tests von Interesse, die das Ziel haben, die Fähigkeiten der Studierenden auf einem bestimmten Gebiet zu bestimmen. Für solche Tests sollte man Fragen mit hoher Trennschärfe wählen, die sich alle auf dieses Gebiet beziehen, um ein klares Bild von der Stärke der Studierenden zu erhalten.
-        </p>
         <p>
-          Dagegen ist die Trennschärfe für Tests, die ein differenziertes Bild von der Leistungsfähigkeit der  Studierenden ermitteln sollen, von geringer Bedeutung, da einzelne Fragen in der Regel nur Teilaspekte des angestrebten Profils testen sollen. <b>Tip:</b> Um die Trennschärfe zur Beurteilung des Werts einer Frage zu nutzen zerlegen Sie Ihren Test ggf. in mehrere Einzeltests, die jeweils ein Teilgebiet testen.
-        </p>
-        <p>
-          Die Berechnung der Trennschärfe ist nur für solche Fragen sinnvoll, die jedem Teilnehmer des Tests vorgelegt wurden, also nicht für Tests mit zufälliger Fragenauswahl.
-        </p>
-        <p v-if="nanHint">
-          Die Trennschärfe kann nicht für Fragen ermittelt werden, bei denen alle Studierenden die selbe Punktzahl erreichten.
+          Die Trennschärfe ist nur von Interesse...
+          <ul>
+            <li>
+              ... wenn der Test das Ziel hat, die Fähigkeiten der Studierenden auf einem bestimmten Gebiet zu bestimmen und alle Fragen diesem Ziel dienen. Dann sollten alle Fragen eine Trennschärfe &geq; 0.3 aufweisen.
+            </li>
+            <li>
+              ... wenn jedem Teilnehmer des Tests alle Fragen vorgelegt wurden, also nicht für Tests mit zufälliger Fragenauswahl.
+            </li>
+            <li v-if="nanHint">
+              ... für Fragen, bei denen nicht alle Studierenden die gleiche Punktzahl erhalten haben; andernfalls ist eine Berechnung der Trennschärfe der Frage nicht möglich.
+            </li>
+          </ul>
         </p>
         <div v-if="hintQuestionNames.low.length">
           <p>

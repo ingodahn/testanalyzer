@@ -40,7 +40,7 @@
               <v-icon :color="warnColor('attempts')">mdi-account-question-outline</v-icon>
             </v-list-item-action>
             <v-list-item-content>
-              <v-list-item-title><a href="#attempts" :class="warnLevel('attempts')">Ungenutzt</a></v-list-item-title>
+              <v-list-item-title><a href="#attempts">Ungenutzt</a></v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-list-item link v-if="layout == 'all' || componentStatus['best'] == 'warn_1'">
@@ -343,6 +343,8 @@ export default {
       this.reset();
     },
     reportProblem: function() {
+      //eslint-disable-next-line
+      console.log(this.componentStatus);
       this.error.status = "started";
     },
     testread: function(test) {
