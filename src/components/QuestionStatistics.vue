@@ -1,6 +1,7 @@
 <template>
   <div id="questionStatistics">
     <h2>Fragen-Statistik</h2>
+    <ChartPlayer :Chart="StatChart" v-if="Questions.length > 0"></ChartPlayer>
     <div style="text-align: center;">
       <div
         class="chart-container"
@@ -81,10 +82,12 @@
 
 <script>
 import LineChart from "./Graphics/LineChart.vue";
+import ChartPlayer from "./ChartPlayer.vue";
 export default {
   name: "questionStatistics",
   components: {
     LineChart,
+    ChartPlayer
   },
   props: ["Questions", "Mode"],
   data() {
@@ -95,6 +98,7 @@ export default {
     };
   },
   methods: {
+
     ScoreChart: function(start, end) {
       var chart = {
         labels: [],
@@ -136,6 +140,37 @@ export default {
     }
   },
   computed: {
+    StatChart: function() {
+      let chart = {
+        labels: [],
+        datasets: []
+      };
+      if (this.Questions.length == 0) {
+        return chart;
+      }
+      chart.labels=this.QNames;
+
+      chart.datasets[0]= {
+        label: "Maximale Punktzahl",
+        data: this.Questions.map(x => x.getMaxScore()),
+        borderColor: "green"
+      }
+
+      chart.datasets[1] = {
+        label: "Mittlere Punktzahl",
+        data: this.QAvgs,
+        borderColor: "blue"
+      };
+
+      if (this.Mode.multiLine || this.Mode.multiQuestion) {
+        chart.datasets[2] = {
+          label: "Mittlere maximal erreichte Punktzahl",
+          data: this.QMax,
+          borderColor: "red"
+        };
+      }
+      return chart;
+    },
     QNames: function() {
       return this.Questions.map(x => x["name"]);
     },
