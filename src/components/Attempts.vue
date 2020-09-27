@@ -7,7 +7,7 @@
     <div v-if="Questions.length != 0">
       <p>{{ msg }}</p>
       <ul>
-        <li v-for="item in attempts" :key="item">{{ item }}</li>
+        <li v-for="item in attemptsNrs" :key="item">{{ qName(item) }}, z.B. nicht versucht von <ListPlayer :ListData="unattemptedList(item)"></ListPlayer></li>
       </ul>
       <b>Hinweis:</b>
       {{ hint }}
@@ -17,16 +17,32 @@
 
 <script>
 import ChartPlayer from "./ChartPlayer.vue";
+import ListPlayer from "./ListPlayer.vue";
 export default {
   name: "Attempts",
   props: ["Questions", "Mode", "ComponentStatus", "Layout"],
   data() {
     return {
-      curGroup: 0
+      curGroup: 0,
     };
   },
   components: {
-    ChartPlayer
+    ChartPlayer,
+    ListPlayer
+  },
+  methods: {
+    unattemptedList: function(i) {
+
+      // Find names of students that have seen but not attempted question i
+      //eslint-disable-next-line
+      console.log(this.Questions);
+      let ss=this.Questions[i].studentScores;
+      return Object.keys(ss).filter(sName => (ss[sName].presented && ! ss[sName].attempted))
+      //return ["a","b","c","d"];
+    },
+    qName: function(i) {
+      return this.Questions[i].name;
+    }
   },
 
   computed: {
@@ -51,18 +67,21 @@ export default {
     QNames: function() {
       return this.Questions.map(x => x.name);
     },
-    attempts: function() {
-      var attempts = [];
+    attemptsNrs: function() {
+      var attemptsNrs = [];
       var threshold = 0.2;
 
       for (var i = 0; i < this.Questions.length; i++) {
         var q = this.Questions[i];
 
         if (q.attempted / q.presented < threshold) {
-          attempts.push(q.name);
+          attemptsNrs.push(i);
         }
       }
-      return attempts;
+      return attemptsNrs;
+    },
+    attempts: function() {
+      return this.attemptsNrs.map(qi => this.Questions[qi].name)
     },
     msg: function() {
       var msg = "";
@@ -107,7 +126,7 @@ export default {
           frage = "Fragen";
         }
         return (
-          "Versuchen Sie, durch Gespräche mit den Studierenden, herauszubekommen, warum sie diese " +
+          "Versuchen Sie, durch Gespräche mit diesen Studierenden, herauszubekommen, warum sie diese " +
           frage +
           " nicht versucht haben. Vielleicht war die Formulierung nicht verständlich? Insbesondere bei den letzten Fragen des Tests könnte es auch daran liegen, dass die Zeit für den Test zu knapp bemessen war. Sie sollten diese " +
           frage +

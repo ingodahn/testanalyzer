@@ -3,7 +3,7 @@
     <h2>Wo machen auch die Besten Fehler?</h2>
     <div v-html="msg"></div>
     <ul>
-      <li v-for="item in msgArr" :key="item">{{ item }}</li>
+      <li v-for="item in qNameStudents['ql']" :key="item">{{ item }}: <ListPlayer :ListData="qNameStudents['so'][item]"></ListPlayer></li>
     </ul>
     <div v-if="ScoredSorted.length != 0">
       <b>Hinweis:&nbsp;</b>
@@ -13,13 +13,40 @@
 </template>
 
 <script>
+import ListPlayer from "./ListPlayer.vue";
 export default {
   name: "BestStudents",
   data() {
     return {};
   },
   props: ["ScoredSorted", "Questions", "ComponentStatus", "Layout"],
+  components: {ListPlayer},
+
   computed: {
+    qNameStudents: function() {
+      var best = this.ScoredSorted.slice(0);
+
+      best = best.reverse().slice(0, this.bestLength);
+      var qs = {ql:[],so:{}};
+      for (var q = 0; q < this.Questions.length; q++) {
+        var qq = this.Questions[q];
+        let studs=[];
+        var qMax = qq.getMaxScore();
+        for (var s = 0; s < best.length; s++) {
+          if (qq.scoreAttemptsOf(best[s].realName, "max").totalScore < qMax) {
+            studs.push(best[s].name);
+          }
+        }
+        if (studs.length) {
+          qs.ql.push(qq.name);
+          qs.so[qq.name]=studs;
+        }
+      }
+//eslint-disable-next-line
+console.log(qs);
+      return qs;
+    },
+
     msgArr: function() {
       var best = this.ScoredSorted.slice(0);
 
@@ -62,7 +89,7 @@ export default {
         fr +
         " erreichten die besten " +
         tp +
-        " nicht immer die volle Punktzahl, z.B. "
+        " nicht immer die volle Punktzahl."
       );
     },
     warnLevel: function() {
