@@ -14,7 +14,7 @@
         Die Trennschärfe der Fragen kann nicht ermittelt werden, wenn die Bearbeitung der Fragen freiwillig ist (dies kann in den <a href="#controlCenter">Einstellungen des Tests</a> geändert werden) oder wenn es mehrere Versuche gibt.
       </p>
       <div v-if="showDiscriminator">
-        <h4>Ist das für Sie relevant?</h4>
+        <h4>Ist das relevant?</h4>
         <p>
           Die Trennschärfe ist nur von Interesse...
           <ul>

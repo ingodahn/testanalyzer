@@ -7,10 +7,10 @@
     <div v-if="Questions.length != 0">
       <p>{{ msg }}</p>
       <ul>
-        <li v-for="item in attemptsNrs" :key="item">{{ qName(item) }}, z.B. nicht versucht von <ListPlayer :ListData="unattemptedList(item)"></ListPlayer></li>
+        <li v-for="item in attemptsNrs" :key="item">{{ qName(item) }}, z.B. nicht versucht von <ListPlayer :ListData="unattemptedList(item)" PlayerType="selector"></ListPlayer></li>
       </ul>
-      <b>Hinweis:</b>
-      {{ hint }}
+      <b>Hinweis: </b>
+      <div v-html="hint"></div>
     </div>
   </div>
 </template>
@@ -32,10 +32,7 @@ export default {
   },
   methods: {
     unattemptedList: function(i) {
-
       // Find names of students that have seen but not attempted question i
-      //eslint-disable-next-line
-      console.log(this.Questions);
       let ss=this.Questions[i].studentScores;
       return Object.keys(ss).filter(sName => (ss[sName].presented && ! ss[sName].attempted))
       //return ["a","b","c","d"];
@@ -126,14 +123,14 @@ export default {
           frage = "Fragen";
         }
         return (
-          "Versuchen Sie, durch Gespräche mit diesen Studierenden, herauszubekommen, warum sie diese " +
+          "<p>Versuchen Sie, durch Gespräche mit diesen Studierenden, herauszubekommen, warum sie diese " +
           frage +
-          " nicht versucht haben. Vielleicht war die Formulierung nicht verständlich? Insbesondere bei den letzten Fragen des Tests könnte es auch daran liegen, dass die Zeit für den Test zu knapp bemessen war. Sie sollten diese " +
+          " nicht versucht haben. Sprechen Sie insbesondere mit den zuerst genannten Studierenden, denn diese haben insgesamt am Besten abgeschnitten.</p><p>Vielleicht war die Formulierung nicht verständlich? Insbesondere bei den letzten Fragen des Tests könnte es auch daran liegen, dass die Zeit für den Test zu knapp bemessen war. Sie sollten diese " +
           frage +
-          " modifizieren, sie durch andere Fragen ersetzen oder weglassen."
+          " modifizieren, sie durch andere Fragen ersetzen oder weglassen.</p>"
         );
       } else {
-        return "So sollte es sein. Ihre Aufgaben sind verständlich";
+        return "<p>So sollte es sein. Ihre Aufgaben sind verständlich.</p>";
       }
     },
   }

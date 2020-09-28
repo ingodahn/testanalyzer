@@ -3,7 +3,7 @@
     <h2>Wo machen auch die Besten Fehler?</h2>
     <div v-html="msg"></div>
     <ul>
-      <li v-for="item in qNameStudents['ql']" :key="item">{{ item }}: <ListPlayer :ListData="qNameStudents['so'][item]"></ListPlayer></li>
+      <li v-for="item in qNameStudents['ql']" :key="item">{{ item }}: <ListPlayer :ListData="qNameStudents['so'][item]" PlayerType="selector"></ListPlayer></li>
     </ul>
     <div v-if="ScoredSorted.length != 0">
       <b>Hinweis:&nbsp;</b>
@@ -42,8 +42,6 @@ export default {
           qs.so[qq.name]=studs;
         }
       }
-//eslint-disable-next-line
-console.log(qs);
       return qs;
     },
 

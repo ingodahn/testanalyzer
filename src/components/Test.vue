@@ -343,8 +343,6 @@ export default {
       this.reset();
     },
     reportProblem: function() {
-      //eslint-disable-next-line
-      console.log(this.componentStatus);
       this.error.status = "started";
     },
     testread: function(test) {
@@ -524,8 +522,6 @@ export default {
     },
     scoredSorted: function() {
       var ss = this.testStudentScores.slice(0);
-      //eslint-disable-next-line
-      //console.log(ss);
       var scoredSorted = ss.sort(function(a, b) {
         return a.totalScore - b.totalScore;
       });
